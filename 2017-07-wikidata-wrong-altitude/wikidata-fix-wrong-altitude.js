@@ -1,7 +1,9 @@
 /**
  * Script to remove wrong P2044 (altitude) with no references, added by a bot erroneusly.
  *
- * @licene: GNU General Public License v2+ or Creative Commons By Sa 4.0 International
+ * Run this script in your browser console in Wikidata.
+ *
+ * @licence: GNU General Public License v2+ or Creative Commons By Sa 4.0 International
  * @author: [[User:Valerio Bozzolan]]
  */
 var WDBoiler = {
@@ -16,11 +18,6 @@ var WDBoiler = {
 	MIN_WRITE_TIMEOUT: 60000,
 	MAXLAG: 10,
 	API: 'https://www.wikidata.org/w/api.php',
-	getNextRow: function () {
-		return WDBoiler.current < WDBoiler.data.length
-			? WDBoiler.data[ WDBoiler.current++ ]
-			: null;
-	},
 	EDIT_TOKEN: null,
 	log: function (msg) {
 		var now = new Date();
