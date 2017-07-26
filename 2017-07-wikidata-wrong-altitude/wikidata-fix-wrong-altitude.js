@@ -23,7 +23,7 @@ var WDBoiler = {
 	EDIT_TOKEN:        null,
 	log: function (msg) {
 		var now = new Date();
-		$('#log').append('[' + now.getHours() + ':' + now.getMinutes() + '] ' + msg + '\n')
+		$('#log').append('[' + now.getFullYear() + "/" + now.getMonth() + "/" + now.getDay() + " " + now.getHours() + ':' + now.getMinutes() + '] ' + msg + '\n')
 		         .scrollTop( $('#log')[0].scrollHeight );
 	},
 	getSnakFromGeoID: function (geoID) {
