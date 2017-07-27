@@ -246,10 +246,10 @@ $(document).ready( function () {
 							.success( function ( geoData ) {
 								console.log(geoData);
 
-								if( geoData && geoData.altitude ) {
-									var intElevationGeoData = parseInt( geoData.altitude );
+								if( geoData && geoData.elevation ) {
+									var intElevationGeoData = parseInt( geoData.elevation );
 
-									WDBoiler.log("GeoNames elevation " + geoData.altitude + " ( " + intElevationGeoData + " )");
+									WDBoiler.log("GeoNames elevation " + geoData.elevation + " ( " + intElevationGeoData + " )");
 
 									if( qData.claims[ WDBoiler.PROPERTY ] ) {
 										// Check if wrong
@@ -341,7 +341,7 @@ $(document).ready( function () {
 										}, WDBoiler.MIN_WRITE_TIMEOUT );
 									}
 								} else {
-									WDBoiler.log("Can't retrieve srt3 from " + GeoNamesID + ". Skip...");
+									WDBoiler.log("Can't retrieve elevation from " + GeoNamesID + ". Skip...");
 									skipContrib();
 								}
 							} ).fail( hardFail );
