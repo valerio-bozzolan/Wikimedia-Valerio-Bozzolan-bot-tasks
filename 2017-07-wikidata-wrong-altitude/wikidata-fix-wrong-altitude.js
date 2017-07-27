@@ -246,10 +246,10 @@ $(document).ready( function () {
 							.success( function ( geoData ) {
 								console.log(geoData);
 
-								if( geoData && geoData.srtm3 ) {
-									var intElevationGeoData = parseInt( geoData.srtm3 );
+								if( geoData && geoData.altitude ) {
+									var intElevationGeoData = parseInt( geoData.altitude );
 
-									WDBoiler.log("GeoNames elevation " + geoData.srtm3 + " ( " + intElevationGeoData + " )");
+									WDBoiler.log("GeoNames elevation " + geoData.altitude + " ( " + intElevationGeoData + " )");
 
 									if( qData.claims[ WDBoiler.PROPERTY ] ) {
 										// Check if wrong
