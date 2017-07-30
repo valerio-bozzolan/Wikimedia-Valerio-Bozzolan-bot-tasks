@@ -18,13 +18,24 @@ var WDBoiler = {
 	SANDBOX: false,
 	ELEVATION_THRESHOLD: 10,
 	MIN_TIMEOUT:       5000,
-	MIN_WRITE_TIMEOUT: 60000,
+	MIN_WRITE_TIMEOUT: 8000,
 	MAXLAG:            10,
 	EDIT_TOKEN:        null,
+	ME: 'Valerio Bozzolan bot',
 	log: function (msg) {
 		var now = new Date();
-		$('#log').append('[' + now.getFullYear() + "/" + now.getMonth() + "/" + now.getDay() + " " + now.getHours() + ':' + now.getMinutes() + '] ' + msg + '\n')
-		         .scrollTop( $('#log')[0].scrollHeight );
+		$('#log').val(
+			$('#log').val() +
+			'[' +
+			now.getFullYear() + "/" +
+			now.getMonth() + "/" +
+			now.getDay() + " " +
+			now.getHours() + ':' +
+			now.getMinutes() + ':' +
+			now.getSeconds() + '] ' + msg +
+			'\n'
+		)
+		.scrollTop( $('#log')[0].scrollHeight );
 	},
 	getSnakFromGeoID: function (geoID) {
 		return {
@@ -113,6 +124,12 @@ var WDBoiler = {
 };
 
 $(document).ready( function () {
+
+	// I forget to log in as my bot :)
+	if( mw.user.getName() !== WDBoiler.ME ) {
+		alert("You are not '" + WDBoiler.ME + "'... isn't it?");
+		return;
+	}
 
 	mw.loader.using( 'mediawiki.ForeignApi' );
 
