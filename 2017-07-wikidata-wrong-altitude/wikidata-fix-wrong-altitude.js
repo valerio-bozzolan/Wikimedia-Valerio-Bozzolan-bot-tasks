@@ -16,7 +16,7 @@ var WDBoiler = {
 	UCSHOW:  'new', // 'new|top'
 	PROPERTY:'P2044',
 	SANDBOX: false,
-	ELEVATION_THRESHOLD: 10,
+	ELEVATION_THRESHOLD: 7,
 	MIN_TIMEOUT:       5000,
 	MIN_WRITE_TIMEOUT: 8000,
 	MAXLAG:            10,
@@ -37,8 +37,30 @@ var WDBoiler = {
 		)
 		.scrollTop( $('#log')[0].scrollHeight );
 	},
-	getSnakFromGeoID: function (geoID) {
-		return {
+	/**
+	 * @return [ value, source, +-value ]
+	 */
+	getGeoNamesElevation: function (item) {
+		if( item.elevation ) {
+		    return [ item.elevation, 'elevation', null ];
+		}
+		if( item.altitude ) {
+			return [ item.altitude, 'altitude', null ];
+		}
+		if( item.srtm3 && item.srtm3 !== -32768 ) {
+			// Uncertainties in the Shuttle Radar Topography Mission (SRTM) Heights: Insights from the Indian Himalaya and Peninsula
+			// https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5296860/
+		    return [ item.srtm3, 'srtm3', 16 ];
+		}
+		if( item.gtopo30 && item.gtopo30 != -9999 ) {
+			// GTOPO30 Documentation
+			// https://webgis.wr.usgs.gov/globalgis/gtopo30/gtopo30.htm#h31
+		    return [ item.gtopo30, 'gtopo30', 30 ];
+		}
+		return [ null, 'none', null ];
+	},
+	getSnakFromGeo: function (geoID, source) {
+		var data = {
 			P854: [{
 				snaktype: 'value',
 				property: 'P854',
@@ -66,7 +88,7 @@ var WDBoiler = {
 				property: 'P813',
 				datavalue: {
 					value: {
-						time: '+2017-07-26T00:00:00Z',
+						time: '+2017-07-31T00:00:00Z',
 						timezone: 0,
 						before: 0,
 						after: 0,
@@ -78,19 +100,57 @@ var WDBoiler = {
 				datatype: 'time'
 			}]
 		};
+
+		if( source === 'gtopo30' ) {
+			// Imported from GTOPO30
+			data['P143'] = [{
+				snaktype: 'value',
+				property: 'P143',
+				datavalue: {
+					value: {
+						'entity-type': 'item',
+						'numeric-id': 1487345,
+						id: 'Q1487345'
+					},
+					type: 'wikibase-entityid'
+				},
+				datatype: 'wikibase-item'
+			}];
+		} else if( source === 'srtm3' ) {
+			// Imported from Shuttle Radar Topography Mission
+			data['P143'] = [{
+				snaktype: 'value',
+				property: 'P143',
+				datavalue: {
+					value: {
+						'entity-type': 'item',
+						'numeric-id': 965136,
+						id: 'Q965136'
+					},
+					type: 'wikibase-entityid'
+				},
+				datatype: 'wikibase-item'
+			}];
+		}
+
+		return data;
 	},
-	JSONElevationClaimValue: function (elevation) {
-		var sign = elevation > 0 ? '+' : '-';
-		return JSON.stringify( {
-			amount: sign + elevation,
+	JSONElevationClaimValue: function (elevation, absDiscard) {
+		var data = {
+			amount: elevation,
 			unit: 'http://www.wikidata.org/entity/Q11573'
-		} );
+		};
+		if( absDiscard ) {
+			data.lowerBound = elevation - absDiscard;
+			data.upperBound = elevation + absDiscard;
+		}
+		return JSON.stringify( data );
 	},
-	addReferenceToClaimGeo : function ( claimID, GeoNamesID, success, fail, softFail ) {
+	addReferenceToClaimGeo: function ( claimID, GeoNamesID, source, success, fail, softFail ) {
 
 		WDBoiler.log("Setting reference to claim " + claimID + "...");
 
-		var snak = WDBoiler.getSnakFromGeoID( GeoNamesID );
+		var snak = WDBoiler.getSnakFromGeo( GeoNamesID, source );
 
 		console.log( snak );
 
@@ -126,7 +186,7 @@ var WDBoiler = {
 $(document).ready( function () {
 
 	// I forget to log in as my bot :)
-	if( mw.user.getName() !== WDBoiler.ME ) {
+	if( ! WDBoiler.SANDBOX && mw.user.getName() !== WDBoiler.ME ) {
 		alert("You are not '" + WDBoiler.ME + "'... isn't it?");
 		return;
 	}
@@ -263,10 +323,19 @@ $(document).ready( function () {
 							.success( function ( geoData ) {
 								console.log(geoData);
 
-								if( geoData && geoData.elevation ) {
-									var intElevationGeoData = parseInt( geoData.elevation );
+								var geoDataElevation        = WDBoiler.getGeoNamesElevation(geoData);
+								var geoDataElevationValue   = geoDataElevation[0];
+								var geoDataElevationSource  = geoDataElevation[1];
+								var geoDataElevationDiscard = geoDataElevation[2];
 
-									WDBoiler.log("GeoNames elevation " + geoData.elevation + " ( " + intElevationGeoData + " )");
+								if( geoData && geoDataElevationSource !== 'none' ) {
+
+									var intElevationGeoData = parseInt( geoDataElevationValue );
+									WDBoiler.log(
+										"GeoNames elevation source: " + geoDataElevationSource +
+										" value: " + geoDataElevationValue + " (" + intElevationGeoData + ")" +
+										" precision: ±" + geoDataElevationDiscard
+									);
 
 									if( qData.claims[ WDBoiler.PROPERTY ] ) {
 										// Check if wrong
@@ -306,7 +375,7 @@ $(document).ready( function () {
 													format:   'json',
 													claim:    firstClaim.id,
 													snaktype: 'value',
-													value:    WDBoiler.JSONElevationClaimValue( intElevationGeoData ),
+													value:    WDBoiler.JSONElevationClaimValue( geoDataElevationValue, geoDataElevationDiscard ),
 													maxlag:   WDBoiler.MAXLAG,
 													token:    WDBoiler.EDIT_TOKEN
 												};
@@ -316,7 +385,7 @@ $(document).ready( function () {
 												setTimeout( function () {
 													$.post(WDBoiler.API, data, function ( response ) {
 														if( response.success ) {
-															WDBoiler.addReferenceToClaimGeo( firstClaim.id, GeoNamesID, nextContrib, hardFail, softFail );
+															WDBoiler.addReferenceToClaimGeo( firstClaim.id, GeoNamesID, geoDataElevationSource, nextContrib, hardFail, softFail );
 														} else {
 															softFail();
 														}
@@ -338,7 +407,7 @@ $(document).ready( function () {
 											entity:   q,
 											property: WDBoiler.PROPERTY,
 											snaktype: 'value',
-											value:    WDBoiler.JSONElevationClaimValue( intElevationGeoData ),
+											value:    WDBoiler.JSONElevationClaimValue( geoDataElevationValue, geoDataElevationDiscard ),
 											maxlag:   WDBoiler.MAXLAG,
 											token:    WDBoiler.EDIT_TOKEN 
 										};
@@ -350,7 +419,7 @@ $(document).ready( function () {
 												console.log( response );
 												if( response.success ) {
 													WDBoiler.log("Claim created.");
-													WDBoiler.addReferenceToClaimGeo( response.claim.id, GeoNamesID, nextContrib, hardFail, softFail);
+													WDBoiler.addReferenceToClaimGeo( response.claim.id, GeoNamesID, geoDataElevationSource, nextContrib, hardFail, softFail);
 												} else {
 													softFail();
 												}
