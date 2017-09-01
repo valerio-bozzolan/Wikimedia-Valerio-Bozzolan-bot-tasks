@@ -184,7 +184,8 @@ var WDBoiler = {
 			statement: claimID,
 			snaks:     JSON.stringify( snak ),
 			maxlag:    WDBoiler.MAXLAG,
-			token:     WDBoiler.EDIT_TOKEN
+			token:     WDBoiler.EDIT_TOKEN,
+			bot:       1
 		};
 
 		console.log( data );
@@ -310,10 +311,10 @@ $(document).ready( function () {
 			WDBoiler.log("Fetching " + q + "...");
 
 			var data = {
-				action:   'wbgetclaims',
-				format:   'json',
-				entity:   q,
-				maxlag:   WDBoiler.MAXLAG
+				action: 'wbgetclaims',
+				format: 'json',
+				entity: q,
+				maxlag: WDBoiler.MAXLAG
 			};
 
 			console.log( data );
@@ -412,7 +413,8 @@ $(document).ready( function () {
 													snaktype: 'value',
 													value:    WDBoiler.JSONElevationClaimValue( geoDataElevationValue, geoDataElevationDiscard ),
 													maxlag:   WDBoiler.MAXLAG,
-													token:    WDBoiler.EDIT_TOKEN
+													token:    WDBoiler.EDIT_TOKEN,
+													bot:      1
 												};
 
 												console.log(data);
@@ -444,7 +446,8 @@ $(document).ready( function () {
 											snaktype: 'value',
 											value:    WDBoiler.JSONElevationClaimValue( geoDataElevationValue, geoDataElevationDiscard ),
 											maxlag:   WDBoiler.MAXLAG,
-											token:    WDBoiler.EDIT_TOKEN 
+											token:    WDBoiler.EDIT_TOKEN,
+											bot:      1
 										};
 
 										console.log( data );
