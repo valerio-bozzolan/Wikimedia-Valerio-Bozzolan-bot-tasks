@@ -13,7 +13,7 @@ var WDBoiler = {
 	UCSTART: '2017-07-03T23:30:00Z',
 	UCSEND:  '2017-07-03T00:00:01Z',
 	UCUSER:  'Mr.Ibrahembot',
-	UCSHOW:  'new', // 'new|top'
+	UCSHOW:  'new|top', // 'new|top'
 	PROPERTY:'P2044',
 	SANDBOX: false,
 	ELEVATION_THRESHOLD: 7,
@@ -59,6 +59,30 @@ var WDBoiler = {
 		}
 		return [ null, 'none', null ];
 	},
+	getWikidataTime: function () {
+		var now = new Date();
+
+		function zeroFill(n, fill) {
+			var s = '' + n;
+			fill = fill || 2;
+			while( s.length < fill ) {
+				s = '0' + s;
+			}
+			return s;
+		}
+
+		// '+2017-07-31T00:00:00Z'
+		// Precision: day
+		var date =
+			'+' +     now.getUTCFullYear()   + '-' +
+			zeroFill( now.getUTCMonth() + 1) + '-' +
+			zeroFill( now.getUTCDate()     ) + 'T' +
+			zeroFill( 0 ) + ':' +
+			zeroFill( 0 ) + ':' +
+			zeroFill( 0 ) + 'Z';
+
+		return date;
+	},
 	getSnakFromGeo: function (geoID, source) {
 		var data = {
 			P854: [{
@@ -88,7 +112,7 @@ var WDBoiler = {
 				property: 'P813',
 				datavalue: {
 					value: {
-						time: '+2017-07-31T00:00:00Z',
+						time: WDBoiler.getWikidataTime(),
 						timezone: 0,
 						before: 0,
 						after: 0,
@@ -363,7 +387,18 @@ $(document).ready( function () {
 
 										WDBoiler.log("They diverge " + diff + " (threshold is " + WDBoiler.ELEVATION_THRESHOLD + ")");
 
-										if( diff > WDBoiler.ELEVATION_THRESHOLD ) {
+										function setReferences() {
+											WDBoiler.addReferenceToClaimGeo( firstClaim.id, GeoNamesID, geoDataElevationSource, nextContrib, hardFail, softFail );
+										}
+
+										if( diff === 0 ) {
+											if( ! firstClaim.references || firstClaim.references.length === 0 ) {
+												WDBoiler.log("No references! Setting...");
+												setReferences();
+											} else {
+												WDBoiler.log("Yet references. Skip...");
+											}
+										} else if( diff > WDBoiler.ELEVATION_THRESHOLD ) {
 											if( firstClaim.references && firstClaim.references.length ) {
 												WDBoiler.log("Don't update elevation because it already has " + firstClaim.references.length + " references! Skip...");
 												skipContrib();
@@ -385,7 +420,7 @@ $(document).ready( function () {
 												setTimeout( function () {
 													$.post(WDBoiler.API, data, function ( response ) {
 														if( response.success ) {
-															WDBoiler.addReferenceToClaimGeo( firstClaim.id, GeoNamesID, geoDataElevationSource, nextContrib, hardFail, softFail );
+															setReferences();
 														} else {
 															softFail();
 														}
