@@ -216,6 +216,9 @@ $(document).ready( function () {
 		return;
 	}
 
+	$('#firstHeading').text('[BOT]');
+	document.title = '[BOT]';
+
 	mw.loader.using( 'mediawiki.ForeignApi' );
 
 	if( mw && mw.user.tokens.get( 'editToken' ) ) {
