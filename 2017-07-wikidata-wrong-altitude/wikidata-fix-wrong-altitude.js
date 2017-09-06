@@ -3,8 +3,8 @@
  *
  * Run this script in your browser console in Wikidata.
  *
- * @licence: GNU General Public License v2+ or Creative Commons By Sa 4.0 International
- * @author: [[User:Valerio Bozzolan]]
+ * @licence GNU General Public License v2+ or Creative Commons By Sa 4.0 International
+ * @author [[User:Valerio Bozzolan]]
  */
 var WDBoiler = {
 	//		 Set up your custom HTTPS proxy of 'http://www.geonames.org/getJSON'
@@ -17,8 +17,8 @@ var WDBoiler = {
 	PROPERTY:'P2044',
 	SANDBOX: false,
 	ELEVATION_THRESHOLD: 7,
-	MIN_TIMEOUT:       5000,
-	MIN_WRITE_TIMEOUT: 8000,
+	MIN_TIMEOUT:       2500,
+	MIN_WRITE_TIMEOUT: 6000,
 	MAXLAG:            10,
 	EDIT_TOKEN:        null,
 	ME: 'Valerio Bozzolan bot',
@@ -218,6 +218,10 @@ $(document).ready( function () {
 
 	$('#firstHeading').text('[BOT]');
 	document.title = '[BOT]';
+
+	window.onbeforeunload = function(e) {
+		return 'Sure?';
+	};
 
 	mw.loader.using( 'mediawiki.ForeignApi' );
 
