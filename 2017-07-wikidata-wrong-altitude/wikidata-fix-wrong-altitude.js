@@ -472,7 +472,7 @@ $(document).ready( function () {
 										}, WDBoiler.MIN_WRITE_TIMEOUT );
 									}
 								} else {
-									WDBoiler.log("Can't retrieve elevation from " + GeoNamesID + ". Skip...");
+									WDBoiler.log("Can't retrieve elevation from " + GeoNamesID + " (" + q + "). Skip...");
 									skipContrib();
 								}
 							} ).fail( hardFail );
