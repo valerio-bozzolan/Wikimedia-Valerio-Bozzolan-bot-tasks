@@ -8,10 +8,11 @@
  *****************************
  *
  ***** WHAT ******************
- * Initially, this bot uniformed volleyball 2017 players' descriptions adding
- * the (new) template {{Depicted person}} and connecting them to Wikidata when
- * possible; the personal category was created if missing and added into the
- * "best fit" national category; all of this in less edit as possible.
+ * Initially, this bot uniformed volleyball 2017 players' file descriptions
+ * in Wikimedia Commons, adding the (new) template {{Depicted person}} and
+ * connecting them to Wikidata when possible; the personal category was
+ * created if missing and added into the "best fit" national category;
+ * all of this in less edit as possible.
  *
  * [[c:Category:Volleyball players by country]]
  * https://commons.wikimedia.org/wiki/Category:Volleyball_players_by_country
@@ -40,7 +41,11 @@
  * After that, the task moved to Wikidata.
  * Now lot of volleyball players are without a Wikidata elements, and anyway
  * even when it exists, it miss the image (P18) property and the Commons'
- * category (P373).
+ * category (P373), etc.
+ *
+ * Wikidata task description:
+ * [[d:Wikidata:Requests for permissions/Bot/Valerio Bozzolan bot 2]]
+ * https://www.wikidata.org/wiki/Wikidata:Requests_for_permissions/Bot/Valerio_Bozzolan_bot_2
  */
 
 #################
@@ -128,7 +133,14 @@ $SCRIPT = 'python ~/pywikibot/pwb.py';
 
 $NATIONS = [];
 if( ($handle = fopen('commons-volleyball-nationalities.csv', 'r') ) !== false ) {
-	while( ($data = fgetcsv($handle, 1000, ';') ) !== false ) {
+	$i = -1;
+	while( ($data = fgetcsv($handle, 1000, ',') ) !== false ) {
+		$i++;
+
+		if( $i === 0 ) {
+			// Skip header
+			continue;
+		}
 
 		// :P This prevents warnings if $better_cat is missing; or don't care if $better_cat is present.
 		$data[] = null;
