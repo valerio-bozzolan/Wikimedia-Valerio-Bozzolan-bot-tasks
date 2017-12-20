@@ -59,16 +59,19 @@ require __DIR__ . '/../includes/boz-mw/autoload.php';
 ##############################
 
 defined( 'SANDBOXED' ) or
-define( 'SANDBOXED', true );
+define(  'SANDBOXED', false );
 
 defined( 'WIKIDATA_SANDBOX' ) or
 define(  'WIKIDATA_SANDBOX', 'Q4115189' );
 
+defined( 'FORCE_OVERWRITE' ) or
+define(  'FORCE_OVERWRITE', false );
+
 defined( 'CONSENSUS_PAGE' ) or
-define(  'CONSENSUS_PAGE', 'c:Commons:Bots/Requests/Valerio Bozzolan bot' )
+define(  'CONSENSUS_PAGE', 'c:Commons:Bots/Requests/Valerio Bozzolan bot' );
 
 defined( 'SUMMARY' ) or
-define( 'SUMMARY', sprintf(
+define(  'SUMMARY', sprintf(
 	"[[%s|uniforming Legavolley 2017 players]]",
 	CONSENSUS_PAGE
 ) );
@@ -86,7 +89,7 @@ define(  'ALWAYS', true );
 # Wikidata Login token
 ######################
 
-$wikidata_api = APIRequest::factory('https://www.wikidata.org/w/api.php');
+$wikidata_api = mw\APIRequest::factory('https://www.wikidata.org/w/api.php');
 $response = $wikidata_api->fetch( [
 	'action' => 'query',
 	'meta'   => 'tokens',
@@ -229,22 +232,6 @@ if( ( $handle = fopen('commons-volleyball-players.csv', 'r') ) !== false ) {
 		$national_category = $nation->cat;
 		$national_category_prefixed = "Category:$national_category";
 
-		// Wikidata labels
-		$LABELS = [
-			'en' => sprintf(
-				'%s %s, %s volleyball player',
-				$name,
-				$surname,
-				$nation->en
-			),
-			'it' => sprintf(
-				'%s %s, pallavolista %s',
-				$name,
-				$surname,
-				$nation->it
-			)
-		];
-
 		$better_national_category_exists = isset( $nation->better_cat );
 		if( $better_national_category_exists ) {
 			$better_national_category = $nation->better_cat;
@@ -271,18 +258,44 @@ if( ( $handle = fopen('commons-volleyball-players.csv', 'r') ) !== false ) {
 
 		echo "# $name $surname [[$filename_url]]\n";
 
+		// Wikidata labels
+		$LABELS = [
+			'en' => sprintf( '%s %s', $name, $surname ),
+			'it' => sprintf( '%s %s', $name, $surname )
+		];
+		$DESCRIPTIONS = [
+			'en' => sprintf( '%s volleyball player', $nation->en ),
+			'it' => sprintf( 'pallavolista %s',      $nation->it )
+		];
+
+		// Wikidata statements
+		$STATEMENTS = [
+			// Insance of: human
+			legavolley_wikidata_statement_item('P31', 'Q5'),
+			// Image
+			legavolley_wikidata_statement_property_commonsmedia('P18', $filepath),
+			// Commons category
+			legavolley_wikidata_statement_property_string('P373', $personal_category),
+			// Sex: male
+			legavolley_wikidata_statement_item('P21', 'Q6581097'),
+			// Country of citizenship
+			legavolley_wikidata_statement_item('P27', $nation->wd),
+			// Occupation: volleyball player
+			legavolley_wikidata_statement_item('P106', 'Q15117302'),
+			// Sport: volleyball
+			legavolley_wikidata_statement_item('P641', 'Q1734')
+		];
+
 		$wikidata_item = get_wikidata_item( $filename, $complete_name );
 
 		if( SANDBOXED ) {
 			$wikidata_item = $WIKIDATA_SANDBOX;
 		}
 
-		$wikidata_item_new_data = new WikidataDataModel();
-
-		$claims = [];
+		$wikidata_item_new_data = new wb\DataModel();
 
 		if( $wikidata_item ) {
-			// Retrieve
+			// Retrieve & compare
 			// https://www.wikidata.org/w/api.php?action=help&modules=wbgetentities
 			$wikidata_item_data = $wikidata_api->fetch( [
 				'action' => 'wbgetentities',
@@ -294,91 +307,68 @@ if( ( $handle = fopen('commons-volleyball-players.csv', 'r') ) !== false ) {
 			}
 			$wikidata_item_data = $wikidata_item_data->entities->{ $wikidata_item };
 
-			##
-			# Append new labels
-			##
-			$labels = [];
+			// Labels
 			foreach( $LABELS as $lang => $label ) {
-				if( ! isset( $wikidata_item_data->labels->{ $lang } ) ) {
-					$labels[] = $LABELS[ $lang ];
+				$wikidata_item_new_data->setLabel( $lang, $label, 'only-if-missing' );
+			}
+
+			// Descriptions
+			foreach( $DESCRIPTIONS as $lang => $description ) {
+				$wikidata_item_new_data->setDescription( $lang, $description, 'only-if-missing' );
+			}
+
+			// Add statements that are not present
+			foreach( $STATEMENTS as $statement ) {
+				$property = $statement->getProperty();
+				if( ! isset( $wikidata_item_data->claims->{ $property } ) || FORCE_OVERWRITE ) {
+					$wikidata_item_new_data->addClaim( $statement );
 				}
 			}
-			$wikidata_item_new_data->setLabels( $labels, 'add' );
 
-			// Image
-			if( ! isset( $wikidata_item_data->claims->{ 'P18' } ) ) {
-				$claims[] = legavolley_wikidata_claim_property_commonsmedia('P18', $filepath);
+			if( $wikidata_item_new_data->countClaims() ) {
+				echo $wikidata_item_new_data->getJSON( JSON_PRETTY_PRINT );
+				echo "Confirm";
+				read();
+
+				// Save existing
+				// https://www.wikidata.org/w/api.php?action=help&modules=wbeditentity
+				$wikidata_api->post( [
+					'action'  => 'wbeditentity',
+					'id'      => $wikidata_item,
+					'summary' => SUMMARY,
+					'token'   => $WIKIDATA_CSRF_TOKEN,
+					'bot'     => 1,
+					'data'    => $wikidata_item_new_data->getJSON()
+				] );
+			} else {
+				echo "# $wikidata_item OK, skip...";
+			}
+		} else {
+
+			// Labels
+			foreach( $LABELS as $language => $label ) {
+				$wikidata_item_new_data->setLabel( $language, $label );
 			}
 
-			// Commons category
-			if( ! isset( $wikidata_item_data->claims->{ 'P373' } ) ) {
-				$claims[] = legavolley_wikidata_claim_property_string('P373', $personal_category);
+			// Descriptions
+			foreach( $DESCRIPTIONS as $lang => $description ) {
+				$wikidata_item_new_data->setDescription( $lang, $description );
 			}
 
-			// Sex: male
-			if( ! isset( $wikidata_item_data->claims->{ 'P21' } ) ) {
-				$claims[] = legavolley_wikidata_claim_property_entity('P21', 'Q6581097');
+			// Claims
+			foreach( $STATEMENTS as $statement ) {
+				$wikidata_item_new_data->addClaim( $statement );
 			}
 
-			// Country of citizenship (P27)
-			if( ! isset( $wikidata_item_data->claims->{ 'P27' } ) ) {
-				$claims[] = legavolley_wikidata_claim_property_entity('P27', $nation->wd);
-			}
+			echo $wikidata_item_new_data->getJSON( JSON_PRETTY_PRINT );
 
-			// Occupation: volleyball player
-			if( ! isset( $wikidata_item_data->claims->{ 'P106' } ) ) {
-				$claims[] = legavolley_wikidata_claim_property_entity('P106', 'Q15117302');
-			}
-
-			$wikidata_item_new_data->set( [
-				'claims' => claims( $claims )
-			] );
-
-			echo json_encode( $wikidata_item_new_data->get(), JSON_PRETTY_PRINT );
 			echo "Confirm";
 			read();
-
-			// Save existing
-			// https://www.wikidata.org/w/api.php?action=help&modules=wbeditentity
-			$wikidata_api->post( [
-		        	'action'  => 'wbeditentity',
-				'id'      => $wikidata_item,
-				'summary' => SUMMARY,
-				'token'   => $WIKIDATA_CSRF_TOKEN,
-				'bot'     => 1,
-				'data'    => $wikidata_item_new_data->getJSON()
-			] );
-
-			exit;
-		} else {
-			exit;
-
-			// All labels
-			$wikidata_item_new_data->setLabels( $LABELS );
-
-			// Image
-			$claims[] = legavolley_wikidata_claim_property_commonsmedia('P18', $filepath);
-
-			// Commons category
-			$claims[] = legavolley_wikidata_claim_property_string('P373', $personal_category);
-
-			// Sex: male
-			$claims[] = legavolley_wikidata_claim_property_entity('P21', 'Q6581097');
-
-			// Country of citizenship (P27)
-			$claims = legavolley_wikidata_claim_property_entity('P27', $nation->wd);
-
-			// Occupation: volleyball player
-			$claims = legavolley_wikidata_claim_property_entity('P106', 'Q15117302');
-
-			$wikidata_item_new_data->set( [
-				'claims' => $claims
-			] );
 
 			// Create
 			// https://www.wikidata.org/w/api.php?action=help&modules=wbeditentity
 			$wikidata_api->post( [
-		        	'action'  => 'wbeditentity',
+				'action'  => 'wbeditentity',
 				'new'     => 'item',
 				'summary' => SUMMARY,
 				'token'   => $WIKIDATA_CSRF_TOKEN,
@@ -386,6 +376,9 @@ if( ( $handle = fopen('commons-volleyball-players.csv', 'r') ) !== false ) {
 				'data'    => $wikidata_item_new_data->getJSON()
 			] );
 		}
+
+		// Avoid broken Pywikibot shit
+		continue;
 
 		if( ! $file_has_template_depicted || ! $file_has_personal_category ) {
 			$summary = SUMMARY;
@@ -649,7 +642,7 @@ function commons_page_exists( $page_title ) {
 	if( VERBOSE ) {
 		echo "# Does [[$page_title]] exists?\n";
 	}
-	$pages_exists = APIRequest::factory('https://commons.wikimedia.org/w/api.php', [
+	$pages_exists = mw\APIRequest::factory('https://commons.wikimedia.org/w/api.php', [
 		'action' => 'query',
 		'titles' => $page_title,
 		'prop'   => 'info'
@@ -666,7 +659,7 @@ function commons_category_exists($category_name) {
 	if( VERBOSE ) {
 		echo "# Does [[$category_name]] exist?\n";
 	}
-	$category_info = APIRequest::factory('https://commons.wikimedia.org/w/api.php', [
+	$category_info = mw\APIRequest::factory('https://commons.wikimedia.org/w/api.php', [
 		'action' => 'query',
 		'prop'   => 'categoryinfo',
 		'titles' => $category_name
@@ -683,7 +676,7 @@ function commons_search_term_in_page_categories( $page_title, $search_term ) {
 	if( VERBOSE ) {
 		echo "# Cesarelombrosing [[$page_title]] looking for '$search_term'\n";
 	}
-	$categories = APIRequest::factory('https://commons.wikimedia.org/w/api.php', [
+	$categories = mw\APIRequest::factory('https://commons.wikimedia.org/w/api.php', [
 		'action' => 'query',
 		'prop'   => 'categories',
 		'clshow' => '!hidden',
@@ -754,7 +747,7 @@ function commons_page_props( $page, $prop, $args = [] ) {
 		'titles' => $page
 	], $args );
 
-	$api = APIRequest::factory( 'https://commons.wikimedia.org/w/api.php', $args );
+	$api = mw\APIRequest::factory( 'https://commons.wikimedia.org/w/api.php', $args );
 	$pages = [];
 	while( $api->hasNext() ) {
 		// TODO: callback to obtain the right object?
@@ -769,7 +762,7 @@ function commons_page_props( $page, $prop, $args = [] ) {
 
 function search_disperately_wikidata_item( $title ) {
 	echo "# Searching Wikidata item as '$title'\n";
-	$wbsearch = APIRequest::factory( 'https://www.wikidata.org/w/api.php', [
+	$wbsearch = mw\APIRequest::factory( 'https://www.wikidata.org/w/api.php', [
 		'action'      => 'query',
 		'list'        => 'wbsearch',
 		'wbssearch'   => $title,
@@ -811,7 +804,7 @@ function filter_volleyball_wikidata_IDs( $wikidata_IDs ) {
 	$languages = array_keys( $SEARCH_TERMS );
 
 	// https://www.wikidata.org/w/api.php?action=wbgetentities&props=descriptions&ids=Q19675&languages=en|it
-	$entities = APIRequest::factory( 'https://www.wikidata.org/w/api.php', [
+	$entities = mw\APIRequest::factory( 'https://www.wikidata.org/w/api.php', [
 		'action'    => 'wbgetentities',
 		'props'     => 'descriptions',
 		'ids'       => implode( '|', $wikidata_IDs ),
@@ -854,7 +847,7 @@ function filter_volleyball_wikidata_IDs( $wikidata_IDs ) {
 
 function fetch_wikidata_item( $page_name ) {
 	// https://commons.wikimedia.org/w/api.php?action=query&prop=wbentityusage&titles=Category:Alberto+Casadei
-	$wbentityusage = APIRequest::factory( 'https://commons.wikimedia.org/w/api.php', [
+	$wbentityusage = mw\APIRequest::factory( 'https://commons.wikimedia.org/w/api.php', [
 		'action' => 'query',
 		'prop'   => 'wbentityusage',
 		'titles' => $page_name
@@ -896,142 +889,27 @@ function get_wikidata_item( $page_name, $title ) {
 # Legavolley referenced claims
 ##############################
 
-function legavolley_wikidata_claim_property_snak( $property, $snak ) {
-	return wikidata_claim_property_snak( $property, $snak, legavolley_references() );
+function legavolley_wikidata_statement_item( $property, $item ) {
+	$statement = new wb\StatementItem( $property, $item );
+	return $statement->setReferences( legavolley_references() );
 }
 
-function legavolley_wikidata_claim_property_entity( $property, $entity ) {
-	return wikidata_claim_property_entity( $property, $entity, legavolley_references() );
+function legavolley_wikidata_statement_property_string( $property, $string ) {
+	$statement = new wb\StatementString( $property, $string );
+	return $statement->setReferences( legavolley_references() );
 }
 
-function legavolley_wikidata_claim_property_string( $property, $string ) {
-	return wikidata_claim_property_string( $property, $value, legavolley_references() );
-}
-
-function legavolley_wikidata_claim_property_commonsmedia( $property, $filename ) {
-	return wikidata_claim_property_commonsmedia( $property, $filename, legavolley_references() );
+function legavolley_wikidata_statement_property_commonsmedia( $property, $filename ) {
+	$statement = new wb\StatementCommonsMedia( $property, $filename );
+	return $statement->setReferences( legavolley_references() );
 }
 
 function legavolley_references() {
-	return [ [ 'snaks' => snaks( [
+	$snaks = new wb\Snaks( [
 		// stated in: Lega Pallavolo Serie A
-		snak_item( 'P248', 'Q16571730' )
-	] ) ] ];
-}
-
-###################################
-# Claims (they are formed by snaks)
-###################################
-
-function wikidata_claim_property_snak( $property, $snak, $references = [] ) {
-	$claim = [
-		'mainsnak' => $snak,
-		'type'     => 'statement',
-		'rank'     => 'normal'
-	];
-	if( $references ) {
-		$claim['references'] = $references;
-	}
-	return $claim;
-}
-
-function wikidata_claim_property_entity( $property, $entity, $references = [] ) {
-	return wikidata_claim_property_snak(
-		$property,
-		snak_item( $property, $entity ),
-		$references
-	);
-}
-
-function wikidata_claim_property_commonsmedia( $property, $filename, $references = [] ) {
-	return wikidata_claim_property_snak(
-		$property,
-		snak_commonmedia( $property, $filename ),
-		$references
-	);
-}
-
-###############################
-# Snaks (they have a datavalue)
-###############################
-
-function snak( $snaktype, $property, $datatype, $datavalue ) {
-	return [
-		'snaktype'  => $snaktype,
-		'property'  => $property,
-		'datatype'  => $datatype,
-		'datavalue' => $datavalue
-	];
-}
-
-function snak_commonmedia( $property, $filename ) {
-	return snak(
-		'value',
-		$property,
-		'commonsMedia',
-		datavalue_string( $filename )
-	);
-}
-
-function snak_item( $property, $item ) {
-	return snak(
-		'value',
-		$property,
-		'wikibase-item',
-		datavalue_item( $item )
-	);
-}
-
-###############################
-# Datavalues (snak's datavalue)
-###############################
-
-function datavalue( $type, $value ) {
-	return [
-		'type'  => $type,
-		'value' => $value
-	];
-}
-
-function datavalue_string( $value ) {
-	return datavalue( 'string', $value );
-}
-
-function datavalue_item( $entity ) {
-	$entity_numeric = (int) substr( $entity, 1 );
-	return datavalue( 'wikibase-entityid', [
-		'entity-type' => 'item',
-		'numeric-id'  => $entity_numeric,
-		'id'          => $entity
+		new wb\SnakItem( 'P248', 'Q16571730' )
 	] );
-}
-
-#####################################################################
-# Property aggregators (snaks and claims must be property-associated)
-#####################################################################
-
-function snaks( $snaks ) {
-	$properties = [];
-	foreach( $snaks as $snak ) {
-		$property = $snak['property'];
-		if( ! isset( $properties[ $property ] ) ) {
-			$properties[ $property ] = [];
-		}
-		$properties[ $property ][] = $snak;
-	}
-	return $properties;
-}
-
-function claims( $claims = [] ) {
-	$properties = [];
-	foreach( $claims as $claim ) {
-		$property = $claim['mainsnak']['property'];
-		if( ! isset( $properties[ $property ] ) ) {
-			$properties[ $property ] = [];
-		}
-		$properties[ $property ][] = $claim;
-	}
-	return $properties;
+	return [ [ 'snaks' => $snaks->get() ] ];
 }
 
 ###########
