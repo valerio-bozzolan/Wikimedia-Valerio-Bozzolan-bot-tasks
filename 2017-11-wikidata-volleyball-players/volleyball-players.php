@@ -90,15 +90,11 @@ define(  'ALWAYS', true );
 ######################
 
 $wikidata_api = mw\APIRequest::factory('https://www.wikidata.org/w/api.php');
-$response = $wikidata_api->fetch( [
+$logintoken = $wikidata_api->fetch( [
 	'action' => 'query',
 	'meta'   => 'tokens',
 	'type'   => 'login'
-] );
-if( ! isset( $response->query->tokens->logintoken ) ) {
-	throw new Exception("can't retrieve login token");
-}
-$logintoken = $response->query->tokens->logintoken;
+] )->query->tokens->logintoken;
 
 ################
 # Wikidata login
@@ -118,17 +114,46 @@ if( ! isset( $response->login->result ) || $response->login->result !== 'Success
 # Wikidata CSRF token (logged)
 ##############################
 
-$response = $wikidata_api->fetch( [
+$WIKIDATA_CSRF_TOKEN = $wikidata_api->fetch( [
 	'action' => 'query',
 	'meta'   => 'tokens',
 	'type'   => 'csrf'
-] );
-if( ! isset( $response->query->tokens->csrftoken ) ) {
-	throw new Exception("missing csrf");
-}
-$WIKIDATA_CSRF_TOKEN = $response->query->tokens->csrftoken;
+] )->query->tokens->csrftoken;
 
-$SCRIPT = 'python ~/pywikibot/pwb.py';
+######################
+# Commons Login token
+######################
+
+$commons_api = mw\APIRequest::factory('https://commons.wikimedia.org/w/api.php');
+$logintoken = $commons_api->fetch( [
+	'action' => 'query',
+	'meta'   => 'tokens',
+	'type'   => 'login'
+] )->query->tokens->logintoken;
+
+###############
+# Commons login
+###############
+
+$response = $commons_api->post( [
+	'action'     => 'login',
+	'lgname'     => WIKI_USERNAME,
+	'lgpassword' => WIKI_PASSWORD,
+	'lgtoken'    => $logintoken
+] );
+if( ! isset( $response->login->result ) || $response->login->result !== 'Success' ) {
+	throw new Exception("login failed");
+}
+
+#############################
+# Commons CSRF token (logged)
+#############################
+
+$COMMONS_CSRF_TOKEN = $commons_api->fetch( [
+	'action' => 'query',
+	'meta'   => 'tokens',
+	'type'   => 'csrf'
+] )->query->tokens->csrftoken;
 
 #############
 # Nations CSV
@@ -219,7 +244,7 @@ if( ( $handle = fopen('commons-volleyball-players.csv', 'r') ) !== false ) {
 					echo "# " . commons_page_url( $personal_category_prefixed ) . "\n";
 					$personal_category_exists   = commons_category_exists(  $personal_category_prefixed );
 
-					echo "# Confirm?";
+					echo "# Confirm category name?";
 					read();
 				}
 			}
@@ -301,26 +326,36 @@ if( ( $handle = fopen('commons-volleyball-players.csv', 'r') ) !== false ) {
 				'action' => 'wbgetentities',
 				'ids'    => $wikidata_item,
 				'props'  => 'info|sitelinks|aliases|labels|descriptions|claims|datatype'
+			], [
+				'assoc'  => true
 			] );
-			if( ! isset( $wikidata_item_data->entities->{ $wikidata_item } ) ) {
+			if( ! isset( $wikidata_item_data['entities'][ $wikidata_item ] ) ) {
 				throw new Exception("$wikidata_item does not exist?");
 			}
-			$wikidata_item_data = $wikidata_item_data->entities->{ $wikidata_item };
+			$wikidata_item_data = wb\DataModel::createFromData( $wikidata_item_data['entities'][ $wikidata_item ] );
 
-			// Labels
+			// Labels that are not present
 			foreach( $LABELS as $lang => $label ) {
-				$wikidata_item_new_data->setLabel( $lang, $label, 'only-if-missing' );
+				$wikidata_item_new_data->setLabel( new wb\LabelAction(
+					$lang,
+					$label,
+					wb\LabelAction::ADD
+				) );
 			}
 
-			// Descriptions
+			// Descriptions that are not present
 			foreach( $DESCRIPTIONS as $lang => $description ) {
-				$wikidata_item_new_data->setDescription( $lang, $description, 'only-if-missing' );
+				$wikidata_item_new_data->setDescription( new wb\DescriptionAction(
+					$lang,
+					$description,
+					wb\DescriptionAction::ADD
+				) );
 			}
 
-			// Add statements that are not present
+			// Statements that are not present
 			foreach( $STATEMENTS as $statement ) {
-				$property = $statement->getProperty();
-				if( ! isset( $wikidata_item_data->claims->{ $property } ) || FORCE_OVERWRITE ) {
+				$property = $statement->getMainsnak()->getProperty();
+				if( ! $wikidata_item_data->hasClaimsInProperty( $property ) || FORCE_OVERWRITE ) {
 					$wikidata_item_new_data->addClaim( $statement );
 				}
 			}
@@ -341,18 +376,18 @@ if( ( $handle = fopen('commons-volleyball-players.csv', 'r') ) !== false ) {
 					'data'    => $wikidata_item_new_data->getJSON()
 				] );
 			} else {
-				echo "# $wikidata_item OK, skip...";
+				echo "# $wikidata_item OK, skip...\n";
 			}
 		} else {
 
 			// Labels
 			foreach( $LABELS as $language => $label ) {
-				$wikidata_item_new_data->setLabel( $language, $label );
+				$wikidata_item_new_data->setLabel( new wm\Label( $language, $label ) );
 			}
 
 			// Descriptions
 			foreach( $DESCRIPTIONS as $lang => $description ) {
-				$wikidata_item_new_data->setDescription( $lang, $description );
+				$wikidata_item_new_data->setDescription( new wm\Description( $lang, $description ) );
 			}
 
 			// Claims
@@ -367,7 +402,7 @@ if( ( $handle = fopen('commons-volleyball-players.csv', 'r') ) !== false ) {
 
 			// Create
 			// https://www.wikidata.org/w/api.php?action=help&modules=wbeditentity
-			$wikidata_api->post( [
+			$result = $wikidata_api->post( [
 				'action'  => 'wbeditentity',
 				'new'     => 'item',
 				'summary' => SUMMARY,
@@ -375,52 +410,81 @@ if( ( $handle = fopen('commons-volleyball-players.csv', 'r') ) !== false ) {
 				'bot'     => 1,
 				'data'    => $wikidata_item_new_data->getJSON()
 			] );
+
+			if( ! $result->success ) {
+				var_dump( $result );
+				die("API error");
+			}
+
+			$wikidata_item = $result->item->id;
 		}
 
-		// Avoid broken Pywikibot shit
-		continue;
+		// Wikitext
+		// https://it.wikipedia.org/w/api.php?action=query&prop=revisions&titles=linux+%28kernel%29&rvprop=content
+		$titles = [
+			$personal_category_prefixed,
+			$filename
+		];
+		$pages = $commons_api->fetch( [
+			'action' => 'query',
+			'prop'   => 'revisions',
+			'titles' => implode( '|', $titles ),
+			'rvprop' => 'content'
+		] );
+		$title_pages = [];
+		foreach( $titles as $title ) {
+			$normalized_title = $title;
+			if( isset( $query->normalized ) ) {
+				foreach( $query->normalized as $normalized ) {
+					if( $normalized->from === $title ) {
+						$normalized_title = $normalized->to;
+						break;
+					}
+				}
+			}
+			$page_content = null;
+			foreach( $pages->query->pages as $page ) {
+				if( $page->title === $normalized_title ) {
+					$page_content = $page->revisions[0]->{'*'};
+					break;
+				}
+			}
+			$title_pages[ $title ] = $page_content;
+		}
+
+		$personal_category_content = $title_pages[ $personal_category_prefixed ];
+		$filename_content          = $title_pages[ $filename ];
 
 		if( ! $file_has_template_depicted || ! $file_has_personal_category ) {
+
 			$summary = SUMMARY;
-			$pwb = clone $PWB;
-			$pwb->arg('replace.py')
-			    ->arg('-regex')
-			    ->arg('-lang:commons')
-			    ->arg('-family:commons')
-			    ->arg("-page:$filename");
 
 			$replace = false;
 
-			if( $wikidata_item ) {
-				if( ! $file_has_template_depicted ) {
-					$pwb->arg('{{[ ]*[eE]n *\|.+?}}\n?');
-					$pwb->arg('');
-					$pwb->arg('{{[ ]*[iI]t *\|.+?}}');
-					$pwb->arg( sprintf(
-						'{{Depicted person|%s}}',
-						$wikidata_item
-					) );
-					$summary .= "; +[[Template:Depicted person]] [[d:$wikidata_item]]";
-					$replace = true;
-				}
-			} elseif( ! $file_has_iten_templates ) {
-				// {{It|asd}}
-				$pwb->arg( '{{[ ]*[iI]t *\|.+?}}' );
-				$pwb->arg( sprintf(
-					'{{en|%s}}\n{{it|%s}}',
-					$LABELS['en'],
-					$LABELS['it']
-				) );
+			$search_and_replace = [];
+			if( ! $file_has_template_depicted ) {
+				$search_and_replace = [
+					'/{{[ ]*[eE]n *\|.+?}}\n?/' => '',
+					'/{{[ ]*[iI]t *\|.+?}}/'    => "{{Depicted person|$wikidata_item}}"
+				];
+				$filename_content = preg_replace(
+					array_keys(   $search_and_replace ),
+					array_values( $search_and_replace ),
+					$filename_content
+				);
 
-				$summary .= "; +[[Template:En]] +[[Template:It]]";
+				$summary .= "; +[[Template:Depicted person]] [[d:$wikidata_item]]";
 				$replace = true;
 			}
 
 			if( $file_has_italian_category ) {
 				if( $national_category !== $italian_category ) {
 					if( ! $file_has_personal_category ) {
-						$pwb->arg( Generic::space2regex( $italian_category_prefixed ) );
-						$pwb->arg( $personal_category_prefixed );
+						$filename_content = preg_replace(
+							'/' . Generic::space2regex( $italian_category_prefixed ) . '/',
+							$personal_category_prefixed,
+							$filename_content
+						);
 						$summary .= "; [[$italian_category_prefixed]] → [[$personal_category_prefixed]]";
 
 						$file_has_italian_category = false;
@@ -429,36 +493,36 @@ if( ( $handle = fopen('commons-volleyball-players.csv', 'r') ) !== false ) {
 					}
 				}
 				if( $file_has_italian_category ) {
-					$pwb->arg( '\[\[ *' . Generic::space2regex( $italian_category_prefixed ) . ' *\]\]\n*' );
-					$pwb->arg('');
+					$filename_content = preg_replace(
+						'/\[\[ *' . Generic::space2regex( $italian_category_prefixed ) . ' *\]\]\n*/',
+						'',
+						$filename_content
+					);
 					$summary .= "; -[[$italian_category_prefixed]]";
 					$replace = true;
 				}
 			}
 
 			if( ! $file_has_personal_category ) {
-				$pwb->arg('$');
-				$pwb->arg('\n[[' . $personal_category_prefixed . ']]');
+				$filename_content = preg_replace(
+					'/$/',
+					"\n[[$personal_category_prefixed]]",
+					$filename_content
+				);
 				$summary .= "; +[[$personal_category_prefixed]]";
 				$replace = true;
 			}
 
-			if( ALWAYS ) {
-				$pwb->arg('-always');
-			}
-
 			if( $replace ) {
-				echo $pwb->arg("-summary:$summary")->get();
-
-				if( INTERACTION ) {
-					read();
-				}
+				commons_save( $filename, $filename_content, $summary );
 			}
 		} else {
 			echo "# Skipped...";
 		}
 
 		echo "\n\n";
+
+		$summary = SUMMARY;
 
 		if( $personal_category_exists ) {
 			echo "# [[Category:$personal_category]] [[$personal_category_url]]\n";
@@ -482,16 +546,6 @@ if( ( $handle = fopen('commons-volleyball-players.csv', 'r') ) !== false ) {
 				}
 			}
 
-			// Pywikibot replace.py
-			$pwb = clone $PWB;
-			$pwb->arg('replace.py')
-			    ->arg('-regex')
-			    ->arg('-lang:commons')
-			    ->arg('-family:commons')
-			    ->arg("-page:$personal_category_prefixed");
-
-			$summary = SUMMARY;
-
 			if( ! $personal_category_has_wikidata_template ) {
 				$wikidata_item = get_wikidata_item( $filename, $complete_name );
 				if( ! INTERACTION && null === $wikidata_item ) {
@@ -500,13 +554,12 @@ if( ( $handle = fopen('commons-volleyball-players.csv', 'r') ) !== false ) {
 				}
 
 				if( $wikidata_item ) {
-					$summary .= $wikidata_item ? sprintf("; +[[Template:Wikidata person]] [[d:%s]]", $wikidata_item) : '';
-
-					$pwb->arg('^(?!{{Wikidata person)');
-					$pwb->arg( sprintf(
-						'{{Wikidata person|%s}}\n',
-						$wikidata_item
-					) );
+					$summary .= sprintf("; +[[Template:Wikidata person]] [[d:%s]]", $wikidata_item);
+					$personal_category_content = preg_replace(
+						'/^(?!{{Wikidata person)/',
+						"{{Wikidata person|$wikidata_item}}\n",
+						$personal_category_content
+					);
 				}
 			}
 
@@ -515,37 +568,35 @@ if( ( $handle = fopen('commons-volleyball-players.csv', 'r') ) !== false ) {
 				if( $better_national_category_exists ) {
 					if( $personal_category_has_national_category ) {
 						// National → Best national
-						$pwb->arg( Generic::space2regex( $national_category_prefixed ) );
-						$pwb->arg( $better_national_category_prefixed );
 						$summary .= "; better national category";
+						$personal_category_content = preg_replace(
+							'/' . Generic::space2regex( $national_category_prefixed ) . '/',
+							$better_national_category_prefixed,
+							$personal_category_content
+						);
 					} else {
 						// + Best national
-						$pwb->arg('$');
-						$pwb->arg('\n[[' . $better_national_category_prefixed . ']]');
 						$summary .= "; +[[$better_national_category_prefixed]]";
+						$personal_category_content = preg_replace(
+							'/$/',
+							"\n[[$better_national_category_prefixed]]",
+							$personal_category_content
+						);
 					}
 				} elseif( ! $personal_category_has_national_category ) {
 					// + National
-					$pwb->arg('$');
-					$pwb->arg('\n[[' . $national_category_prefixed . ']]');
 					$summary .= "; +[[$national_category_prefixed]]";
+					$personal_category_content = preg_replace(
+						'/$/',
+						'\n[[' . $national_category_prefixed . ']]',
+						$personal_category_content
+					);
 				}
 			}
 
-			$pwb->arg("-summary:$summary");
-
-			if( ALWAYS ) {
-				$pwb->arg('-always');
-			}
-
-			echo $pwb->get();
-
-			if( INTERACTION ) {
-				read();
-			}
-
+			commons_save( $personal_category_prefixed, $personal_category_content, $summary );
 		} else {
-			// Pywikibot create
+			// Create
 
 			$summary = SUMMARY;
 
@@ -555,16 +606,7 @@ if( ( $handle = fopen('commons-volleyball-players.csv', 'r') ) !== false ) {
 				continue;
 			}
 
-			$temp = tmpfile();
-			$temp_name = stream_get_meta_data( $temp );
-			$temp_name = $temp_name['uri'];
-
-			// https://www.mediawiki.org/wiki/Manual:Pywikibot/pagefromfile.py
 			$lines = [];
-
-			$lines[] = '{{-start-}}';
-
-			$lines[] = "'''$personal_category_prefixed'''";
 
 			if( $wikidata_item ) {
 				$lines[] = sprintf(
@@ -591,39 +633,8 @@ if( ( $handle = fopen('commons-volleyball-players.csv', 'r') ) !== false ) {
 			$lines[] = "[[$best_national_category_prefixed]]";
 			$summary .= "; +[[$best_national_category_prefixed]]";
 
-			$lines[] = '{{-stop-}}';
-
-			// Yes, I know, but don't fight about it
-			$tmp = '/tmp/asd';
-			echo "cat > '$tmp' <<EOF_ASD_ASD\n";
-			foreach($lines as $line) {
-				echo "$line\n";
-			}
-			echo "EOF_ASD_ASD\n";
-			file_put_contents($tmp, implode("\n", $lines) );
-
-			$pwb = clone $PWB;
-			$pwb->arg('pagefromfile.py')
-			    ->arg('-lang:commons')
-			    ->arg('-family:commons')
-			    ->arg('-notitle')
-			    ->arg('-safe')
-			    ->arg("-file:$tmp")
-			    ->arg("-summary:$summary");
-
-			echo $pwb->get();
-
-			echo "\n";
-			echo "rm '$tmp'\n";
-
-			if( INTERACTION ) {
-				read();
-			}
+			commons_save( $personal_category_prefixed, implode("\n", $lines), $summary );
 		}
-	}
-
-	if( ! INTERACTION ) {
-		echo "sleep 5\n";
 	}
 
 	echo "\n\n\n\n";
@@ -909,7 +920,7 @@ function legavolley_references() {
 		// stated in: Lega Pallavolo Serie A
 		new wb\SnakItem( 'P248', 'Q16571730' )
 	] );
-	return [ [ 'snaks' => $snaks->get() ] ];
+	return [ [ 'snaks' => $snaks->getAll() ] ];
 }
 
 ###########
@@ -984,4 +995,31 @@ function ask_which($answers, $question, $callback = null) {
 	$in = (int) read();
 
 	return $in <= 0 ? false : $answers[ $in - 1 ];
+}
+
+function wiki_save( $api, $csrf, $title, $content, $summary ) {
+	echo "########### Saving [[$title]]: ##########\n";
+	echo $content;
+	echo "\n";
+	echo "#########################################\n";
+	echo "Confirm: |$summary|";
+	read();
+	return $api->post( [
+		'action'   => 'edit',
+		'title'    => $filename,
+		'summary'  => $summary,
+		'text'     => $filename_content,
+		'token'    => $csrf,
+		'bot'      => ''
+	] );
+}
+
+function commons_save( $title, $content, $summary ) {
+	return wiki_save(
+		$GLOBALS['commons_api'],
+		$GLOBALS['COMMONS_CSRF_TOKEN'],
+		$title,
+		$content,
+		$summary
+	);
 }
