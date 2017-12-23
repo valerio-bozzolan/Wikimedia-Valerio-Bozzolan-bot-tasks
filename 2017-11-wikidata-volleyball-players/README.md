@@ -3,7 +3,8 @@
 This PHP bot was developed to uniform volleyball players in Wikimedia Commons and Wikidata.
 
 ## Consensus
-* [Upstream discussion on the Italian Wikipedia](https://it.wikipedia.org/wiki/Speciale:PermaLink/93103795#Categorie_e_descrizioni)
+* [Upstream discussion on the Italian Wikipedia about Wikimedia Commons](https://it.wikipedia.org/wiki/Speciale:PermaLink/93103795#Categorie_e_descrizioni)
+* [Upstream discussion on the Italian Wikipedia about Wikidata](https://it.wikipedia.org/wiki/Speciale:PermaLink/92672746#Collegamento_a_Wikidata)
 * [Bot consensus and discussion on Wikimedia Commons](https://commons.wikimedia.org/wiki/Commons:Bots/Requests/Valerio_Bozzolan_bot)
 * [Bot consensus for Wikidata](https://www.wikidata.org/wiki/Wikidata:Requests_for_permissions/Bot/Valerio_Bozzolan_bot_2)
 
