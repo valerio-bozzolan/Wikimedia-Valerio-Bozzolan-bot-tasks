@@ -11,6 +11,8 @@ This PHP bot was developed to import Italian Wikipedia sports stub logos into Wi
 
 ## Usage
 
+Work in progress.
+
     ./commons-stub-sports-logos-importer.php
 
 ## License
