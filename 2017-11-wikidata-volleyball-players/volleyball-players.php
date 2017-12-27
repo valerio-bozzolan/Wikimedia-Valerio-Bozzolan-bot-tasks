@@ -51,6 +51,7 @@
 #################
 # Framework stuff
 #################
+
 require __DIR__ . '/../config.php';
 require __DIR__ . '/../includes/boz-mw/autoload.php';
 
@@ -67,13 +68,22 @@ define(  'WIKIDATA_SANDBOX', 'Q4115189' );
 defined( 'FORCE_OVERWRITE' ) or
 define(  'FORCE_OVERWRITE', false );
 
-defined( 'CONSENSUS_PAGE' ) or
-define(  'CONSENSUS_PAGE', 'c:Commons:Bots/Requests/Valerio Bozzolan bot' );
+defined( 'COMMONS_CONSENSUS_PAGE' ) or
+define(  'COMMONS_CONSENSUS_PAGE', 'Commons:Bots/Requests/Valerio Bozzolan bot' );
 
-defined( 'SUMMARY' ) or
-define(  'SUMMARY', sprintf(
+defined( 'WIKIDATA_CONSENSUS_PAGE' ) or
+define(  'WIKIDATA_CONSENSUS_PAGE', 'Wikidata:Requests for permissions/Bot/Valerio Bozzolan bot 2' );
+
+defined( 'COMMONS_SUMMARY' ) or
+define(  'COMMONS_SUMMARY', sprintf(
 	"[[%s|uniforming Legavolley 2017 players]]",
-	CONSENSUS_PAGE
+	COMMONS_CONSENSUS_PAGE
+) );
+
+defined( 'WIKIDATA_SUMMARY' ) or
+define(  'WIKIDATA_SUMMARY', sprintf(
+	"[[%s|uniforming Legavolley 2017 players]]",
+	WIKIDATA_CONSENSUS_PAGE
 ) );
 
 defined( 'VERBOSE' ) or
@@ -120,9 +130,9 @@ $WIKIDATA_CSRF_TOKEN = $wikidata_api->fetch( [
 	'type'   => 'csrf'
 ] )->query->tokens->csrftoken;
 
-######################
+#####################
 # Commons Login token
-######################
+#####################
 
 $commons_api = mw\APIRequest::factory('https://commons.wikimedia.org/w/api.php');
 $logintoken = $commons_api->fetch( [
@@ -185,6 +195,10 @@ $missing_natcodes = [];
 # Volleyball players CSV
 ########################
 
+$LATEST = file_exists( 'latest.txt' )
+	? trim( file_get_contents( 'latest.txt' ) )
+	: false;
+
 if( ( $handle = fopen('commons-volleyball-players.csv', 'r') ) !== false ) {
 
 	$porcelain = false;
@@ -209,6 +223,13 @@ if( ( $handle = fopen('commons-volleyball-players.csv', 'r') ) !== false ) {
 			continue;
 		}
 
+		if( false !== $LATEST && $surname < $LATEST ) {
+			echo "Skipping $surname (jet processed)...\n";
+			continue;
+		}
+		file_put_contents( 'latest.txt', $surname );
+		$LATEST = $surname;
+
 		$filepath = "$file.jpg";
 		$filename = "File:$filepath";
 		if( ! commons_page_exists( $filename ) ) {
@@ -217,9 +238,36 @@ if( ( $handle = fopen('commons-volleyball-players.csv', 'r') ) !== false ) {
 		}
 
 		$filename_url = commons_page_url( $filename );
+		$complete_name = "$name $surname";
 
-		$complete_name              = "$name $surname";
-		$personal_category          = $complete_name;
+		$wikidata_item = get_wikidata_item( $filename, $complete_name );
+		if( SANDBOXED ) {
+			$wikidata_item = $WIKIDATA_SANDBOX;
+		}
+
+		$wikidata_item_data = null;
+		if( $wikidata_item ) {
+			// Retrieve & compare
+			// https://www.wikidata.org/w/api.php?action=help&modules=wbgetentities
+			$wikidata_item_data = $wikidata_api->fetch( [
+				'action' => 'wbgetentities',
+				'ids'    => $wikidata_item,
+				'props'  => 'info|sitelinks|aliases|labels|descriptions|claims|datatype'
+			] );
+			if( ! isset( $wikidata_item_data->entities->{ $wikidata_item } ) ) {
+				throw new Exception("$wikidata_item does not exist?");
+			}
+			$wikidata_item_data = wb\DataModel::createFromObject( $wikidata_item_data->entities->{ $wikidata_item } );
+		}
+
+		$personal_category = $complete_name;
+		if( $wikidata_item && $wikidata_item_data->hasClaimsInProperty('P373') ) {
+			foreach( $wikidata_item_data->getClaims()['P373'] as $claims ) {
+				$personal_category = $claims->mainsnak->datavalue->value;
+				break;
+			}
+		}
+
 		$personal_category_prefixed = "Category:$personal_category";
 		$personal_category_url      = commons_page_url( $personal_category_prefixed );
 		$personal_category_exists   = commons_category_exists(  $personal_category_prefixed );
@@ -242,7 +290,7 @@ if( ( $handle = fopen('commons-volleyball-players.csv', 'r') ) !== false ) {
 					$personal_category_prefixed = "Category:$personal_category";
 					echo "# Input: [[$personal_category_prefixed]]\n";
 					echo "# " . commons_page_url( $personal_category_prefixed ) . "\n";
-					$personal_category_exists   = commons_category_exists(  $personal_category_prefixed );
+					$personal_category_exists = commons_category_exists(  $personal_category_prefixed );
 
 					echo "# Confirm category name?";
 					read();
@@ -311,29 +359,9 @@ if( ( $handle = fopen('commons-volleyball-players.csv', 'r') ) !== false ) {
 			legavolley_wikidata_statement_item('P641', 'Q1734')
 		];
 
-		$wikidata_item = get_wikidata_item( $filename, $complete_name );
-
-		if( SANDBOXED ) {
-			$wikidata_item = $WIKIDATA_SANDBOX;
-		}
-
 		$wikidata_item_new_data = new wb\DataModel();
 
 		if( $wikidata_item ) {
-			// Retrieve & compare
-			// https://www.wikidata.org/w/api.php?action=help&modules=wbgetentities
-			$wikidata_item_data = $wikidata_api->fetch( [
-				'action' => 'wbgetentities',
-				'ids'    => $wikidata_item,
-				'props'  => 'info|sitelinks|aliases|labels|descriptions|claims|datatype'
-			], [
-				'assoc'  => true
-			] );
-			if( ! isset( $wikidata_item_data['entities'][ $wikidata_item ] ) ) {
-				throw new Exception("$wikidata_item does not exist?");
-			}
-			$wikidata_item_data = wb\DataModel::createFromData( $wikidata_item_data['entities'][ $wikidata_item ] );
-
 			// Labels that are not present
 			foreach( $LABELS as $lang => $label ) {
 				$wikidata_item_new_data->setLabel( new wb\LabelAction(
@@ -362,7 +390,7 @@ if( ( $handle = fopen('commons-volleyball-players.csv', 'r') ) !== false ) {
 
 			if( $wikidata_item_new_data->countClaims() ) {
 				echo $wikidata_item_new_data->getJSON( JSON_PRETTY_PRINT );
-				echo "Confirm";
+				echo "Confirm existing https://www.wikidata.org/w/index.php?search=" . urlencode( $complete_name );
 				read();
 
 				// Save existing
@@ -370,7 +398,7 @@ if( ( $handle = fopen('commons-volleyball-players.csv', 'r') ) !== false ) {
 				$wikidata_api->post( [
 					'action'  => 'wbeditentity',
 					'id'      => $wikidata_item,
-					'summary' => SUMMARY,
+					'summary' => WIKIDATA_SUMMARY,
 					'token'   => $WIKIDATA_CSRF_TOKEN,
 					'bot'     => 1,
 					'data'    => $wikidata_item_new_data->getJSON()
@@ -382,12 +410,12 @@ if( ( $handle = fopen('commons-volleyball-players.csv', 'r') ) !== false ) {
 
 			// Labels
 			foreach( $LABELS as $language => $label ) {
-				$wikidata_item_new_data->setLabel( new wm\Label( $language, $label ) );
+				$wikidata_item_new_data->setLabel( new wb\Label( $language, $label ) );
 			}
 
 			// Descriptions
 			foreach( $DESCRIPTIONS as $lang => $description ) {
-				$wikidata_item_new_data->setDescription( new wm\Description( $lang, $description ) );
+				$wikidata_item_new_data->setDescription( new wb\Description( $lang, $description ) );
 			}
 
 			// Claims
@@ -397,7 +425,7 @@ if( ( $handle = fopen('commons-volleyball-players.csv', 'r') ) !== false ) {
 
 			echo $wikidata_item_new_data->getJSON( JSON_PRETTY_PRINT );
 
-			echo "Confirm";
+			echo "Confirm creation https://www.wikidata.org/w/index.php?search=" . urlencode( $complete_name );
 			read();
 
 			// Create
@@ -405,7 +433,7 @@ if( ( $handle = fopen('commons-volleyball-players.csv', 'r') ) !== false ) {
 			$result = $wikidata_api->post( [
 				'action'  => 'wbeditentity',
 				'new'     => 'item',
-				'summary' => SUMMARY,
+				'summary' => WIKIDATA_SUMMARY,
 				'token'   => $WIKIDATA_CSRF_TOKEN,
 				'bot'     => 1,
 				'data'    => $wikidata_item_new_data->getJSON()
@@ -416,8 +444,10 @@ if( ( $handle = fopen('commons-volleyball-players.csv', 'r') ) !== false ) {
 				die("API error");
 			}
 
-			$wikidata_item = $result->item->id;
+			$wikidata_item = $result->entity->id;
 		}
+
+		echo "$wikidata_item\n";
 
 		// Wikitext
 		// https://it.wikipedia.org/w/api.php?action=query&prop=revisions&titles=linux+%28kernel%29&rvprop=content
@@ -457,7 +487,7 @@ if( ( $handle = fopen('commons-volleyball-players.csv', 'r') ) !== false ) {
 
 		if( ! $file_has_template_depicted || ! $file_has_personal_category ) {
 
-			$summary = SUMMARY;
+			$summary = COMMONS_SUMMARY;
 
 			$replace = false;
 
@@ -516,13 +546,11 @@ if( ( $handle = fopen('commons-volleyball-players.csv', 'r') ) !== false ) {
 			if( $replace ) {
 				commons_save( $filename, $filename_content, $summary );
 			}
-		} else {
-			echo "# Skipped...";
 		}
 
 		echo "\n\n";
 
-		$summary = SUMMARY;
+		$summary = COMMONS_SUMMARY;
 
 		if( $personal_category_exists ) {
 			echo "# [[Category:$personal_category]] [[$personal_category_url]]\n";
@@ -532,35 +560,16 @@ if( ( $handle = fopen('commons-volleyball-players.csv', 'r') ) !== false ) {
 				if( $personal_category_has_wikidata_template ) {
 					echo "# It's perfect yet! Skip.\n";
 					continue;
-				} elseif( ! $wikidata_item ) {
-					$wikidata_item = get_wikidata_item( $filename, $complete_name );
-					if( ! INTERACTION && null === $wikidata_item ) {
-						interaction_warning();
-						continue;
-					}
-
-					if( ! $wikidata_item ) {
-						echo "# It misses the Wikidata template, but no Wikidata item. Skip.\n";
-						continue;
-					}
 				}
 			}
 
 			if( ! $personal_category_has_wikidata_template ) {
-				$wikidata_item = get_wikidata_item( $filename, $complete_name );
-				if( ! INTERACTION && null === $wikidata_item ) {
-					interaction_warning();
-					continue;
-				}
-
-				if( $wikidata_item ) {
-					$summary .= sprintf("; +[[Template:Wikidata person]] [[d:%s]]", $wikidata_item);
-					$personal_category_content = preg_replace(
-						'/^(?!{{Wikidata person)/',
-						"{{Wikidata person|$wikidata_item}}\n",
-						$personal_category_content
-					);
-				}
+				$summary .= sprintf("; +[[Template:Wikidata person]] [[d:%s]]", $wikidata_item);
+				$personal_category_content = preg_replace(
+					'/^(?!{{Wikidata person)/',
+					"{{Wikidata person|$wikidata_item}}\n",
+					$personal_category_content
+				);
 			}
 
 			if( ! $personal_category_has_best_national_category ) {
@@ -598,23 +607,14 @@ if( ( $handle = fopen('commons-volleyball-players.csv', 'r') ) !== false ) {
 		} else {
 			// Create
 
-			$summary = SUMMARY;
-
-			$wikidata_item = get_wikidata_item( $filename, $complete_name );
-			if( ! INTERACTION && null === $wikidata_item ) {
-				interaction_warning();
-				continue;
-			}
+			$summary = COMMONS_SUMMARY;
 
 			$lines = [];
-
-			if( $wikidata_item ) {
-				$lines[] = sprintf(
-					'{{Wikidata person|%s}}',
-					$wikidata_item
-				);
-				$summary .= "; +[[Template:Wikidata person]] [[d:$wikidata_item]]";
-			}
+			$lines[] = sprintf(
+				'{{Wikidata person|%s}}',
+				$wikidata_item
+			);
+			$summary .= "; +[[Template:Wikidata person]] [[d:$wikidata_item]]";
 
 			$lines[] = sprintf(
 				'{{DEFAULTSORT:%s, %s}}',
@@ -622,22 +622,12 @@ if( ( $handle = fopen('commons-volleyball-players.csv', 'r') ) !== false ) {
 				$name
 			);
 
-			if( ! $wikidata_item ) {
-				$lines[] = "[[Category:Men by name]]";
-				$lines[] = "[[Category:$name (given name)]]";
-				$lines[] = "[[Category:$surname (surname)|$name $surname]]";
-				$lines[] = "[[Category:Year of birth missing]]";
-				$summary .= "; +categories";
-			}
-
 			$lines[] = "[[$best_national_category_prefixed]]";
 			$summary .= "; +[[$best_national_category_prefixed]]";
 
 			commons_save( $personal_category_prefixed, implode("\n", $lines), $summary );
 		}
 	}
-
-	echo "\n\n\n\n";
 }
 
 if( $missing_natcodes ) {
@@ -817,7 +807,7 @@ function filter_volleyball_wikidata_IDs( $wikidata_IDs ) {
 	// https://www.wikidata.org/w/api.php?action=wbgetentities&props=descriptions&ids=Q19675&languages=en|it
 	$entities = mw\APIRequest::factory( 'https://www.wikidata.org/w/api.php', [
 		'action'    => 'wbgetentities',
-		'props'     => 'descriptions',
+		'props'     => 'descriptions|claims',
 		'ids'       => implode( '|', $wikidata_IDs ),
 		'languages' => implode( '|', $languages    )
 	] );
@@ -825,8 +815,14 @@ function filter_volleyball_wikidata_IDs( $wikidata_IDs ) {
 	while( $entities->hasNext() ) {
 		$entity = $entities->getNext();
 		foreach( $entity->entities as $entity_ID => $entity ) {
+			$entity_object = wb\DataModel::createFromObject( $entity );
 			foreach( $wikidata_IDs as $wikidata_ID ) {
 				if( $wikidata_ID === $entity_ID ) {
+					if( $entity_object->hasClaimsInProperty('P4303') ) {
+						echo "#ID LegaVolley match\n";
+						$matching_wikidata_IDs[ $wikidata_ID ] = true;
+						break;
+					}
 					foreach( $SEARCH_TERMS as $language => $term ) {
 						if( isset( $entity->descriptions->{ $language } ) ) {
 							$label = $entity->descriptions->{ $language };
@@ -1006,9 +1002,9 @@ function wiki_save( $api, $csrf, $title, $content, $summary ) {
 	read();
 	return $api->post( [
 		'action'   => 'edit',
-		'title'    => $filename,
+		'title'    => $title,
 		'summary'  => $summary,
-		'text'     => $filename_content,
+		'text'     => $content,
 		'token'    => $csrf,
 		'bot'      => ''
 	] );
