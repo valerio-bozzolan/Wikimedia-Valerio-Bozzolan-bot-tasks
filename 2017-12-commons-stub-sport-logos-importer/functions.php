@@ -77,14 +77,14 @@ function commons_save( $title, $content, $summary ) {
 function commons_wikitext( $page ) {
 	// Wikitext
 	// https://it.wikipedia.org/w/api.php?action=query&prop=revisions&titles=linux+%28kernel%29&rvprop=content
-	$pages = \wm\Commons::getInstance()->fetch( [
+	$pages = wm\Commons::getInstance()->fetch( [
 		'action' => 'query',
 		'prop'   => 'revisions',
 		'titles' => $page,
 		'rvprop' => 'content'
 	] );
 	foreach( $pages->query->pages as $page ) {
-		return Commons::getInstance()->createWikitext(
+		return wm\Commons::getInstance()->createWikitext(
 			$page->revisions[0]->{'*'}
 		);
 	}
@@ -113,7 +113,7 @@ function nation_from_it_people( $it_people ) {
  * @return bool
  */
 function commons_page_exists( $page ) {
-		$response = \wm\Commons::getInstance()->fetch( [
+		$response = wm\Commons::getInstance()->fetch( [
 			'action' => 'query',
 			'prop'   => 'info',
 			'titles' => $page
