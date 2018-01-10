@@ -15,42 +15,23 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-require '../config.php';
+# boz-mw
 require '../includes/boz-mw/autoload.php';
 
+# Auth tokens
+require '../config.php';
+
+# Local tools
+require 'functions.php';
+require 'classes.php';
+
 define('SUMMARY', '[[Commons:Bots/Requests/Valerio Bozzolan bot (2)|uniforming italian sport icons]]');
-
-#####################
-# Commons Login token
-#####################
-
-mw\APIRequest::$WAIT_POST = 0.2;
-
-$logintoken = \wm\Commons::getInstance()->fetch( [
-	'action' => 'query',
-	'meta'   => 'tokens',
-	'type'   => 'login'
-] )->query->tokens->logintoken;
-
-###############
-# Commons login
-###############
-
-$response = \wm\Commons::getInstance()->post( [
-	'action'     => 'login',
-	'lgname'     => WIKI_USERNAME,
-	'lgpassword' => WIKI_PASSWORD,
-	'lgtoken'    => $logintoken
-] );
-if( ! isset( $response->login->result ) || $response->login->result !== 'Success' ) {
-	throw new Exception("login failed");
-}
 
 #############################
 # Commons CSRF token (logged)
 #############################
 
-$COMMONS_CSRF_TOKEN = \wm\Commons::getInstance()->fetch( [
+$COMMONS_CSRF_TOKEN = \wm\Commons::getInstance()->login()->fetch( [
 	'action' => 'query',
 	'meta'   => 'tokens',
 	'type'   => 'csrf'
@@ -91,14 +72,12 @@ foreach( $SPORTS as $sport ) {
 
 	foreach( $NATIONS as $nation ) {
 
-		// Retrieve wikitext
+		// Retrieve a Wikitext object
 		$commons_title = "File:{$ensport_uc} {$nation->ennation}.png";
 		$commons_wikitext = commons_wikitext( $commons_title );
 
-		// Transform to object
-		$commons_wikitext_object = new \mw\Wikitext( \wm\Commons::getInstance(), $commons_wikitext );
-
-		// Titles
+		// Some categories
+		$sport_category             = $sport->commonscat;
 		$nation_category            = "Flags of {$nation->ennation}";
 		$nation_category_icons      = "Flags of {$nation->ennation} icons";
 		$nation_category_png        = "PNG flags of {$nation->ennation}";
@@ -107,149 +86,49 @@ foreach( $SPORTS as $sport ) {
 		// Clear summary
 		$summary = '';
 
-		// Add categories
+		// Add some nation-related categories... if they exist...
 		$categories = [
 			$nation_category_icons,
 			$nation_category_png,
 			$nation_category_variations
 		];
-		$has_one = false;
+		$wtf = true;
 		foreach( $categories as $category ) {
-			if( $commons_wikitext_object->hasCategory( $category ) ) {
-				$has_one = true;
-			} else {
-				if( commons_page_exists("Category:$category") ) {
-					$has_one = true;
-					$commons_wikitext_object->addCategory( $category );
-					$summary .= "; [[Category:$category]]";
-				}
+			$done = wikitext_add_category_if_exists( $commons_wikitext, $category, $summary );
+			if( $done ) {
+				$wtf = false;
 			}
 		}
 
-		// Add the generic national category only if others are missing
-		if( ! $has_one ) {
-			if( ! $commons_wikitext_object->hasCategory( $nation_category ) ) {
-				if( commons_page_exists( "Category:$nation_category" ) ) {
-					$commons_wikitext_object->addCategory( $nation_category );
-					$summary .= "; +[[Category:$nation_category]]";
-				}
-			}
+		// WTF! No previous nation-related category exist!
+		if( $wtf ) {
+			// Last chance
+			wikitext_add_category_if_exists( $commons_wikitext, $nation_category, $summary );
+		}
+
+		// Add a sport-related category
+		wikitext_add_category_if_exists( $commons_wikitext, $sport_category, $summary );
+
+		// Destroy the damn {{Uncategorized}}
+		if( 1 === $commons_wikitext->pregMatch('/{{Uncategorized\|.*?}}/') ) {
+			$commons_wikitext->pregReplace( '/{{Uncategorized *\|.*?}}.*\n/', '' );
+			$summary .= "; -[[Template:Uncategorized]]";
 		}
 
 		// Update description
 		$description = "{{en|Icon for {$sport->ensport} from {$nation->ennation}}}{{it|Icona per {$sport->itsportmen} {$nation->itpeople}}}";
 		$description_pattern = '/\|.*Description *= *' . preg_quote( $description ) . '/';
-		if( 1 !== $commons_wikitext_object->pregMatch( $description_pattern ) ) {
+		if( 1 !== $commons_wikitext->pregMatch( $description_pattern ) ) {
 			$description_pattern = '/(\| *Description *= *).*?(\n\|)/s';
-			$commons_wikitext_object->pregReplace( $description_pattern, "\\1$description\\2", 1 );
+			$commons_wikitext->pregReplace( $description_pattern, "\\1$description\\2", 1 );
 			$summary .= "; updated en/it description";
 		}
 
-		// Save
+		// Save the whole stuff
 		if( $summary ) {
-			commons_save( $commons_title, $commons_wikitext_object->getWikitext(), SUMMARY . $summary );
+			commons_save( $commons_title, $commons_wikitext->getWikitext(), SUMMARY . $summary );
 		}
 
-		echo "OK $commons_title\n";
+		echo "OK $commons_title! Yeah.\n";
 	}
-}
-
-class Sport {
-	function __construct( $itwikiprefix, $ensport, $ensportmen, $itsport, $itsportmen ) {
-		$this->itwikiprefix = $itwikiprefix;
-		$this->ensport      = $ensport;
-		$this->ensportmen   = $ensportmen;
-		$this->itsport      = $itsport;
-		$this->itsportmen   = $itsportmen;
-	}
-
-	static function createFromData( $data ) {
-		return new self(
-			$data[0],
-			$data[1],
-			$data[2],
-			$data[3],
-			$data[4]
-		);
-	}
-}
-
-class Nation {
-	function __construct( $itpeople, $ennation ) {
-		$this->itpeople = $itpeople;
-		$this->ennation = $ennation;
-	}
-
-	static function createFromData( $data ) {
-		return new self(
-			$data[0],
-			$data[1]
-		);
-	}
-}
-
-function wiki_save( $wiki, $csrf, $title, $content, $summary ) {
-	echo "\n";
-	echo "########### Saving [[$title]]: ##########\n";
-	echo $content;
-	echo "\n";
-	echo "#########################################\n";
-	echo "Confirm summary: |$summary|\n";
-	read();
-	return $wiki->post( [
-		'action'   => 'edit',
-		'title'    => $title,
-		'summary'  => $summary,
-		'text'     => $content,
-		'token'    => $csrf,
-		'bot'      => ''
-	] );
-}
-
-function read( $default = '' ) {
-	$v = chop( fgets(STDIN) );
-	return $v ? $v : $default;
-}
-
-function commons_save( $title, $content, $summary ) {
-	return wiki_save(
-		\wm\Commons::getInstance(),
-		$GLOBALS['COMMONS_CSRF_TOKEN'],
-		$title,
-		$content,
-		$summary
-	);
-}
-
-function commons_wikitext( $page ) {
-	// Wikitext
-	// https://it.wikipedia.org/w/api.php?action=query&prop=revisions&titles=linux+%28kernel%29&rvprop=content
-	$pages = \wm\Commons::getInstance()->fetch( [
-		'action' => 'query',
-		'prop'   => 'revisions',
-		'titles' => $page,
-		'rvprop' => 'content'
-	] );
-	foreach( $pages->query->pages as $page ) {
-		return $page->revisions[0]->{'*'};
-	}
-	throw new Exception("missing page $page");
-}
-
-function nation_from_it_people( $it_people ) {
-	foreach( $GLOBALS['NATIONS'] as $nation ) {
-		if( $nation->itpeople === $it_people ) {
-			return $nation;
-		}
-	}
-	throw new Exception("missing it people $it_people");
-}
-
-function commons_page_exists( $page ) {
-		$response = \wm\Commons::getInstance()->fetch( [
-			'action' => 'query',
-			'prop'   => 'info',
-			'titles' => $page
-		] );
-		return ! isset( $response->query->pages->{-1} );
 }
