@@ -4,10 +4,9 @@ This PHP bot was developed to import Italian Wikipedia sports stub logos into Wi
 
 ## Consensus
 
-- [X] [Upstream specifications on Italian Wikipedia](https://it.wikipedia.org/wiki/Speciale:PermaLink/92330575)
-- [X] [Upstream discussion on Italian Wikipedia](https://it.wikipedia.org/wiki/Speciale:PermaLink/93285504)
+- [X] [Upstream discussion on Italian Wikipedia](https://it.wikipedia.org/wiki/Discussioni_utente:Superchilum/File_stub)
 - [X] [Upstream bot consensus on Italian Wikipedia](https://it.wikipedia.org/wiki/Speciale:PermaLink/92327619#Spostamento_di_immagini_su_Commons)
-- [ ] [Bot consensus on Wikimedia Commons](https://commons.wikimedia.org/wiki/Commons:Bots/Requests/Valerio_Bozzolan_bot_%282%29)
+- [X] [Bot consensus on Wikimedia Commons](https://commons.wikimedia.org/wiki/Commons:Bots/Requests/Valerio_Bozzolan_bot_%282%29)
 
 ## Usage
 
