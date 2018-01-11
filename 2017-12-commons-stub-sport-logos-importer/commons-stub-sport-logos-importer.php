@@ -27,16 +27,6 @@ require 'classes.php';
 
 define('SUMMARY', '[[Commons:Bots/Requests/Valerio Bozzolan bot (2)|uniforming italian sport icons]]');
 
-#############################
-# Commons CSRF token (logged)
-#############################
-
-$COMMONS_CSRF_TOKEN = \wm\Commons::getInstance()->login()->fetch( [
-	'action' => 'query',
-	'meta'   => 'tokens',
-	'type'   => 'csrf'
-] )->query->tokens->csrftoken;
-
 ################
 # Prepare sports
 ################
@@ -65,16 +55,30 @@ foreach( $nations_data as $i => $nation_data ) {
 	$NATIONS[] = $nation;
 }
 
+$sport_i = 0;
+
 foreach( $SPORTS as $sport ) {
+
+	$sport_i++;
 
 	// Upper case
 	$ensport_uc = ucfirst( $sport->ensport );
 
+	$nation_i = 0;
+
 	foreach( $NATIONS as $nation ) {
+
+		$nation_i++;
 
 		// Retrieve a Wikitext object
 		$commons_title = "File:{$ensport_uc} {$nation->ennation}.png";
+
 		$commons_wikitext = commons_wikitext( $commons_title );
+
+		if( ! $commons_wikitext ) {
+			echo "Skip [[$commons_title]]: empty/unexisting \n";
+			continue;
+		}
 
 		// Some categories
 		$sport_category             = $sport->commonscat;
@@ -126,7 +130,7 @@ foreach( $SPORTS as $sport ) {
 
 		// Save the whole stuff
 		if( $summary ) {
-			commons_save( $commons_title, $commons_wikitext->getWikitext(), SUMMARY . $summary );
+			commons_save( $commons_title, $commons_wikitext, SUMMARY . $summary );
 		}
 
 		echo "OK $commons_title! Yeah.\n";

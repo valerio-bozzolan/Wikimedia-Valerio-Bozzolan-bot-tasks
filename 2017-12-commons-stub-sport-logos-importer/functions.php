@@ -15,57 +15,106 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Save a page in Wikimedia Commons.
+ *
+ * @param $title string Page title to be saved
+ * @param $wikitext mw\Wikitext Wikitext to be saved
+ * @param $summary string Summary
+ */
+function commons_save( $title, $wikitext, $summary ) {
+	static $csrf;
+	if( ! $csrf ) {
+		$csrf = commons_csrf();
+	}
+	try {
+		return wiki_save(
+			\wm\Commons::getInstance(),
+			$csrf,
+			$title,
+			$wikitext,
+			$summary
+		);
+	} catch( Exception $e ) {
+		if( $e->getCode() === 'badtoken' ) {
+			$csrf = null;
+			return commons_save( $title, $content, $summary );
+		}
+	}
+}
+
+/**
+ * Commons CSRF
+ *
+ * @return string
+ */
+function commons_csrf() {
+	return \wm\Commons::getInstance()->login()->fetch( [
+		'action' => 'query',
+		'meta'   => 'tokens',
+		'type'   => 'csrf'
+	] )->query->tokens->csrftoken;
+}
+
+/**
  * Save a page.
  *
- * @param $wiki mw\APIRequest or mw\Site
- * @param $csrf The CSRF token
- * @param $title Page title to be created
- * @param $summary Summary
+ * @param $wiki mw\API or mw\Site
+ * @param $csrf string The CSRF token
+ * @param $title string Page title to be created
+ * @param $wikitext mw\Wikitext Page title to be created
+ * @param $summary string Summary
  */
-function wiki_save( $wiki, $csrf, $title, $content, $summary ) {
+function wiki_save( $wiki, $csrf, $title, $wikitext, $summary ) {
+
+	static $read = false;
+
 	echo "\n";
-	echo "########### Saving [[$title]]: ##########\n";
-	echo $content;
+	foreach( explode( "\n", $wikitext->getPrepended() ) as $line ) {
+		if( $line ) {
+			echo "+$line\n";
+		}
+	}
 	echo "\n";
 	echo "#########################################\n";
 	echo "Confirm summary: |$summary|\n";
-	read();
+	echo "#########################################\n";
+	foreach( $wikitext->getSobstitutions() as $sobstitution ) {
+		list( $a, $b ) = $sobstitution;
+		foreach( explode( "\n", $a ) as $line ) {
+			if( ! empty( $line ) ) {
+				echo "-$line\n";
+			}
+		}
+		foreach( explode( "\n", $b ) as $line ) {
+			if( ! empty( $line ) ) {
+				echo "+$line\n";
+			}
+		}
+		echo "\n";
+	}
+	echo "\n";
+	foreach( explode( "\n", $wikitext->getAppended() ) as $line ) {
+		if( $line ) {
+			echo "+$line\n";
+		}
+	}
+	echo "########### Saving [[$title]]: ##########\n";
+
+	if( ! $read ) {
+		$read = true;
+		read();
+	} else {
+		sleep(3);
+	}
+
 	return $wiki->post( [
 		'action'   => 'edit',
 		'title'    => $title,
 		'summary'  => $summary,
-		'text'     => $content,
+		'text'     => $wikitext->getWikitext(),
 		'token'    => $csrf,
 		'bot'      => ''
 	] );
-}
-
-/**
- * Wait for an input
- *
- * @param $default Default string to be returned if nothing is chopped.
- * @return string Chopped string, or $default.
- */
-function read( $default = '' ) {
-	$v = chop( fgets(STDIN) );
-	return $v ? $v : $default;
-}
-
-/**
- * Save a page in Wikimedia Commons.
- *
- * @param $title Page title to be saved
- * @param $content Wikitext to be saved
- * @param $summary Summary
- */
-function commons_save( $title, $content, $summary ) {
-	return wiki_save(
-		\wm\Commons::getInstance(),
-		$GLOBALS['COMMONS_CSRF_TOKEN'],
-		$title,
-		$content,
-		$summary
-	);
 }
 
 /**
@@ -84,11 +133,13 @@ function commons_wikitext( $page ) {
 		'rvprop' => 'content'
 	] );
 	foreach( $pages->query->pages as $page ) {
-		return wm\Commons::getInstance()->createWikitext(
-			$page->revisions[0]->{'*'}
-		);
+		if( isset( $page->revisions ) ) {
+			return wm\Commons::getInstance()->createWikitext(
+				$page->revisions[0]->{'*'}
+			);
+		}
 	}
-	throw new Exception("missing page $page");
+	return false;
 }
 
 /**
@@ -140,4 +191,15 @@ function wikitext_add_category_if_exists( $wikitext, $category, & $summary ) {
 			return 2;
 		}
 		return 0;
+}
+
+/**
+ * Wait for an input
+ *
+ * @param $default Default string to be returned if nothing is chopped.
+ * @return string Chopped string, or $default.
+ */
+function read( $default = '' ) {
+	$v = chop( fgets(STDIN) );
+	return $v ? $v : $default;
 }
