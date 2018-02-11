@@ -1,0 +1,111 @@
+code,item,itemLabel
+AG,http://www.wikidata.org/entity/Q16112,provincia di Agrigento
+AL,http://www.wikidata.org/entity/Q15097,provincia di Alessandria
+AN,http://www.wikidata.org/entity/Q16114,provincia di Ancona
+AO,http://www.wikidata.org/entity/Q15118,provincia di Aosta
+AP,http://www.wikidata.org/entity/Q16117,provincia di Ascoli Piceno
+AQ,http://www.wikidata.org/entity/Q16189,provincia dell'Aquila
+AR,http://www.wikidata.org/entity/Q16115,provincia di Arezzo
+AT,http://www.wikidata.org/entity/Q15099,provincia di Asti
+AV,http://www.wikidata.org/entity/Q16120,provincia di Avellino
+BA,http://www.wikidata.org/entity/Q16123,provincia di Bari
+BG,http://www.wikidata.org/entity/Q16137,provincia di Bergamo
+BI,http://www.wikidata.org/entity/Q15094,provincia di Biella
+BL,http://www.wikidata.org/entity/Q16126,provincia di Belluno
+BN,http://www.wikidata.org/entity/Q16134,provincia di Benevento
+BO,http://www.wikidata.org/entity/Q16139,provincia di Bologna
+BR,http://www.wikidata.org/entity/Q16148,provincia di Brindisi
+BS,http://www.wikidata.org/entity/Q16144,provincia di Brescia
+BT,http://www.wikidata.org/entity/Q16124,provincia di Barletta-Andria-Trani
+BZ,http://www.wikidata.org/entity/Q15124,provincia autonoma di Bolzano
+CA,http://www.wikidata.org/entity/Q16149,provincia di Cagliari
+CB,http://www.wikidata.org/entity/Q16151,provincia di Campobasso
+CE,http://www.wikidata.org/entity/Q16153,provincia di Caserta
+CH,http://www.wikidata.org/entity/Q16160,provincia di Chieti
+CI,http://www.wikidata.org/entity/Q16152,provincia di Carbonia-Iglesias
+CL,http://www.wikidata.org/entity/Q16150,provincia di Caltanissetta
+CN,http://www.wikidata.org/entity/Q15091,provincia di Cuneo
+CO,http://www.wikidata.org/entity/Q16161,provincia di Como
+CR,http://www.wikidata.org/entity/Q16163,provincia di Cremona
+CS,http://www.wikidata.org/entity/Q16162,provincia di Cosenza
+CT,http://www.wikidata.org/entity/Q16154,provincia di Catania
+CZ,http://www.wikidata.org/entity/Q16159,provincia di Catanzaro
+EN,http://www.wikidata.org/entity/Q16166,provincia di Enna
+FC,http://www.wikidata.org/entity/Q16180,provincia di Forlì-Cesena
+FE,http://www.wikidata.org/entity/Q16168,provincia di Ferrara
+FG,http://www.wikidata.org/entity/Q15129,provincia di Foggia
+FI,http://www.wikidata.org/entity/Q16172,provincia di Firenze
+FM,http://www.wikidata.org/entity/Q16167,provincia di Fermo
+FR,http://www.wikidata.org/entity/Q16181,provincia di Frosinone
+GE,http://www.wikidata.org/entity/Q16183,provincia di Genova
+GO,http://www.wikidata.org/entity/Q16184,provincia di Gorizia
+GR,http://www.wikidata.org/entity/Q16185,provincia di Grosseto
+IM,http://www.wikidata.org/entity/Q16186,provincia di Imperia
+IS,http://www.wikidata.org/entity/Q16187,provincia di Isernia
+KR,http://www.wikidata.org/entity/Q16165,provincia di Crotone
+LC,http://www.wikidata.org/entity/Q16199,provincia di Lecco
+LE,http://www.wikidata.org/entity/Q16197,provincia di Lecce
+LI,http://www.wikidata.org/entity/Q16200,provincia di Livorno
+LO,http://www.wikidata.org/entity/Q16201,provincia di Lodi
+LT,http://www.wikidata.org/entity/Q16196,provincia di Latina
+LU,http://www.wikidata.org/entity/Q16202,provincia di Lucca
+MB,http://www.wikidata.org/entity/Q16210,provincia di Monza e della Brianza
+MC,http://www.wikidata.org/entity/Q16203,provincia di Macerata
+ME,http://www.wikidata.org/entity/Q16208,provincia di Messina
+MI,http://www.wikidata.org/entity/Q15121,provincia di Milano
+MN,http://www.wikidata.org/entity/Q16204,provincia di Mantova
+MO,http://www.wikidata.org/entity/Q16209,provincia di Modena
+MS,http://www.wikidata.org/entity/Q16205,provincia di Massa e Carrara
+MT,http://www.wikidata.org/entity/Q16206,provincia di Matera
+NA,http://www.wikidata.org/entity/Q15123,provincia di Napoli
+NO,http://www.wikidata.org/entity/Q16216,provincia di Novara
+NU,http://www.wikidata.org/entity/Q16220,provincia di Nuoro
+OG,http://www.wikidata.org/entity/Q16223,provincia dell'Ogliastra
+OR,http://www.wikidata.org/entity/Q16225,provincia di Oristano
+OT,http://www.wikidata.org/entity/Q16224,provincia di Olbia-Tempio
+PA,http://www.wikidata.org/entity/Q16227,provincia di Palermo
+PC,http://www.wikidata.org/entity/Q16243,provincia di Piacenza
+PD,http://www.wikidata.org/entity/Q16226,provincia di Padova
+PE,http://www.wikidata.org/entity/Q16242,provincia di Pescara
+PG,http://www.wikidata.org/entity/Q16240,provincia di Perugia
+PI,http://www.wikidata.org/entity/Q16244,provincia di Pisa
+PN,http://www.wikidata.org/entity/Q16247,provincia di Pordenone
+PO,http://www.wikidata.org/entity/Q16250,provincia di Prato
+PR,http://www.wikidata.org/entity/Q16228,provincia di Parma
+PT,http://www.wikidata.org/entity/Q16245,provincia di Pistoia
+PU,http://www.wikidata.org/entity/Q16241,provincia di Pesaro e Urbino
+PV,http://www.wikidata.org/entity/Q16231,provincia di Pavia
+PZ,http://www.wikidata.org/entity/Q16249,provincia di Potenza
+RA,http://www.wikidata.org/entity/Q16252,provincia di Ravenna
+RC,http://www.wikidata.org/entity/Q16253,provincia di Reggio Calabria
+RE,http://www.wikidata.org/entity/Q16254,provincia di Reggio nell'Emilia
+RG,http://www.wikidata.org/entity/Q16251,provincia di Ragusa
+RI,http://www.wikidata.org/entity/Q16267,provincia di Rieti
+RM,http://www.wikidata.org/entity/Q15119,provincia di Roma
+RN,http://www.wikidata.org/entity/Q16268,provincia di Rimini
+RO,http://www.wikidata.org/entity/Q16270,provincia di Rovigo
+SA,http://www.wikidata.org/entity/Q16271,provincia di Salerno
+SI,http://www.wikidata.org/entity/Q16275,provincia di Siena
+SO,http://www.wikidata.org/entity/Q16282,provincia di Sondrio
+SP,http://www.wikidata.org/entity/Q16188,provincia della Spezia
+SR,http://www.wikidata.org/entity/Q16277,provincia di Siracusa
+SS,http://www.wikidata.org/entity/Q16272,provincia di Sassari
+SV,http://www.wikidata.org/entity/Q16274,provincia di Savona
+TA,http://www.wikidata.org/entity/Q16283,provincia di Taranto
+TE,http://www.wikidata.org/entity/Q16284,provincia di Teramo
+TN,http://www.wikidata.org/entity/Q16289,provincia autonoma di Trento
+TO,http://www.wikidata.org/entity/Q16287,provincia di Torino
+TP,http://www.wikidata.org/entity/Q16288,provincia di Trapani
+TR,http://www.wikidata.org/entity/Q16286,provincia di Terni
+TS,http://www.wikidata.org/entity/Q16293,provincia di Trieste
+TV,http://www.wikidata.org/entity/Q16292,provincia di Treviso
+UD,http://www.wikidata.org/entity/Q16294,provincia di Udine
+VA,http://www.wikidata.org/entity/Q16299,provincia di Varese
+VB,http://www.wikidata.org/entity/Q16312,provincia del Verbano-Cusio-Ossola
+VC,http://www.wikidata.org/entity/Q15096,provincia di Vercelli
+VE,http://www.wikidata.org/entity/Q16310,provincia di Venezia
+VI,http://www.wikidata.org/entity/Q16316,provincia di Vicenza
+VR,http://www.wikidata.org/entity/Q16314,provincia di Verona
+VS,http://www.wikidata.org/entity/Q16207,provincia del Medio Campidano
+VT,http://www.wikidata.org/entity/Q16318,provincia di Viterbo
+VV,http://www.wikidata.org/entity/Q16315,provincia di Vibo Valentia
