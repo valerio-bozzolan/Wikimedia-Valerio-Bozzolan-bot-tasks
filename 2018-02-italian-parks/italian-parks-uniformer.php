@@ -25,10 +25,26 @@ require '../config.php';
 require 'includes/functions.php';
 
 # classes shortcut
+use wm\Wikidata;
 use wb\DataModel;
+use wb\Label;
+use wb\StatementItem;
+use wb\StatementString;
+use wb\StatementQuantity;
+use wb\StatementGlobeCoordinate;
+use wb\StatementTime;
+use wb\DataValueTime;
 use wb\Snaks;
 use wb\SnakItem;
-use wb\StatementItem;
+
+# login and fetch the CSRF token
+define( 'CSRF',
+	Wikidata::getInstance()->login()->fetch( [
+		'action' => 'query',
+		'meta'   => 'tokens',
+		'type'   => 'csrf'
+	] )->query->tokens->csrftoken
+);
 
 # data
 $handle = fopen('data/italian-parks-data.csv', 'r') or die('asd');
@@ -54,6 +70,7 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 	// null empty values
 	foreach( $data as & $value ) {
 		$value = trim( $value );
+		$value = str_replace( "\n", '', $value ); // the dataset is a bit dirty
 		if( ! $value ) {
 			$value = null;
 		}
@@ -82,6 +99,7 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 		$label, // string [[something]]
 		$P2046, // area
 		        // float
+				// various heritage designation
 		$P1435['Q796174'],
 		$P1435['Q1191622'],
 		$P1435['Q2463705'],
@@ -90,54 +108,67 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 		$P1435['Q3936952'],
 		$P1435['Q3936950'],
 		$P1435['Q23790'],
-		$P126, // string
-		$P571  // int
+		$P126, // maintained by
+		       // string
+		$P571  // inception
+		       // int
 	) = $data;
 
-	$new_data = new DataModel();
+	// fetch existing Wikidata entity
+	$existing = null;
+	if( $wikidata_ID = 'Q4115189' ) {
+		$existing = DataModel::createFromObject( 
+			Wikidata::getInstance()->fetch( [
+				'action' => 'wbgetentities',
+				'ids'    => $wikidata_ID,
+				'props'  => 'info|sitelinks|aliases|labels|claims|datatype'
+			] )->entities->{ $wikidata_ID }
+		);
+	}
+
+	$new = new DataModel();
+	$statements = [];
+	$summary = 'test before [[Wd:Requests for permissions/Bot/Valerio Bozzolan bot 4|importing italian parks]]';
+
+	// label
+	if( $label ) {
+		if( ! $existing || ! $existing->hasLabelsInLanguage('it') ) {
+			$label = filter_label( $label );
+			$new->setLabel( new Label( 'it', $label ) );
+			$summary .= ' +label[it]';
+		}
+	}
 
 	// instance of: nature reserve
-	$new_data->addClaim(
-		( new StatementItem( 'P31', 'Q179049' ) )
-			->setReferences( $REFERENCES )
-	);
+	$statements[] = new StatementItem( 'P31', 'Q179049' );
 
 	// located in the administrative territorial entity
 	if( $P131 ) {
 		// can specify multiple cities
 		$P131_city_IDs = plate_2_wikidataIDs( $P131 );
 		foreach( $P131_city_IDs as $P131_city_ID ) {
-			$new_data->addClaim(
-				( new StatementItem( 'P131', $P131_city_ID ) )	
-				->setReferences( $REFERENCES )
-			);
+			$statements[] =	new StatementItem( 'P131', $P131_city_ID );
 		}
 	}
 
 	// coordinate location
 	if( $P625 ) {
 		list( $lat, $lng ) = filter_coordinates( $P625 );
-		$new_data->addClaim(
-			( new StatementGlobeCoordinate( 'P625', $lat, $lng ) )
-			->setReferences( $REFERENCES )
-		);
+		$statements[] = new StatementGlobeCoordinate( 'P625', $lat, $lng, 0.01 ); // last: precision
 	}
 
 	// EUAP ID
 	if( $P4800 ) {
 		// can specify multiple values
 		foreach( explode( '/', $P4800 ) as $P4800_value ) {
-			$new_data->addClaim(
-				( new StatementString( 'P4800', trim( $P4800_value ) ) )
-				->setReferences( $REFERENCES )
-			);
+			$statements[] = new StatementString( 'P4800', trim( $P4800_value ), 0.01 );
 		}
 	}
 
 	// WDPA ID
 	if( $P809 ) {
 		foreach( explode( '/', $P809 ) as $P809_value ) {
-			$new_data->addClaim(
+			$new->addClaim(
 				( new StatementString( 'P809', trim( $P809_value ) ) )
 				->setReferences( $REFERENCES )
 			);
@@ -146,25 +177,66 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 
 	// Natura 2000 site ID
 	if( $P3425 ) {
-		$new_data->addClaim(
-			( new StatementString( 'P3425', trim( $P3425 ) ) )
-			->setReferences( $REFERENCES )
-		);
+		$statements[] = new StatementString( 'P3425', trim( $P3425 ) );
 	}
 
 	// area
 	if( $P2046 ) {
 		$P2046 = (float) str_replace( ',', '.', $P2046 );
-		$new_data->addClaim(
-			( new StatementQuantity( 'P2046', $P2046, 'Q35852' ) ) // 'Q35852' = hectare
-			->setReferences( $REFERENCES )
-		);
+		$statements[] = new StatementQuantity( 'P2046', $P2046, 'Q35852' ); // 'Q35852' = hectare
 	}
 
-	if( $wikidata_ID ) {
-		// Edit
-	} else {
-		// Create
+	// heritage designation
+	foreach( $P1435 as $P1435_item => $selected ) {
+		if( ! empty( trim( $selected ) ) ) {
+			$statements[] = new StatementItem( 'P1435', $P1435_item );
+		}
+	}
+
+	/* TODO
+	if( $P126 ) {
+		$statements[] = 
+	}
+	*/
+
+	// inception
+	if( $P571 ) {
+		$P571 = (int) $P571;
+		$statements[] = new StatementTime( 'P571', "+$P571-00-00T00:00:00Z", DataValueTime::PRECISION_YEARS );
+		
+	}
+
+	// append statements without duplicating
+	foreach( $statements as $statement ) {
+		$property = $statement->getMainsnak()->getProperty();
+		if( ! $existing || ! $existing->hasClaimsInProperty( $property ) ) {
+			$new->addClaim(
+				$statement->setReferences( $REFERENCES )
+			);
+			$summary .= " +[[P:$property]]";
+		}
+	}
+
+	// check and save
+	echo $new->getJSON( JSON_PRETTY_PRINT ) . "\n";
+	echo $summary . "\n";
+	echo "Save? ";
+	if( read('y') === 'y' ) {
+		echo "Saving\n";
+
+		$args = [
+			'action'  => 'wbeditentity',
+			'token'   => CSRF,
+			'bot'     => 1,
+			'data'    => $new->getJSON(),
+			'summary' => $summary,
+		];
+
+		if( $wikidata_ID ) {
+			// save existing
+			$args['id'] = $wikidata_ID;
+		}
+		Wikidata::getInstance()->post( $args );
 	}
 }
 
