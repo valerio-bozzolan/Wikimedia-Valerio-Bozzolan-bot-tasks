@@ -72,10 +72,8 @@ ID Wikidata,P131,P625,P4800,P809,P627,P3425,Etichetta,P2046,P1435,,,,,,,,P126,P5
 °N 7.934722°E",,555528176,,IT1314723,[[Campasso - Grotta Sgarbu Du Ventu]],105,x,,,,,,,,Provincia di Imperia,
 ,IM,"43.953611
 °N 7.714167°E",,555528179,,IT1315408,[[Lecceta di Langan]],238,x,,,,,,,,Provincia di Imperia,
-,IM/SV,43.974167°N 8.041667°E,,555528183,,IT1315602,[[Pizzo d'Evigno]],2198,x,,,,,,,,"Regione Liguria - Dipartimento Ambiente - Servizio Parchi, Aree Protette e Biodiversità
-",
-,IM/SV,44.097222°N 8.044722°E,,555528224,,IT1324818,[[Castell'Ermo - Peso Grande]],1964,x,,,,,,,,"Regione Liguria - Dipartimento Ambiente - Servizio Parchi, Aree Protette e Biodiversità
-",
+,IM/SV,43.974167°N 8.041667°E,,555528183,,IT1315602,[[Pizzo d'Evigno]],2198,x,,,,,,,,Q48689312,
+,IM/SV,44.097222°N 8.044722°E,,555528224,,IT1324818,[[Castell'Ermo - Peso Grande]],1964,x,,,,,,,,Q48689312,
 ,SV,44.101944°N 8.179722°E,,555528228,,IT1324910,[[Monte Acuto - Poggio Grande - Rio Torsero]],2420,x,,,,,,,,Provincia di Savona,
 ,SV,"44.145278
 °N 8.180833°E",,555528222,,IT1324011,[[Monte Ravinet - Rocca Barbena]],2576,x,,,,,,,,Provincia di Savona,
