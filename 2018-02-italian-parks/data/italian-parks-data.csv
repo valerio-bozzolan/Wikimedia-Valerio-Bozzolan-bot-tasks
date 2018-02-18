@@ -2,18 +2,14 @@ P31 è Q179049 per tutti,,,"Per P131, P809 e P627 alcuni elementi hanno due valo
 ,,,,,,,,,,,,,,,,,,
 ID Wikidata,P131,P625,P4800,P809,P627,P3425,Etichetta,P2046,P1435,,,,,,,,P126,P571
 ,,,,,,,,,Q796174,Q1191622,Q2463705,Q46169,Q48078443,Q3936952,Q3936950,Q23790,,
-,SO,46.15876°N 9.893705°E,EUAP1175,"178919/
-555540098",Q14545639,IT2040402,[[Riserva regionale Bosco dei Bordighi]],47,,,x,,,,x,,Comunità Montana Valtellina di Sondrio,2004
+,SO,46.15876°N 9.893705°E,EUAP1175,"178919/555540098",Q14545639,IT2040402,[[Riserva regionale Bosco dei Bordighi]],47,,,x,,,,x,,Comunità Montana Valtellina di Sondrio,2004
 ,SO,46.290278°N 9.759722°E,,555540092,,IT2040017,[[Disgrazia - Sissone]],3010,x,x,x,,,,,,Provincia di Sondrio,2006
 ,SO,46.243°N 9.485°E,,555540093,,IT2040018,[[Val Codera (area protetta)|Val Codera]],818,x,x,x,,,,,,Comunità montana Valchiavenna,2006
 ,SO,46.255556°N 9.946944°E,,555540094,,IT2040021,[[Val di Togno - Pizzo Scalino]],3150,x,x,x,,,,,,Provincia di Sondrio,2006
 ,SO,46.343611°N 9.905833°E,,555580384,,IT2040016,[[Monte di Scerscen - Ghiacciai di Scerscen - Monte Motta]],9666,x,,x,,,,,,Provincia di Sondrio,2006
-,VA,8.817778°N 46.063333°E,,555528312,,IT2010016,[[Val Veddasca (area protetta)|Val Veddasca]],4919,x,x,,,,,,,"Comunità Montana Valli del Verbano
-",
-,VA,45.878°N 8.645°E,,555528314,,IT2010018,[[Monte Sangiano]],195,x,x,,,,,,,"Comunità Montana Valli del Verbano
-",
-,VA,45.92°N 8.7083°E,,555528315,,IT2010019,[[Monti della Valcuvia]],1629,x,x,,,,,,,"Comunità Montana Valli del Verbano
-",
+,VA,8.817778°N 46.063333°E,,555528312,,IT2010016,[[Val Veddasca (area protetta)|Val Veddasca]],4919,x,x,,,,,,,"Comunità Montana Valli del Verbano",
+,VA,45.878°N 8.645°E,,555528314,,IT2010018,[[Monte Sangiano]],195,x,x,,,,,,,"Comunità Montana Valli del Verbano",
+,VA,45.92°N 8.7083°E,,555528315,,IT2010019,[[Monti della Valcuvia]],1629,x,x,,,,,,,"Comunità Montana Valli del Verbano",
 ,VA,45.908°N 8.876°E,,555528316,,IT2010020,[[Torbiera di Cavagnano]],6,x,x,,,,,,,Provincia di Varese,
 ,CO,46.1936°N 9.2333°E,,555528327,,IT2020009,[[Valle del Dosso]],1652,x,x,,,,,,,Provincia di Como,
 ,CO,45.8336°N 9.2733°E,,555528328,,IT2020010,[[Lago di Segrino]],282,x,x,,,,,,,Consorzio Parco Lago del Segrino,
@@ -35,96 +31,64 @@ ID Wikidata,P131,P625,P4800,P809,P627,P3425,Etichetta,P2046,P1435,,,,,,,,P126,P5
 ,BS,46.0567°N 10.3761°E,,555528419,,IT2070023,[[Belvedere - Tri Plane]],26,x,x,,,,,,,Comunità Montana di Valle Camonica,
 ,CO,45.948715°N 9.021957°E,,555540087,,IT2020302,[[Monte Generoso (area protetta)|Monte Generoso]],237,,,x,,,,,,Ente Regionale per i Servizi all'Agricoltura e alle Foreste,2003
 ,BG,45.852724°N 9.474939°E,,555540106,,IT2060301,[[Monte Resegone]],429,,,x,,,,,,Ente Regionale per i Servizi all'Agricoltura e alle Foreste,2003
-,BG,45.869147°N 9.509958°E,,555540107,,IT2060302,[[Costa del Pallio]],295,,,x,,,,,,"Ente Regionale per i Servizi all'Agricoltura e alle Foreste
-",2003
+,BG,45.869147°N 9.509958°E,,555540107,,IT2060302,[[Costa del Pallio]],295,,,x,,,,,,"Ente Regionale per i Servizi all'Agricoltura e alle Foreste",2003
 ,BG,45.893236°N 10.11331°E,,555540108,,IT2060304,[[Val di Scalve (area protetta)|Val di Scalve]],671,,,x,,,,,,Ente Regionale per i Servizi all'Agricoltura e alle Foreste,2003
 ,BG,46.077259°N 10.057279°E,,555540110,,IT2060506,[[Belviso Barbellino]],1944,,,x,,,,,,Azienda Faunistico-Venatoria Valbelviso Barbellino,2005
 ,BS,46.056148°N 10.261552°E,,555540112,,IT2070301,[[Foresta di Legnoli]],332,,,x,,,,,,Ente Regionale per i Servizi all'Agricoltura e alle Foreste,2003
 ,IM,43.938056°N 7.762222°E,,,,,[[Monte Ceppo (area protetta)|Monte Ceppo]],,x,,x,,,,,,Ente Parco delle Alpi Liguri,
-,SV,"44.1311
-°N 8.045°E",,555528220,,IT1323920,[[Monte Galero (area protetta)|Monte Galero]],3194,x,x,,,,,,,Provincia di Savona,
-,SV,"44.2178
-°N 8.1833°E",,555528214,,IT1323112,[[Monte Carmo - Monte Settepani]],7575,x,x,,,,,,,Provincia di Savona,
+,SV,"44.1311°N 8.045°E",,555528220,,IT1323920,[[Monte Galero (area protetta)|Monte Galero]],3194,x,x,,,,,,,Provincia di Savona,
+,SV,"44.2178°N 8.1833°E",,555528214,,IT1323112,[[Monte Carmo - Monte Settepani]],7575,x,x,,,,,,,Provincia di Savona,
 ,SV,44.2167°N 8.0886°E,,555528212,,IT1323014,[[Monte Spinarda - Rio Nero]],943,x,x,,,,,,,Provincia di Savona,
-,SV,44.2783°N 8.1069°E,,555528213,,"IT1323021
-",[[Bric Zerbi]],711,x,x,,,,,,,Provincia di Savona,
-,SV,44.3328°N 8.1456°E,,555528204,,IT1322122,"[[Croce della Tia - Rio Barchei
-]]",660,x,x,,,,,,,Provincia di Savona,
-,SV,44.3108°N 8.2497°E,,555528205,,IT1322216,"[[Ronco di Maglio
- (area protetta)|Ronco di Maglio
-]]",1449,x,x,,,,,,,Provincia di Savona,
-,IM,"43.891111
-°N 7.573333°E",,555528185,,IT1315714,[[Monte Abellio (area protetta)|Monte Abellio]],744,x,,,,,,,,Provincia di Imperia,
+,SV,44.2783°N 8.1069°E,,555528213,,"IT1323021",[[Bric Zerbi]],711,x,x,,,,,,,Provincia di Savona,
+,SV,44.3328°N 8.1456°E,,555528204,,IT1322122,"[[Croce della Tia - Rio Barchei]]",660,x,x,,,,,,,Provincia di Savona,
+,SV,44.3108°N 8.2497°E,,555528205,,IT1322216,"[[Ronco di Maglio (area protetta)|Ronco di Maglio]]",1449,x,x,,,,,,,Provincia di Savona,
+,IM,"43.891111°N 7.573333°E",,555528185,,IT1315714,[[Monte Abellio (area protetta)|Monte Abellio]],744,x,,,,,,,,Provincia di Imperia,
 ,IM,43.8025°N 7.573889°E,,555528186,,IT1315715,[[Castel d'Appio (area protetta)|Castel d'Appio]],9.3,x,,,,,,,,Provincia di Imperia,
 ,IM,43.816111°N 7.591111°E,,555528190,,IT1315720,[[Fiume Roia (area protetta)|Fiume Roia]],120,x,,,,,,,,Provincia di Imperia,
 ,IM,43.805833°N 7.609722°E,,555528187,,IT1315716,[[Roverino (area protetta)|Roverino]],336,x,,,,,,,,Provincia di Imperia,
-,IM,"43.8025
-°N 7.625833°E",,555528189,,IT1315719,[[Torrente Nervia (area protetta)|Torrente Nervia]],44,x,,,,,,,,Provincia di Imperia,
+,IM,"43.8025°N 7.625833°E",,555528189,,IT1315719,[[Torrente Nervia (area protetta)|Torrente Nervia]],44,x,,,,,,,,Provincia di Imperia,
 ,IM,43.841944°N 7.725833°E,,555528192,,IT1315806,[[Monte Nero - Monte Bignone]],3388,x,,,,,,,,Provincia di Imperia,
 ,IM,43.871389°N 7.808333°E,,555528191,,IT1315805,[[Bassa Valle Armea]],789,x,,,,,,,,Provincia di Imperia,
-,IM,"43.864722
-°N 7.894167°E",,555528193,,IT1315922,"[[Pompeiana
- (area protetta)|Pompeiana]]",184,x,,,,,,,,Provincia di Imperia,
+,IM,"43.864722°N 7.894167°E",,555528193,,IT1315922,"[[Pompeiana (area protetta)|Pompeiana]]",184,x,,,,,,,,Provincia di Imperia,
 ,IM,44.003056°N 7.841111°E,,555528182,,IT1315504,[[Bosco di Rezzo]],1083,x,,,,,,,,Ente Parco delle Alpi Liguri,
-,IM,"43.968889
-°N 7.853611°E",,555528181,,IT1315503,[[Monte Carpasina (area protetta)|Monte Carpasina]],1353,x,,,,,,,,Provincia di Imperia,
-,IM,"44.004444
-°N 7.934722°E",,555528176,,IT1314723,[[Campasso - Grotta Sgarbu Du Ventu]],105,x,,,,,,,,Provincia di Imperia,
-,IM,"43.953611
-°N 7.714167°E",,555528179,,IT1315408,[[Lecceta di Langan]],238,x,,,,,,,,Provincia di Imperia,
+,IM,"43.968889°N 7.853611°E",,555528181,,IT1315503,[[Monte Carpasina (area protetta)|Monte Carpasina]],1353,x,,,,,,,,Provincia di Imperia,
+,IM,"44.004444°N 7.934722°E",,555528176,,IT1314723,[[Campasso - Grotta Sgarbu Du Ventu]],105,x,,,,,,,,Provincia di Imperia,
+,IM,"43.953611°N 7.714167°E",,555528179,,IT1315408,[[Lecceta di Langan]],238,x,,,,,,,,Provincia di Imperia,
 ,IM/SV,43.974167°N 8.041667°E,,555528183,,IT1315602,[[Pizzo d'Evigno]],2198,x,,,,,,,,Q48689312,
 ,IM/SV,44.097222°N 8.044722°E,,555528224,,IT1324818,[[Castell'Ermo - Peso Grande]],1964,x,,,,,,,,Q48689312,
 ,SV,44.101944°N 8.179722°E,,555528228,,IT1324910,[[Monte Acuto - Poggio Grande - Rio Torsero]],2420,x,,,,,,,,Provincia di Savona,
-,SV,"44.145278
-°N 8.180833°E",,555528222,,IT1324011,[[Monte Ravinet - Rocca Barbena]],2576,x,,,,,,,,Provincia di Savona,
+,SV,"44.145278°N 8.180833°E",,555528222,,IT1324011,[[Monte Ravinet - Rocca Barbena]],2576,x,,,,,,,,Provincia di Savona,
 ,SV,44.153333°N 8.248333°E,,555528221,,IT1324007,[[Monte Ciazze Secche]],302,x,,,,,,,,Provincia di Savona,
 ,SV,44.198056°N 8.383611°E,,555528216,,IT1323201,[[Finalese - Capo Noli]],2782,x,,,,,,,,Provincia di Savona,
-,SV,"44.255
-°N 8.354444°E",,555528218,,IT1323203,[[Rocca dei Corvi - Mao - Mortou]],1613,x,,,,,,,,Provincia di Savona,
+,SV,"44.255°N 8.354444°E",,555528218,,IT1323203,[[Rocca dei Corvi - Mao - Mortou]],1613,x,,,,,,,,Provincia di Savona,
 ,SV,44.031944°N 8.099167°E,,555528225,,IT1324896,[[Lerrone - Valloni]],21,x,,,,,,,,Provincia di Savona,
-,VR,45.653333°N 10.867222°E,,"555540195/
-555580437",,IT3210041,[[Monte Baldo Est]],2762,x,,x,,,,,,Comunità montana del Baldo,
-,VI,45.956667°N 11.481389°E,,"555540198/
-555580439",,IT3220036,[[Altopiano dei Sette Comuni (area protetta)|Altopiano dei Sette Comuni]],14988,x,,x,,,,,,Comunità Montana Spettabile Reggenza dei Sette Comuni,
-,VI/TV/BL,45.898333°N 11.808889°E,,"555540199/
-555540199",,IT3230022,[[Masxcio del Grappa (area protetta)|Masxcio del Grappa]],22473,x,,x,,,,,,Comunità montana Feltrina,
+,VR,45.653333°N 10.867222°E,,"555540195/555580437",,IT3210041,[[Monte Baldo Est]],2762,x,,x,,,,,,Comunità montana del Baldo,
+,VI,45.956667°N 11.481389°E,,"555540198/555580439",,IT3220036,[[Altopiano dei Sette Comuni (area protetta)|Altopiano dei Sette Comuni]],14988,x,,x,,,,,,Comunità Montana Spettabile Reggenza dei Sette Comuni,
+,VI/TV/BL,45.898333°N 11.808889°E,,"555540199/555540199",,IT3230022,[[Masxcio del Grappa (area protetta)|Masxcio del Grappa]],22473,x,,x,,,,,,Comunità montana Feltrina,
 ,BL/TV,46.0791°N 12.0707°E,,555528647,Q14545639,IT3230088,[[Fiume Piave dai Maserot alle grave di Pederobba]],3236,x,,x,,,,x,,,
-,BL,46.304167°N 11.906111°E,,"555540202/
-555580441",,IT3230043,"[[Pale di San Martino: Focobon, Pape - San Lucano, Agner - Croda Granda]]",10909,x,,x,,,,,,,
-,BL,46.349722°N 12.079722°E,,"555540207/
-555580640",,IT3230084,[[Civetta - Cime di San Sebastiano]],6597,x,,x,,,,,,Comunità montana Cadore Longaronese Zoldo,
-,BL,45.999444°N 11.708056°E,,"555540211/
-555580644",,IT3230090,[[Cima Campo - Monte Celado]],1812,x,,x,,,,,,,
-,VR,45.6°N 10.916389°E,,555528613,,"IT3210002
-","[[Monti Lessini: Cascate di Molina
-]]",233,x,,,,,,,,Comunità montana della Lessinia,
-,VR,45.6495°N 10.7308°E,,555528614,,IT3210004,[[Monte Luppia e P.ta San Vigilio]],1037,x,,,,,,,,,
+,BL,46.304167°N 11.906111°E,,"555540202/555580441",,IT3230043,"[[Pale di San Martino: Focobon, Pape - San Lucano, Agner - Croda Granda]]",10909,x,,x,,,,,,,
+,BL,46.349722°N 12.079722°E,,"555540207/555580640",,IT3230084,[[Civetta - Cime di San Sebastiano]],6597,x,,x,,,,,,Comunità montana Cadore Longaronese Zoldo,
+,BL,45.999444°N 11.708056°E,,"555540211/555580644",,IT3230090,[[Cima Campo - Monte Celado]],1812,x,,x,,,,,,,
+,VR,45.6°N 10.916389°E,,555528613,,"IT3210002","[[Monti Lessini: Cascate di Molina]]",233,x,,,,,,,,Comunità montana della Lessinia,,VR,45.6495°N 10.7308°E,,555528614,,IT3210004,[[Monte Luppia e P.ta San Vigilio]],1037,x,,,,,,,,,
 ,VR,45.5694°N 10.721786°E,,555528615,,IT3210007,"[[Monte Baldo: Val dei Mulini, Senge di Marciaga, Rocca di Garda]]",676,x,,,,,,,,,
 ,VR,45.5711111111111 10.8544444444444,,555528617,,IT3210021,[[Monte Pastello (area protetta)|Monte Pastello]],1750,x,,,,,,,,,
 ,VR,45.473449°N 10.875817°E,,555528619,,IT3210043,[[Fiume Adige tra Belluno Veronese e Verona Ovest]],476,x,,,,,,,,,
 ,VI,45.828611°N 11.544722°E,,555528620,,IT3220002,[[Granezza]],1303,x,,,,,,,,,
 ,VI,45.8775°N 11.655°E,,555528621,,IT3220007,[[Fiume Brenta dal confine trentino a Cismon del Grappa]],1680,x,,,,,,,,,
 ,VI,45.6504°N 11.361°E,,555528622,,IT3220008,[[Buso della rana]],0.64,x,,,,,,,,,
-,VI,45.433889°N 11.499167°E,,555528623,,"IT3220037
-",[[Colli Berici (area protetta)|Colli Berici]],12906,x,,,,,,,,,
+,VI,45.433889°N 11.499167°E,,555528623,,"IT3220037",[[Colli Berici (area protetta)|Colli Berici]],12906,x,,,,,,,,,
 ,BL,46.505°N 11.8363888888889°E,,555528627,,IT3230003,[[Gruppo del Sella (area protetta)|Gruppo del Sella]],449,x,,,,,,,,,
 ,BL,46.4266666666667°N 11.8725°E,,555528628,,IT3230005,[[Gruppo Marmolada]],1305,x,,,,,,,,,
 ,BL,46.4561111111111°N 12.125°E,,555528630,,IT3230017,[[Monte Pelmo - Mondeval - Formin]],11065,x,,,,,,,,,
 ,BL,46.5833333333333°N 12.2597222222222°E,,555528631,,IT3230019,[[Lago di Misurina (area protetta)|Lago di Misurina]],75,x,,,,,,,,,
 ,BL,46.196389°N 12.339722°E,,555528634,,IT3230027,[[Monte Dolada Versante S.E]],659,x,,,,,,,,,
-,BL,46.038611°N 11.956667°E,,555528636,,"IT3230042
-","[[Torbiera di Lipoi
-]]",65,x,,,,,,,,,
+,BL,46.038611°N 11.956667°E,,555528636,,"IT3230042","[[Torbiera di Lipoi]]",65,x,,,,,,,,,
 ,BL,46.151111°N 12.242222°E,,555528637,,IT3230044,[[Fontane di Nogarè]],212,x,,,,,,,,,
 ,BL,46.13758°N 12.1753°E,,555528638,,IT3230045,[[Torbiera di Antole]],25,x,,,,,,,,,
 ,BL,46.1136111111111°N 12.3380555555556°E,,555528639,,IT3230047,[[Lago di Santa Croce (area protetta)|Lago di Santa Croce]],788,x,,,,,,,,,
-,BL,"46.2380555555556
-°N 11.9913888888889°E",,555528641,,IT3230063,[[Torbiere di Lac Torond]],38,x,,,,,,,,,
-,BL,"46.046944
-°N 12.215278°E",,555528642,,"IT3230067
-",[[Aree palustri di Melere - Monte Gal e boschi di Col d'Ongia]],111,x,,,,,,,,,
-,BL,46.074444°N 12.227222°E,,555528643,,"IT3230068
-",[[Valpiana - Valmorel (Aree palustri)]],126,x,,,,,,,,,
+,BL,"46.2380555555556°N 11.9913888888889°E",,555528641,,IT3230063,[[Torbiere di Lac Torond]],38,x,,,,,,,,,
+,BL,"46.046944°N 12.215278°E",,555528642,,"IT3230067",[[Aree palustri di Melere - Monte Gal e boschi di Col d'Ongia]],111,x,,,,,,,,,
+,BL,46.074444°N 12.227222°E,,555528643,,"IT3230068",[[Valpiana - Valmorel (Aree palustri)]],126,x,,,,,,,,,
 ,BL,46.510801°N 11.944987°E,,555540208,,IT3230086,[[Col di Lana - Settsas - Cherz]],2305,,,x,,,,,,,
 ,BL,46.032718°N 11.855995°E,,555540209,,IT3230087,[[Versante Sud delle Dolomiti Feltrine]],8097,,,x,,,,,,Ente Parco Nazionale Dolomiti Bellunesi,
 ,VB,,,,,,[[Area contigua dell'Alpe Devero]],2179.02,,,,,x,,,,,
@@ -322,18 +286,12 @@ ID Wikidata,P131,P625,P4800,P809,P627,P3425,Etichetta,P2046,P1435,,,,,,,,P126,P5
 ,UD,46.3083°N 13.1375°E,,555528697,,IT3320013,[[Lago Minisini e Rivoli Bianchi]],402,x,x,,,,,,,"Regione Autonoma Friuli Venezia Giulia – Direzione Centrale risorse rurali, agroalimentari e forestali – Servizio caccia, risorse ittiche e biodiversità",
 ,UD,46.4689°N 13.6589°E,,555528690,,IT3320006,[[Conca di Fusine]],3598,x,x,,,,,,,"Regione Autonoma Friuli Venezia Giulia – Direzione Centrale risorse rurali, agroalimentari e forestali – Servizio caccia, risorse ittiche e biodiversità",
 ,UD,46.4611°N 13.2389°E,,555528693,,IT3320009,[[Zuc dal Bor (area protetta)|Zuc dal Bor]],1415,x,x,,,,,,,"Regione Autonoma Friuli Venezia Giulia – Direzione Centrale risorse rurali, agroalimentari e forestali – Servizio caccia, risorse ittiche e biodiversità",
-,UD,"46.5561
-°N 13.3344°E",,555528688,,"IT3320004
-",[[Monte Auernig e Monte Corona]],465,x,x,,,,,,,"Regione Autonoma Friuli Venezia Giulia – Direzione Centrale risorse rurali, agroalimentari e forestali – Servizio caccia, risorse ittiche e biodiversità",
+,UD,"46.5561°N 13.3344°E",,555528688,,"IT3320004",[[Monte Auernig e Monte Corona]],465,x,x,,,,,,,"Regione Autonoma Friuli Venezia Giulia – Direzione Centrale risorse rurali, agroalimentari e forestali – Servizio caccia, risorse ittiche e biodiversità",
 ,UD,46.4597°N 12.8072°E,,555528692,,IT3320008,[[Col Gentile (area protetta)|Col Gentile]],1038,x,x,,,,,,,"Regione Autonoma Friuli Venezia Giulia – Direzione Centrale risorse rurali, agroalimentari e forestali – Servizio caccia, risorse ittiche e biodiversità",
 ,UD,46.4472°N 12.6322°E,,555528691,,IT3320007,[[Monti Bivera e Clapsavon]],1832,x,x,,,,,,,"Regione Autonoma Friuli Venezia Giulia – Direzione Centrale risorse rurali, agroalimentari e forestali – Servizio caccia, risorse ittiche e biodiversità",
-,UD/PN,"46.3572
-°N 12.8644°E",,555528695,,"IT3320011
-",[[Monti Verzegnis e Valcalda]],2406,x,x,,,,,,,"Regione Autonoma Friuli Venezia Giulia – Direzione Centrale risorse rurali, agroalimentari e forestali – Servizio caccia, risorse ittiche e biodiversità",
-,PN,"46.2339
-°N 12.8703°E",,555528675,,IT3310003,[[Monte Ciaurlec e Forra del Torrente Cosa]],875,x,x,,,,,,,"Regione Autonoma Friuli Venezia Giulia – Direzione Centrale risorse rurali, agroalimentari e forestali – Servizio caccia, risorse ittiche e biodiversità",
-,PN,"46.2006
-°N 12.6783°E",,555528674,,IT3310002,[[Val Colvera di Jof]],396,x,x,,,,,,,"Regione Autonoma Friuli Venezia Giulia – Direzione Centrale risorse rurali, agroalimentari e forestali – Servizio caccia, risorse ittiche e biodiversità",
+,UD/PN,"46.3572°N 12.8644°E",,555528695,,"IT3320011",[[Monti Verzegnis e Valcalda]],2406,x,x,,,,,,,"Regione Autonoma Friuli Venezia Giulia – Direzione Centrale risorse rurali, agroalimentari e forestali – Servizio caccia, risorse ittiche e biodiversità",
+,PN,"46.2339°N 12.8703°E",,555528675,,IT3310003,[[Monte Ciaurlec e Forra del Torrente Cosa]],875,x,x,,,,,,,"Regione Autonoma Friuli Venezia Giulia – Direzione Centrale risorse rurali, agroalimentari e forestali – Servizio caccia, risorse ittiche e biodiversità",
+,PN,"46.2006°N 12.6783°E",,555528674,,IT3310002,[[Val Colvera di Jof]],396,x,x,,,,,,,"Regione Autonoma Friuli Venezia Giulia – Direzione Centrale risorse rurali, agroalimentari e forestali – Servizio caccia, risorse ittiche e biodiversità",
 ,UD,46.1668°N 13.3103°E,,555624504,,IT3320039,[[Palude di Racchiuso]],12,x,,,,,,,,"Regione Autonoma Friuli Venezia Giulia – Direzione Centrale risorse rurali, agroalimentari e forestali – Servizio caccia, risorse ittiche e biodiversità",
 Q3895722,,,EUAP0196,,,,,,,,,,,,,,,
 Q3895483,,,EUAP0192,,,,,,,,,,,,,,,
