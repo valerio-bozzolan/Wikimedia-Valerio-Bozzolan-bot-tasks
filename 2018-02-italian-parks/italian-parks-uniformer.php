@@ -136,7 +136,7 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 			Wikidata::getInstance()->fetch( [
 				'action' => 'wbgetentities',
 				'ids'    => $wikidata_ID,
-				'props'  => 'info|sitelinks|aliases|labels|claims|datatype'
+				'props'  => 'info|sitelinks|aliases|labels|descriptions|claims|datatype'
 			] )->entities->{ $wikidata_ID }
 		);
 	}
