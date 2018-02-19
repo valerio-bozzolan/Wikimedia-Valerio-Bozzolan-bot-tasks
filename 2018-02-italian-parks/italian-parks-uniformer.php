@@ -28,6 +28,7 @@ require 'includes/functions.php';
 use wm\Wikidata;
 use wb\DataModel;
 use wb\Label;
+use wb\Description;
 use wb\StatementItem;
 use wb\StatementString;
 use wb\StatementQuantity;
@@ -140,18 +141,38 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 		);
 	}
 
+	// reset
 	$new = new DataModel();
 	$statements = [];
-	$summary = '[[wd:Requests for permissions/Bot/Valerio Bozzolan bot 4|importing italian parks]]';
+	$summary = '';
 
-	// label
+	// italian label
 	if( $label ) {
+		$label = filter_label( $label );
 		if( ! $existing || ! $existing->hasLabelsInLanguage('it') ) {
-			$label = filter_label( $label );
 			$new->setLabel( new Label( 'it', $label ) );
 			$summary .= ' +label[it]';
 			echo $label . "\n";
 		}
+	}
+
+	// italian description e.g. ("riserva naturale in provincia di Sondrio ed in provincia di Torino")
+	if( ! $existing || ! $existing->hasDescriptionsInLanguage('it') ) {
+		$description = "riserva naturale";
+		if( $P131 ) {
+			$cities = array_map(
+				function ( $city ) {
+					return $city->label;
+				},
+				find_plates( $P131 )
+			);
+			if( $cities ) {
+				$description .= ' in ' . human_implode( $cities );
+			}
+		}
+		$new->setDescription( new Description( 'it', $description ) );
+		$summary .= ' +description[it]';
+		echo $description . "\n";
 	}
 
 	// instance of: nature reserve
@@ -159,9 +180,9 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 
 	// located in the administrative territorial entity
 	if( $P131 ) {
-		$P131_city_IDs = plate_2_wikidataIDs( $P131 );
-		foreach( $P131_city_IDs as $P131_city_ID ) {
-			$statements[] =	new StatementItem( 'P131', $P131_city_ID );
+		$P131_cities = find_plates( $P131 );
+		foreach( $P131_cities as $P131_city ) {
+			$statements[] =	new StatementItem( 'P131', $P131_city->item );
 		}
 	}
 
@@ -181,10 +202,7 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 	// WDPA ID
 	if( $P809 ) {
 		foreach( explode( '/', $P809 ) as $P809_value ) {
-			$new->addClaim(
-				( new StatementString( 'P809', trim( $P809_value ) ) )
-				->setReferences( $REFERENCES )
-			);
+			$statements[] = new StatementString( 'P809', trim( $P809_value ) );
 		}
 	}
 
@@ -229,17 +247,17 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 				$statement->setReferences( $REFERENCES )
 			);
 			$properties[] = $property;
-
-			// Print some infos
 			echo $statement->getMainSnak() . "\n";
 		}
 	}
 
 	// skip?
-	if( ! $properties ) {
+	if( ! $summary ) {
 		echo "nothing to do\n";
 		continue;
 	}
+
+	$summary = '[[wd:Requests for permissions/Bot/Valerio Bozzolan bot 4|importing italian parks]]' . $summary;
 
 	// add involved properties in the summary
 	$properties = array_count_values( $properties );

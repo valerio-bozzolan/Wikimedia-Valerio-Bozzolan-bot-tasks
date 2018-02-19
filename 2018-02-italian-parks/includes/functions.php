@@ -16,21 +16,23 @@
 
 /**
  * @param $plate plate codes e.g. 'TO/MI'
- * @return string Wikidata entity Q-IDs e.g. [ 'Q495', 'Q490' ]
+ * @return Plate[]
  */
-function plate_2_wikidataIDs( $plates ) {
+function find_plates( $plates ) {
 	$plates = explode( '/', $plates );
 	array_walk( $plates, function ( & $value ) {
-		$value = plate_2_wikidataID( $value );
+		$value = find_plate( $value );
 	} );
 	return $plates;
 }
 
 /**
  * @param $plate plate code e.g. 'TO'
- * @return array Wikidata entity Q-ID e.g. 'Q495'
+ * @return Plate
  */
-function plate_2_wikidataID( $plate ) {
+function find_plate( $plate_code ) {
+
+	require_once 'class-Plate.php';
 
 	// read the plate codes once
 	static $plates;
@@ -42,17 +44,17 @@ function plate_2_wikidataID( $plate ) {
 		foreach( $rows as $row ) {
 			$data = explode( ',', $row, 3 );
 			if( 3 === count( $data ) ) {
-				list( $code, $wikidata_url, $label ) = $data;
-				$plates[ $code ] = str_replace( 'http://www.wikidata.org/entity/', '', $wikidata_url );
+				$plate = Plate::createFromData( $data );
+				$plates[ $plate->code ] = $plate;
 			}
 		}
 	}
 
-	if( ! isset( $plates[ $plate ] ) ) {
+	if( ! isset( $plates[ $plate_code ] ) ) {
 		throw new Exception('missing plate');
 	}
 
-	return $plates[ $plate ];
+	return $plates[ $plate_code ];
 }
 
 /**
@@ -103,11 +105,28 @@ function read( $default = '' ) {
  * @param $wikidata_ID string
  */
 function stupid_log( $i, $label, $wikidata_ID ) {
-	$log_message = sprintf( '%d,%s,%s,%s',
+	$log_message = sprintf( "%d,%s,%s,%s\n",
 		$i,
 		$wikidata_ID,
 		$label,
 		date('Y-m-d H:i:s')
 	);
 	file_put_contents( 'log.txt', $log_message, FILE_APPEND );
+}
+
+/**
+ * Implode some pieces in an human way
+ *
+ * @param $parts array
+ * @param $last_glue string
+ * @param $middle_glue string
+ * @return something as 'one, two, three and four'
+ */
+function human_implode( $parts, $last_glue = ' e ', $middle_glue = ', ' ) {
+	$last = array_pop( $parts );
+	$first = implode( $middle_glue, $parts );
+	if( $first ) {
+		return implode( $last_glue, [ $first, $last ] );
+	}
+	return $last;
 }
