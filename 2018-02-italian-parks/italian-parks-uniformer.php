@@ -36,6 +36,13 @@ use wb\StatementTime;
 use wb\DataValueTime;
 use wb\Snaks;
 use wb\SnakItem;
+use wb\SnakTime;
+
+// CLI options
+$options = getopt('', [
+	'sandbox', // to work in the sandbox
+	'verbose'  // to inspect the data
+] );
 
 # login and fetch the CSRF token
 define( 'CSRF',
@@ -46,15 +53,18 @@ define( 'CSRF',
 	] )->query->tokens->csrftoken
 );
 
-# data
-$handle = fopen('data/italian-parks-data.csv', 'r') or die('asd');
+# CSV data
+$handle = fopen( 'data/italian-parks-data.csv', 'r' ) or die( 'asd' );
 
 // Wikidata references
 $REFERENCES = [ [
 	'snaks' => (
 		new Snaks( [
 			// stated in: Ministry of the Environment
-			new SnakItem( 'P248', 'Q3858479' )
+			new SnakItem( 'P248', 'Q3858479' ),
+
+			// retrieved: december 2017
+			new SnakTime( 'P813', '+2017-12-00T00:00:00Z', DataValueTime::PRECISION_MONTHS )
 		] )
 	)->getAll()
 ] ];
@@ -63,7 +73,7 @@ $row = 0;
 while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 
 	// skip headers
-	if( $row++ < 3 ) {
+	if( $row++ < 4 ) {
 		continue;
 	}
 
@@ -114,10 +124,14 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 		       // int
 	) = $data;
 
+	if( isset( $options['sandbox'] ) ) {
+		$wikidata_ID = 'Q4115189';
+	}
+
 	// fetch existing Wikidata entity
 	$existing = null;
-	if( $wikidata_ID = 'Q4115189' ) {
-		$existing = DataModel::createFromObject( 
+	if( $wikidata_ID ) {
+		$existing = DataModel::createFromObject(
 			Wikidata::getInstance()->fetch( [
 				'action' => 'wbgetentities',
 				'ids'    => $wikidata_ID,
@@ -128,7 +142,7 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 
 	$new = new DataModel();
 	$statements = [];
-	$summary = 'test before [[Wd:Requests for permissions/Bot/Valerio Bozzolan bot 4|importing italian parks]]';
+	$summary = '[[wd:Requests for permissions/Bot/Valerio Bozzolan bot 4|importing italian parks]]';
 
 	// label
 	if( $label ) {
@@ -136,6 +150,7 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 			$label = filter_label( $label );
 			$new->setLabel( new Label( 'it', $label ) );
 			$summary .= ' +label[it]';
+			echo $label . "\n";
 		}
 	}
 
@@ -144,7 +159,6 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 
 	// located in the administrative territorial entity
 	if( $P131 ) {
-		// can specify multiple cities
 		$P131_city_IDs = plate_2_wikidataIDs( $P131 );
 		foreach( $P131_city_IDs as $P131_city_ID ) {
 			$statements[] =	new StatementItem( 'P131', $P131_city_ID );
@@ -159,7 +173,6 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 
 	// EUAP ID
 	if( $P4800 ) {
-		// can specify multiple values
 		foreach( explode( '/', $P4800 ) as $P4800_value ) {
 			$statements[] = new StatementString( 'P4800', trim( $P4800_value ), 0.01 );
 		}
@@ -193,9 +206,9 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 		}
 	}
 
-	/* TODO
+	/* not now :)
 	if( $P126 ) {
-		$statements[] = 
+		$statements[] =
 	}
 	*/
 
@@ -203,8 +216,10 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 	if( $P571 ) {
 		$P571 = (int) $P571;
 		$statements[] = new StatementTime( 'P571', "+$P571-00-00T00:00:00Z", DataValueTime::PRECISION_YEARS );
-		
 	}
+
+	// properties involved
+	$properties = [];
 
 	// append statements without duplicating
 	foreach( $statements as $statement ) {
@@ -213,31 +228,66 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 			$new->addClaim(
 				$statement->setReferences( $REFERENCES )
 			);
-			$summary .= " +[[P:$property]]";
+			$properties[] = $property;
+
+			// Print some infos
+			echo $statement->getMainSnak() . "\n";
 		}
 	}
 
-	// check and save
-	echo $new->getJSON( JSON_PRETTY_PRINT ) . "\n";
+	// skip?
+	if( ! $properties ) {
+		echo "nothing to do\n";
+		continue;
+	}
+
+	// add involved properties in the summary
+	$properties = array_count_values( $properties );
+	foreach( $properties as $property => $num ) {
+		$summary .= " +[[P:$property]]";
+		if( $num > 1 ) {
+			$summary .= " ($num values)";
+		} elseif( 1 === $num ) {
+			$summary .= " " . $new->getClaimsInProperty( $property )[0]->getMainSnak()->getDataValue();
+		}
+	}
+
+	// to inspect the whole data
+	if( isset( $options['verbose'] ) ) {
+		echo $new->getJSON( JSON_PRETTY_PRINT ) . "\n";
+	}
+
+	// question
 	echo $summary . "\n";
-	echo "Save? ";
-	if( read('y') === 'y' ) {
-		echo "Saving\n";
+	echo $wikidata_ID ? "Edit? https://www.wikidata.org/wiki/$wikidata_ID" : "Create?";
 
-		$args = [
-			'action'  => 'wbeditentity',
-			'token'   => CSRF,
-			'bot'     => 1,
-			'data'    => $new->getJSON(),
-			'summary' => $summary,
-		];
-
-		if( $wikidata_ID ) {
-			// save existing
-			$args['id'] = $wikidata_ID;
-		}
-		Wikidata::getInstance()->post( $args );
+	// Save?
+	if( read('y') !== 'y' ) {
+		continue;
 	}
+
+	// save / create
+	$args = [
+		'action'  => 'wbeditentity',
+		'token'   => CSRF,
+		'bot'     => 1,
+		'data'    => $new->getJSON(),
+		'summary' => $summary,
+	];
+	if( $wikidata_ID ) {
+		$args['id']  = $wikidata_ID;
+	} else {
+		$args['new'] = 'item';
+	}
+	$result = Wikidata::getInstance()->post( $args );
+
+	// just created? retrieve the ID
+	if( ! $wikidata_ID ) {
+		$wikidata_ID = $result->entity->id;
+	}
+
+	// append a line in the log
+	stupid_log( $row, $label, $wikidata_ID );
 }
 
-fclose($handle);
+fclose( $handle );

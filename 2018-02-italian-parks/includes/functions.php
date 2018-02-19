@@ -94,3 +94,20 @@ function read( $default = '' ) {
 	$v = trim( fgets( STDIN ) );
 	return $v ? $v : $default;
 }
+
+/**
+ * Add a line in the log
+ *
+ * @param @i int
+ * @param $label string
+ * @param $wikidata_ID string
+ */
+function stupid_log( $i, $label, $wikidata_ID ) {
+	$log_message = sprintf( '%d,%s,%s,%s',
+		$i,
+		$wikidata_ID,
+		$label,
+		date('Y-m-d H:i:s')
+	);
+	file_put_contents( 'log.txt', $log_message, FILE_APPEND );
+}
