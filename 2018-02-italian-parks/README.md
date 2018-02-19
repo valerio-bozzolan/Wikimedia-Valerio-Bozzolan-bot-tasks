@@ -20,5 +20,5 @@
     } ORDER BY ?code
     ```
 
-* [data/italian-parks-data.ods](data/italian-parks-data.ods) available under public domain
+* [data/italian-parks-data.csv](data/italian-parks-data.csv) and [data/italian-parks-data.ods](data/italian-parks-data.ods) available under public domain
     * retrieved from the Ministry of the Environment (Italy) <http://www.minambiente.it>
