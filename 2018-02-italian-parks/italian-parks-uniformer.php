@@ -251,14 +251,6 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 		}
 	}
 
-	// skip?
-	if( ! $summary ) {
-		echo "nothing to do\n";
-		continue;
-	}
-
-	$summary = '[[wd:Requests for permissions/Bot/Valerio Bozzolan bot 4|importing italian parks]]' . $summary;
-
 	// add involved properties in the summary
 	$properties = array_count_values( $properties );
 	foreach( $properties as $property => $num ) {
@@ -269,6 +261,14 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 			$summary .= " " . $new->getClaimsInProperty( $property )[0]->getMainSnak()->getDataValue();
 		}
 	}
+
+	// skip?
+	if( ! $summary ) {
+		echo "nothing to do\n";
+		continue;
+	}
+
+	$summary = '[[wd:Requests for permissions/Bot/Valerio Bozzolan bot 4|importing italian parks]]' . $summary;
 
 	// to inspect the whole data
 	if( isset( $options['verbose'] ) ) {
