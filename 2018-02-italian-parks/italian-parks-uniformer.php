@@ -178,6 +178,9 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 	// instance of: nature reserve
 	$statements[] = new StatementItem( 'P31', 'Q179049' );
 
+	// country: Italy
+	$statements[] = new StatementItem( 'P17', 'Q38' );
+
 	// located in the administrative territorial entity
 	if( $P131 ) {
 		$P131_cities = find_plates( $P131 );
