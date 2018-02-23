@@ -2,11 +2,11 @@
 
 ## Consensus
 
-* [ ] [Wikidata:Requests for permissions/Bot/Valerio Bozzolan bot 4](https://www.wikidata.org/wiki/Wikidata:Requests_for_permissions/Bot/Valerio_Bozzolan_bot_4)
+* [X] [Wikidata:Requests for permissions/Bot/Valerio Bozzolan bot 4](https://www.wikidata.org/wiki/Wikidata:Requests_for_permissions/Bot/Valerio_Bozzolan_bot_4)
 
 ## Usage
 
-    ./italian-parks-uniformer.php
+    ./italian-parks-uniformer.php [--line LINE] [--sandbox] [--verbose]
 
 ## Data files
 * [data/italian-license-plate-codes.csv](data/italian-license-plate-codes.csv) available under public domain

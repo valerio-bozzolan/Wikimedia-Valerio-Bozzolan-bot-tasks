@@ -192,7 +192,7 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 	// coordinate location
 	if( $P625 ) {
 		list( $lat, $lng ) = filter_coordinates( $P625 );
-		$statements[] = new StatementGlobeCoordinate( 'P625', $lat, $lng, 0.01 ); // last: precision
+		$statements[] = new StatementGlobeCoordinate( 'P625', $lat, $lng, 0.005 ); // last: precision
 	}
 
 	// EUAP ID
@@ -305,6 +305,7 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 	// just created? retrieve the ID
 	if( ! $wikidata_ID ) {
 		$wikidata_ID = $result->entity->id;
+		echo "created $wikidata_ID \n";
 	}
 
 	// append a line in the log
