@@ -42,7 +42,8 @@ use wb\SnakTime;
 // CLI options
 $options = getopt('', [
 	'sandbox', // to work in the sandbox
-	'verbose'  // to inspect the data
+	'verbose',  // to inspect the data
+	'line:'
 ] );
 
 # login and fetch the CSRF token
@@ -76,6 +77,12 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 	// skip headers
 	if( $row++ < 4 ) {
 		continue;
+	}
+
+	if( isset( $options['line'] ) ) {
+		if( $row < $options['line'] ) {
+			continue;
+		}
 	}
 
 	// null empty values
@@ -151,7 +158,7 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 		$label = filter_label( $label );
 		if( ! $existing || ! $existing->hasLabelsInLanguage('it') ) {
 			$new->setLabel( new Label( 'it', $label ) );
-			$summary .= ' +label[it]';
+			$summary .= " $label";
 			echo $label . "\n";
 		}
 	}
@@ -185,7 +192,7 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 	if( $P131 ) {
 		$P131_cities = find_plates( $P131 );
 		foreach( $P131_cities as $P131_city ) {
-			$statements[] =	new StatementItem( 'P131', $P131_city->item );
+			$statements[] = new StatementItem( 'P131', $P131_city->item );
 		}
 	}
 
