@@ -1,3 +1,6 @@
 [submodule "includes/boz-mw"]
 	path = includes/boz-mw
 	url = https://github.com/valerio-bozzolan/boz-mw.git
+[submodule "2018-06-wikidata-volleyball-players/includes/boz-mw"]
+	path = 2018-06-wikidata-volleyball-players/includes/boz-mw
+	url = https://github.com/valerio-bozzolan/boz-mw
