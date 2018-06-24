@@ -13,3 +13,13 @@ This PHP bot was developed to uniform volleyball players in Wikimedia Commons an
 * [Category:Volleyball by country](https://commons.wikimedia.org/wiki/Category:Volleyball_by_country)
 * Wikimedia Common's [Module:Depicted person](https://commons.wikimedia.org/wiki/Module:Depicted_people) (created)
 * Wikimedia Common's [Template:Depicted person](https://commons.wikimedia.org/wiki/Template:Depicted_person) ([diff](https://commons.wikimedia.org/w/index.php?title=Template%3ADepicted_person&type=revision&diff=265201552&oldid=233297362))
+
+## License
+
+Copyright (C) 2017 Valerio Bozzolan
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
