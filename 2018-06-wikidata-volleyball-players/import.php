@@ -1,3 +1,4 @@
+#!/usr/bin/php
 <?php
 /*****************************
  * Legavolley 2018 importer *
@@ -104,7 +105,9 @@ foreach( $NEW_PLAYERS as $NEW_PLAYER ) {
 	$surname       = $NEW_PLAYER[ 'surname'       ];
 	$legavolley_id = $NEW_PLAYER[ 'legavolley-id' ];
 	$country       = $NEW_PLAYER[ 'country-data'  ];
-	$summary       = '';
+	$height        = $NEW_PLAYER[ 'height'        ];
+	$birthday      = $NEW_PLAYER[ 'birthday'      ];
+	$changes       = [];
 
 	$entity_id = false;
 	if( isset( $EXISTING_PLAYERS[ $legavolley_id ] ) ) {
@@ -116,7 +119,7 @@ foreach( $NEW_PLAYERS as $NEW_PLAYER ) {
 		// ID LegaVolley
 		new wb\StatementString( 'P4303', $legavolley_id ),
 		// Image
-		new wb\StatementCommonsMedia( 'P18', $NEW_PLAYER[ 'img' ] ),
+//		new wb\StatementCommonsMedia( 'P18', $NEW_PLAYER[ 'img' ] ),
 		// Country of citizenship
 		new wb\StatementItem( 'P27', $country[ 'entity-id' ] ),
 		// Instance of: human
@@ -128,11 +131,18 @@ foreach( $NEW_PLAYERS as $NEW_PLAYER ) {
 		// Sport: volleyball
 		new wb\StatementItem( 'P641', 'Q1734' ),
 	];
-	if( $NEW_PLAYER[ 'birthday' ] ) {
+	if( $birthday ) {
 		$STATEMENTS[] = new wb\StatementTime(
 			'P569', // date of birth
-			$NEW_PLAYER[ 'birthday' ]->format( '+Y-m-d\T00:00:00\Z' ),
-			11 // precision: days
+			$birthday->format( '+Y-m-d\T00:00:00\Z' ),
+			wb\DataValueTime::PRECISION_DAYS
+		);
+	}
+	if( $height ) {
+		$STATEMENTS[] = new wb\StatementQuantity(
+			'P2048', // height
+			$height,
+			'Q174728' // centimeter
 		);
 	}
 
@@ -165,7 +175,7 @@ foreach( $NEW_PLAYERS as $NEW_PLAYER ) {
 	foreach( $LABELS as $lang => $text ) {
 		if( ! $data_old || ! $data_old->hasLabelsInLanguage( $lang ) ) {
 			$data_new->setLabel( new wb\LabelAction( $lang, $text, wb\LabelAction::ADD ) );
-			$summary .= " +[label][$lang]";
+			$changes[] = "+[label][$lang]";
 		}
 	}
 
@@ -173,7 +183,7 @@ foreach( $NEW_PLAYERS as $NEW_PLAYER ) {
 	foreach( $DESCRIPTIONS as $lang => $text ) {
 		if( ! $data_old || ! $data_old->hasDescriptionsInLanguage( $lang ) ) {
 			$data_new->setDescription( new wb\DescriptionAction( $lang, $text, wb\DescriptionAction::ADD ) );
-			$summary .= " +[description][$lang]";
+			$changes[] = " +[description][$lang]";
 		}
 	}
 
@@ -184,13 +194,12 @@ foreach( $NEW_PLAYERS as $NEW_PLAYER ) {
 			$data_new->addClaim( $statement->setReferences( legavolley_references() ) );
 
 			// add involved property in the summary
-			$summary .= " +[[P:$property]]";
 			$claims = $data_new->getClaimsInProperty( $property );
 			$num = count( $claims );
 			if( $num > 1 ) {
-				$summary .= " ($num values)";
+				$changes[] = "+[[P:$property]] ($num values)";
 			} elseif( 1 === $num ) {
-				$summary .= " " . $claims[0]->getMainSnak()->getDataValue();
+				$changes[] = "+[[P:$property]] " . $claims[ 0 ]->getMainSnak()->getDataValue();
 			}
 		}
 	}
@@ -199,14 +208,15 @@ foreach( $NEW_PLAYERS as $NEW_PLAYER ) {
 	// https://www.wikidata.org/w/api.php?action=help&modules=wbeditentity
 	$wbeditentity = [
 		'action'  => 'wbeditentity',
-		'summary' => SUMMARY . $summary,
+		'summary' => SUMMARY . ' ' . implode( $changes ),
 		'token'   => $wd->getToken( mw\Tokens::CSRF ),
 		'bot'     => 1,
 	];
 
 	if( $entity_id ) {
 		if( $data_new->countClaims() ) {
-			if( 'y' === cli\Input::yesNoQuestion( "Save? $name $surname | $summary" ) ) {
+			print_r( $changes );
+			if( 'y' === cli\Input::yesNoQuestion( "Save $name $surname $entity_id?" ) ) {
 				$wd->post( array_replace( $wbeditentity, [
 					'id'   => $entity_id,
 					'data' => $data_new->getJSON()
@@ -216,6 +226,7 @@ foreach( $NEW_PLAYERS as $NEW_PLAYER ) {
 			Log::info( "Nothing to be done to $name $surname $entity_id" );
 		}
 	} else {
+		print_r( $changes );
 		if( 'y' === cli\Input::yesNoQuestion( "Create $name $surname? | $summary" ) ) {
 			// Create new item
 			$result = $wd->post( array_replace( $wbeditentity, [
