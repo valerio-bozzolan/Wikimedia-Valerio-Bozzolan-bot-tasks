@@ -1,13 +1,18 @@
-# 2018 Wikidata soccer plauers Lega Serie A importer bot
+# 2018 Wikidata soccer players Lega Serie A importer bot
 
 This PHP bot was developed to import Lega Serie A soccer players IDs.
 
 ## Consensus
 * [Bot consensus for Wikidata](https://www.wikidata.org/wiki/Wikidata:Requests_for_permissions/Bot/Valerio_Bozzolan_bot_5)
 
+## Data
+These files are available in public domain because they consists in informations obtained from public [URLs](https://en.wikipedia.org/wiki/URL) ineligibles for copyright.
+
+* [players.csv](data/players.csv) ([sources](data/source.urls))
+
 ## Usage
 
-    ./importer.php
+    ./scrape.sh  # generate the CSV file
 
 ## License
 

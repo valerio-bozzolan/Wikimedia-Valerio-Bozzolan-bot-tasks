@@ -4,3 +4,6 @@
 [submodule "2018-06-wikidata-volleyball-players/includes/boz-mw"]
 	path = 2018-06-wikidata-volleyball-players/includes/boz-mw
 	url = https://github.com/valerio-bozzolan/boz-mw
+[submodule "2018-06-wikidata-soccer-serie-a/includes/boz-mw"]
+	path = 2018-06-wikidata-soccer-serie-a/includes/boz-mw
+	url = https://github.com/valerio-bozzolan/boz-mw.git
