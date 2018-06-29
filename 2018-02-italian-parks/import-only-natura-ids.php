@@ -15,8 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-$ALWAYS = true;
-
 require 'includes/boz-mw/autoload.php';
 require '../config.php';
 
@@ -32,7 +30,7 @@ $REFERENCES = [ [
 	)->getAll()
 ] ];
 
-$wikidata = \wm\Wikidata::getInstance()->login();
+$wikidata = \wm\Wikidata::getInstance();
 foreach( explode( "\n", trim( file_get_contents( 'data/italian-natura-ids.csv' ) ) ) as $park ) {
 
 	list( $entity_id, $natura_id ) = explode( ',', $park );
@@ -53,16 +51,13 @@ foreach( explode( "\n", trim( file_get_contents( 'data/italian-natura-ids.csv' )
 		);
 
 	if( ! $data_old->hasClaimsInProperty( 'P3425' ) ) {
-		echo "https://www.wikidata.org/wiki/$entity_id $natura_id\n";
-		if( $ALWAYS || 'y' === cli\Input::yesNoQuestion( "Save?" ) ) {
-			$wikidata->post( [
-				'action'  => 'wbeditentity',
-				'summary' => 'Bot: [[Wikidata:Requests for permissions/Bot/Valerio Bozzolan bot 4|importing Natura 2000 site ID]]',
-				'token'   => $wikidata->getToken( mw\Tokens::CSRF ),
-				'bot'     => 1,
-				'id'      => $entity_id,
-				'data'    => $data->getJSON()
-			] );
-		}
+		$wikidata->post( [
+			'action'  => 'wbeditentity',
+			'summary' => 'Bot: [[Wikidata:Requests for permissions/Bot/Valerio Bozzolan bot 4|importing Natura 2000 site ID]]',
+			'token'   => $wikidata->getToken( mw\Tokens::CSRF ),
+			'bot'     => 1,
+			'id'      => $entity_id,
+			'data'    => $data->getJSON()
+		] );
 	}
 }
