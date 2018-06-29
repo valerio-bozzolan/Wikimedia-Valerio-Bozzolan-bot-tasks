@@ -227,7 +227,7 @@ foreach( $NEW_PLAYERS as $NEW_PLAYER ) {
 		}
 	} else {
 		print_r( $changes );
-		if( 'y' === cli\Input::yesNoQuestion( "Create $name $surname? | $summary" ) ) {
+		if( 'y' === cli\Input::yesNoQuestion( "Create $name $surname?" ) ) {
 			// Create new item
 			$result = $wd->post( array_replace( $wbeditentity, [
 				'new'  => 'item',
