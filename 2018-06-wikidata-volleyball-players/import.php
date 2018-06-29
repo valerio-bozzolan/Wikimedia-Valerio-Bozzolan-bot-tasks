@@ -7,7 +7,9 @@
  * @license GNU GPL v3+      *
  *****************************/
 
-define( 'SUMMARY', 'test importing volleyball players from LegaVolley' );
+define( 'SUMMARY', 'Bot: [[Wikidata:Requests for permissions/Bot/Valerio Bozzolan bot 6|importing volleyball players from LegaVolley]]' );
+
+$ALWAYS = true;
 
 // load boz-mw
 require 'includes/boz-mw/autoload.php';
@@ -76,11 +78,13 @@ while( ($data = fgetcsv($handle, 1000, ",")) !== false ) {
 fclose( $handle );
 
 // existing volleyball players
+$asd = date( 'U' );
 $datas = json_decode( ( new \network\HTTPRequest( 'https://query.wikidata.org/sparql' ) )
 	->fetch( [
 		'format' => 'json',
 		'query'  =>
-			  "SELECT ?item ?legavolley_id "
+				"# Sorry but I have to invalidate this cache somehow: $asd. asd\n"
+			. "SELECT ?item ?legavolley_id "
 			. "WHERE "
 			. "{ "
 			. "  ?item wdt:P4303 ?legavolley_id." // ID LegaVolley
@@ -112,6 +116,11 @@ foreach( $NEW_PLAYERS as $NEW_PLAYER ) {
 	$entity_id = false;
 	if( isset( $EXISTING_PLAYERS[ $legavolley_id ] ) ) {
 		$entity_id = $EXISTING_PLAYERS[ $legavolley_id ];
+	}
+
+	if( ! $entity_id ) {
+		echo "Look for an existing? https://www.wikidata.org/w/index.php?search=" . urlencode( "$name $surname" ) . "\n";
+		$entity_id = cli\Input::askInput( "Enter entity ID or nothing", false );
 	}
 
 	// Wikidata statements
@@ -183,7 +192,7 @@ foreach( $NEW_PLAYERS as $NEW_PLAYER ) {
 	foreach( $DESCRIPTIONS as $lang => $text ) {
 		if( ! $data_old || ! $data_old->hasDescriptionsInLanguage( $lang ) ) {
 			$data_new->setDescription( new wb\DescriptionAction( $lang, $text, wb\DescriptionAction::ADD ) );
-			$changes[] = " +[description][$lang]";
+			$changes[] = "+[description][$lang]";
 		}
 	}
 
@@ -216,7 +225,7 @@ foreach( $NEW_PLAYERS as $NEW_PLAYER ) {
 	if( $entity_id ) {
 		if( $data_new->countClaims() ) {
 			print_r( $changes );
-			if( 'y' === cli\Input::yesNoQuestion( "Save $name $surname $entity_id?" ) ) {
+			if( $ALWAYS || 'y' === cli\Input::yesNoQuestion( "Save $name $surname $entity_id?" ) ) {
 				$wd->post( array_replace( $wbeditentity, [
 					'id'   => $entity_id,
 					'data' => $data_new->getJSON()
@@ -227,7 +236,7 @@ foreach( $NEW_PLAYERS as $NEW_PLAYER ) {
 		}
 	} else {
 		print_r( $changes );
-		if( 'y' === cli\Input::yesNoQuestion( "Create $name $surname?" ) ) {
+		if( $ALWAYS || 'y' === cli\Input::yesNoQuestion( "Create $name $surname?" ) ) {
 			// Create new item
 			$result = $wd->post( array_replace( $wbeditentity, [
 				'new'  => 'item',
