@@ -81,7 +81,7 @@ foreach( $local_players as $local_player ) {
 	// https://www.wikidata.org/w/api.php?action=help&modules=wbeditentity
 	$wbeditentity = [
 		'action'  => 'wbeditentity',
-		'summary' => SUMMARY,
+		'summary' => SUMMARY . ": $soccer_id",
 		'token'   => $wd->getToken( mw\Tokens::CSRF ),
 		'bot'     => 1,
 	];
