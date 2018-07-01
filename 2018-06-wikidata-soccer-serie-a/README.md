@@ -3,7 +3,9 @@
 This PHP bot was developed to import Lega Serie A soccer players IDs.
 
 ## Consensus
-* [Bot consensus for Wikidata](https://www.wikidata.org/wiki/Wikidata:Requests_for_permissions/Bot/Valerio_Bozzolan_bot_5)
+* [X] [Discussion on Italian Wikipedia](https://it.wikipedia.org/wiki/Discussioni_template:Lega_Calcio#Non_funziona?)
+* [X] [Bot consensus for Wikidata](https://www.wikidata.org/wiki/Wikidata:Requests_for_permissions/Bot/Valerio_Bozzolan_bot_5)
+* [X] [Lega Serie A soccer player ID consensus on Wikidata](https://www.wikidata.org/wiki/Wikidata:Property_proposal/Legaseriea.it_ID)
 
 ## Data
 These files are available in public domain because they consists in informations obtained from public [URLs](https://en.wikipedia.org/wiki/URL) ineligibles for copyright.
