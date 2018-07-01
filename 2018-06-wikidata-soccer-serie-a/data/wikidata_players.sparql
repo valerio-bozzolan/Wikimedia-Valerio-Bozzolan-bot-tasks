@@ -1,0 +1,12 @@
+#Calciatori italiani senza soccer player id
+SELECT ?item ?itemLabel
+WHERE
+{
+  ?item wdt:P641 wd:Q2736.    # football
+  ?item wdt:P27  wd:Q38.      # Italy
+  ?item wdt:P21  wd:Q6581097. # male
+  ?item wdt:P31  wd:Q5.       # human
+  MINUS{ ?item wdt:P5339 [] } # soccer player id
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "it,en". }
+}
+ORDER BY ?itemLabel
