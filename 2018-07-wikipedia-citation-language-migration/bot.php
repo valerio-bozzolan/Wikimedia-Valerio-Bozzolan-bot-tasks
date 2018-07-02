@@ -54,7 +54,7 @@ foreach( $members->getGenerator() as $response ) {
 				$suffix    = $matches[ 3 ][ $i ];
 
 				if( false !== strpos( $languages, 'lingua ' ) ) {
-					cli\Log::debug( "skip '$languages'") ;
+					cli\Log::debug( "\t skip '$languages'") ;
 					continue;
 				}
 
@@ -68,18 +68,18 @@ foreach( $members->getGenerator() as $response ) {
 						);
 						$changes[] = "'$languages' → '$languages_new'";
 					} else {
-						cli\Log::debug( "nothing to do on '$languages'" );
+						cli\Log::debug( "\t nothing to do on '$languages'" );
 					}
 				}
 			}
 		} else {
-			cli\Log::warn( "[[{$page->title}]] unmatch" );
+			cli\Log::warn( "\t unmatch" );
 		}
 
 		if( $wikitext->getSobstitutions() ) {
 			$changes = array_unique( $changes );
 			foreach( $changes as $change ) {
-				cli\Log::info( "\tChange: $change" );
+				cli\Log::info( "\t Change: $change" );
 			}
 			if( $ALWAYS || 'y' === cli\Input::yesNoQuestion( "Save?" ) ) {
 				$summary = SUMMARY . ': ' . implode( '; ', $changes );
