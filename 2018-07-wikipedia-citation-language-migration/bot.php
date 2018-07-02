@@ -53,10 +53,15 @@ foreach( $members->getGenerator() as $response ) {
 				$languages = $matches[ 2 ][ $i ];
 				$suffix    = $matches[ 3 ][ $i ];
 
+				if( false !== strpos( $languages, 'lingua ' ) ) {
+					cli\Log::debug( "skip '$languages'") ;
+					continue;
+				}
+
 				$n_languages = preg_match_all( '/[a-zA-Z\-òàùèì]+/', $languages );
 				if( $n_languages > 1 ) {
 					if( false === strpos( $languages, ',' ) ) {
-						$languages_new = preg_replace( '/\w+/', '$0,', $languages, $n_languages - 1 );
+						$languages_new = preg_replace( '/[a-zA-Z\-òàùèì]+/', '$0,', $languages, $n_languages - 1 );
 						$wikitext->strReplace(
 							$prefix . $languages     . $suffix,
 							$prefix . $languages_new . $suffix
