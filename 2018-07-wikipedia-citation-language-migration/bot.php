@@ -85,6 +85,7 @@ foreach( $members->getGenerator() as $response ) {
 					'text'          => $wikitext->getWikitext(),
 					'token'         => $wit->getToken( \mw\Tokens::CSRF ),
 					'summary'       => $summary,
+					'minor'         => true,
 					'bot'           => true,
 				] );
 			}
