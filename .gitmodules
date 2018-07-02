@@ -10,3 +10,6 @@
 [submodule "2018-02-italian-parks/includes/boz-mw"]
 	path = 2018-02-italian-parks/includes/boz-mw
 	url = https://github.com/valerio-bozzolan/boz-mw.git
+[submodule "2018-07-wikipedia-citation-language-migration/includes/boz-mw"]
+	path = 2018-07-wikipedia-citation-language-migration/includes/boz-mw
+	url = https://github.com/valerio-bozzolan/boz-mw
