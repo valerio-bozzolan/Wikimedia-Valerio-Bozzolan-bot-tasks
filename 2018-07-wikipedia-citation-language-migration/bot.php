@@ -73,27 +73,30 @@ foreach( $members->getGenerator() as $response ) {
 				}
 			}
 		} else {
-			cli\Log::warn( "\t unmatch" );
+			cli\Log::warn( "\t unmatch (try nulledit)" );
 		}
 
-		if( $wikitext->getSobstitutions() ) {
-			$changes = array_unique( $changes );
-			foreach( $changes as $change ) {
-				cli\Log::info( "\t Change: $change" );
-			}
-			if( $ALWAYS || 'y' === cli\Input::yesNoQuestion( "Save?" ) ) {
+		if( $ALWAYS || 'y' === cli\Input::yesNoQuestion( "Save?" ) ) {
+			if( $changes ) {
+				$changes = array_unique( $changes );
+				foreach( $changes as $change ) {
+					cli\Log::info( "\t Change: $change" );
+				}
 				$summary = SUMMARY . ': ' . implode( '; ', $changes );
-				$wit->post( [
-					'action'        => 'edit',
-					'pageid'        => $page->pageid,
-					'basetimestamp' => $page->revisions[ 0 ]->timestamp,
-					'text'          => $wikitext->getWikitext(),
-					'token'         => $wit->getToken( \mw\Tokens::CSRF ),
-					'summary'       => $summary,
-					'minor'         => true,
-					'bot'           => true,
-				] );
+			} else {
+				cli\Log::info( "\t null edit" );
+				$summary = '[[Aiuto:Null edit|null edit]]';
 			}
+			$wit->post( [
+				'action'        => 'edit',
+				'pageid'        => $page->pageid,
+				'basetimestamp' => $page->revisions[ 0 ]->timestamp,
+				'text'          => $wikitext->getWikitext(),
+				'token'         => $wit->getToken( \mw\Tokens::CSRF ),
+				'summary'       => $summary,
+				'minor'         => true,
+				'bot'           => true,
+			] );
 		}
 	}
 }
