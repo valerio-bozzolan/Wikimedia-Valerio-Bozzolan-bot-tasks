@@ -30,7 +30,8 @@ $REFERENCES = [ [
 	)->getAll()
 ] ];
 
-$wikidata = \wm\Wikidata::getInstance();
+$wikidata = \wm\Wikidata::getInstance()
+	->login();
 foreach( explode( "\n", trim( file_get_contents( 'data/italian-natura-ids.csv' ) ) ) as $park ) {
 
 	list( $entity_id, $natura_id ) = explode( ',', $park );
@@ -51,9 +52,10 @@ foreach( explode( "\n", trim( file_get_contents( 'data/italian-natura-ids.csv' )
 		);
 
 	if( ! $data_old->hasClaimsInProperty( 'P3425' ) ) {
+		cli\Log::info( "$entity_id $natura_id" );
 		$wikidata->post( [
 			'action'  => 'wbeditentity',
-			'summary' => 'Bot: [[Wikidata:Requests for permissions/Bot/Valerio Bozzolan bot 4|importing Natura 2000 site ID]]',
+			'summary' => "Bot: [[Wikidata:Requests for permissions/Bot/Valerio Bozzolan bot 4|importing Natura 2000 site ID]]: $natura_id",
 			'token'   => $wikidata->getToken( mw\Tokens::CSRF ),
 			'bot'     => 1,
 			'id'      => $entity_id,
