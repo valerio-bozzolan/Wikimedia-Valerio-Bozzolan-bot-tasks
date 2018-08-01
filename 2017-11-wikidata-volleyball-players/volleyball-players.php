@@ -1,3 +1,4 @@
+#!/usr/bin/php
 <?php
 /*****************************
  * Legavolley 2017 uniformer *
@@ -52,10 +53,8 @@
 # Framework stuff
 #################
 
+require __DIR__ . '/includes/boz-mw/autoload.php';
 require __DIR__ . '/../config.php';
-require __DIR__ . '/../includes/boz-mw/autoload.php';
-
-mw\APIRequest::$WAIT_POST = 0.2;
 
 ##############################
 # Start of spaghetti constants
@@ -88,13 +87,13 @@ define(  'WIKIDATA_CONSENSUS_PAGE', 'Wikidata:Requests for permissions/Bot/Valer
 
 defined( 'COMMONS_SUMMARY' ) or
 define(  'COMMONS_SUMMARY', sprintf(
-	"[[%s|uniforming Legavolley 2017 players]]",
+	"[[%s|uniforming Legavolley 2018 players]]",
 	COMMONS_CONSENSUS_PAGE
 ) );
 
 defined( 'WIKIDATA_SUMMARY' ) or
 define(  'WIKIDATA_SUMMARY', sprintf(
-	"[[%s|uniforming Legavolley 2017 players]]",
+	"[[%s|uniforming Legavolley 2018 players]]",
 	WIKIDATA_CONSENSUS_PAGE
 ) );
 
@@ -107,75 +106,11 @@ define(  'INTERACTION', true );
 defined( 'ALWAYS' ) or
 define(  'ALWAYS', true );
 
-######################
-# Wikidata Login token
-######################
+$wikidata_api = \wm\Wikidata::getInstance()->login();
+$commons_api  = \wm\Commons ::getInstance()->login();
 
-$wikidata_api = mw\APIRequest::factory('https://www.wikidata.org/w/api.php');
-$logintoken = $wikidata_api->fetch( [
-	'action' => 'query',
-	'meta'   => 'tokens',
-	'type'   => 'login'
-] )->query->tokens->logintoken;
-
-################
-# Wikidata login
-################
-
-$response = $wikidata_api->post( [
-	'action'     => 'login',
-	'lgname'     => WIKI_USERNAME,
-	'lgpassword' => WIKI_PASSWORD,
-	'lgtoken'    => $logintoken
-] );
-if( ! isset( $response->login->result ) || $response->login->result !== 'Success' ) {
-	throw new Exception("login failed");
-}
-
-##############################
-# Wikidata CSRF token (logged)
-##############################
-
-$WIKIDATA_CSRF_TOKEN = $wikidata_api->fetch( [
-	'action' => 'query',
-	'meta'   => 'tokens',
-	'type'   => 'csrf'
-] )->query->tokens->csrftoken;
-
-#####################
-# Commons Login token
-#####################
-
-$commons_api = mw\APIRequest::factory('https://commons.wikimedia.org/w/api.php');
-$logintoken = $commons_api->fetch( [
-	'action' => 'query',
-	'meta'   => 'tokens',
-	'type'   => 'login'
-] )->query->tokens->logintoken;
-
-###############
-# Commons login
-###############
-
-$response = $commons_api->post( [
-	'action'     => 'login',
-	'lgname'     => WIKI_USERNAME,
-	'lgpassword' => WIKI_PASSWORD,
-	'lgtoken'    => $logintoken
-] );
-if( ! isset( $response->login->result ) || $response->login->result !== 'Success' ) {
-	throw new Exception("login failed");
-}
-
-#############################
-# Commons CSRF token (logged)
-#############################
-
-$COMMONS_CSRF_TOKEN = $commons_api->fetch( [
-	'action' => 'query',
-	'meta'   => 'tokens',
-	'type'   => 'csrf'
-] )->query->tokens->csrftoken;
+$WIKIDATA_CSRF_TOKEN = $wikidata_api->getToken( \mw\Tokens::CSRF );
+$COMMONS_CSRF_TOKEN  = $commons_api ->getToken( \mw\Tokens::CSRF );
 
 #############
 # Nations CSV
@@ -224,7 +159,7 @@ if( ( $handle = fopen('commons-volleyball-players.csv', 'r') ) !== false ) {
 			continue;
 		}
 
-		list($ID, $surname, $name, $natcode, $file) = $data;
+		list($ID, $surname, $name, $natcode, $file, $item) = $data;
 
 		if( ! isset( $NATIONS[ $natcode ] ) ) {
 			$missing_natcodes[] = $natcode;
@@ -252,7 +187,7 @@ if( ( $handle = fopen('commons-volleyball-players.csv', 'r') ) !== false ) {
 		$filename_url = commons_page_url( $filename );
 		$complete_name = "$name $surname";
 
-		$wikidata_item = get_wikidata_item( $filename, $complete_name );
+		$wikidata_item = $item ? $item : get_wikidata_item( $filename, $complete_name );
 		if( SANDBOXED ) {
 			echo "SANDBOXED\n";
 			$wikidata_item = WIKIDATA_SANDBOX;
@@ -414,7 +349,7 @@ if( ( $handle = fopen('commons-volleyball-players.csv', 'r') ) !== false ) {
 			if( $wikidata_item_new_data->countClaims() ) {
 				echo $wikidata_item_new_data->getJSON( JSON_PRETTY_PRINT );
 				echo "Confirm existing https://www.wikidata.org/wiki/$wikidata_item\n";
-				sleep(1);
+				read();
 
 				// Save existing
 				// https://www.wikidata.org/w/api.php?action=help&modules=wbeditentity
@@ -784,17 +719,15 @@ function commons_page_has_templates( $page_title, $templates = [] ) {
 }
 
 function commons_page_props( $page, $prop, $args = [] ) {
-	$args = array_merge( [
+	$api = \wm\Commons::getInstance()->createQuery( array_merge( [
 		'action' => 'query',
 		'prop'   => $prop,
-		'titles' => $page
-	], $args );
-
-	$api = mw\APIRequest::factory( 'https://commons.wikimedia.org/w/api.php', $args );
+		'titles' => $page,
+	] ) );
 	$pages = [];
-	while( $api->hasNext() ) {
+	foreach( $api->getGenerator() as $page ) {
 		// TODO: callback to obtain the right object?
-		$pages[] = $api->getNext();
+		$pages[] = $page;
 	}
 	return $pages;
 }
@@ -805,12 +738,12 @@ function commons_page_props( $page, $prop, $args = [] ) {
 
 function search_disperately_wikidata_item( $title ) {
 	echo "# Searching Wikidata item as '$title'\n";
-	$wbsearch = mw\APIRequest::factory( 'https://www.wikidata.org/w/api.php', [
+	$wbsearch = \wm\Wikidata::getInstance()->fetch( [
 		'action'      => 'query',
 		'list'        => 'wbsearch',
 		'wbssearch'   => $title,
 		'wbslanguage' => 'en'
-	] )->fetch();
+	] );
 	$titles = [];
 	foreach( $wbsearch->query->wbsearch as $wbsearch ) {
 		$titles[] = $wbsearch->title;
@@ -847,15 +780,14 @@ function filter_volleyball_wikidata_IDs( $wikidata_IDs ) {
 	$languages = array_keys( $SEARCH_TERMS );
 
 	// https://www.wikidata.org/w/api.php?action=wbgetentities&props=descriptions&ids=Q19675&languages=en|it
-	$entities = mw\APIRequest::factory( 'https://www.wikidata.org/w/api.php', [
+	$entities = \wm\Wikidata::getInstance()->createQuery( [
 		'action'    => 'wbgetentities',
 		'props'     => 'descriptions|claims',
 		'ids'       => implode( '|', $wikidata_IDs ),
 		'languages' => implode( '|', $languages    )
 	] );
 	$matching_wikidata_IDs = [];
-	while( $entities->hasNext() ) {
-		$entity = $entities->getNext();
+	foreach( $entities->getGenerator() as $entity ) {
 		foreach( $entity->entities as $entity_ID => $entity ) {
 			$entity_object = wb\DataModel::createFromObject( $entity );
 			foreach( $wikidata_IDs as $wikidata_ID ) {
@@ -903,7 +835,7 @@ function filter_volleyball_wikidata_IDs( $wikidata_IDs ) {
 	$matching_wikidata_IDs = array_keys( $matching_wikidata_IDs );
 	if( VERBOSE ) {
 		echo "# Matching:\n";
-		foreach($matching_wikidata_IDs as $matching_wikidata_ID) {
+		foreach( $matching_wikidata_IDs as $matching_wikidata_ID ) {
 			echo "# https://www.wikidata.org/wiki/$wikidata_ID \n";
 		}
 		if( ! $matching_wikidata_IDs ) {
@@ -915,11 +847,11 @@ function filter_volleyball_wikidata_IDs( $wikidata_IDs ) {
 
 function fetch_wikidata_item( $page_name ) {
 	// https://commons.wikimedia.org/w/api.php?action=query&prop=wbentityusage&titles=Category:Alberto+Casadei
-	$wbentityusage = mw\APIRequest::factory( 'https://commons.wikimedia.org/w/api.php', [
+	$wbentityusage = \wm\Commons::getInstance()->fetch( [
 		'action' => 'query',
 		'prop'   => 'wbentityusage',
 		'titles' => $page_name
-	] )->fetch();
+	] );
 
 	// Page not found
 	if( isset( $wbentityusage->query->pages->{-1} ) ) {

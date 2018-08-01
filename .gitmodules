@@ -13,3 +13,6 @@
 [submodule "2018-07-wikipedia-citation-language-migration/includes/boz-mw"]
 	path = 2018-07-wikipedia-citation-language-migration/includes/boz-mw
 	url = https://github.com/valerio-bozzolan/boz-mw
+[submodule "2017-11-wikidata-volleyball-players/includes/boz-mw"]
+	path = 2017-11-wikidata-volleyball-players/includes/boz-mw
+	url = https://github.com/valerio-bozzolan/boz-mw
