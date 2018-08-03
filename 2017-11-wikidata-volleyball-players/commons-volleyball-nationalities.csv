@@ -11,48 +11,48 @@ BRA,Q155,brasiliano,brasiliana,Brazilian,Volleyball players from Brazil,Men's vo
 BRN,Q921,bruneiano,bruneiana,Bruneian,,
 BUL,Q219,bulgaro,bulgara,Bulgarian,Volleyball players from Bulgaria,Men's volleyball players from Bulgaria
 CAN,Q16,canadese,canadese,Canadian,Volleyball players from Canada,Men's volleyball players from Canada
-CHI,Q298,cileno,cilena,Chilean,Volleyball players from Chile,
-CHN,Q148,cinese,cinese,Chinese,Volleyball players from China,
-CMR,Q1009,camerunense,camerunense,Cameroonian,Volleyball players from Cameroon,
-COL,Q739,colombiano,colombiana,Colombian,Volleyball players from Colombia,
+CHI,Q298,cileno,cilena,Chilean,Volleyball players from Chile,Men's volleyball players from Chile
+CHN,Q148,cinese,cinese,Chinese,Volleyball players from China,Men's volleyball players from China
+CMR,Q1009,camerunense,camerunense,Cameroonian,Volleyball players from Cameroon,Men's volleyball players from Cameroon
+COL,Q739,colombiano,colombiana,Colombian,Volleyball players from Colombia,Men's volleyball players from Colombia
 CRO,Q224,croato,croata,Croatian,Volleyball players from Croatia,Men's volleyball players from Croatia
 CUB,Q241,cubano,cubana,Cuban,Volleyball players from Cuba,Men's volleyball players from Cuba
 CZE,Q213,ceco,ceca,Czech,Volleyball players from the Czech Republic,Men's volleyball players from the Czech Republic
-DEN,Q35,danese,danese,Danish,Volleyball players from Denmark,
+DEN,Q35,danese,danese,Danish,Volleyball players from Denmark,Men's volleyball players from Denmark
 DOM,Q786,dominicense,dominicense,Dominican,Volleyball players from the Dominican Republic,
 EGY,Q79,egiziano,egiziana,Egyptian,,
 ESP,Q29,spagnolo,spagnola,Spanish,Men's volleyball players from Spain,Men's volleyball players from Spain
-EST,Q191,estone,estone,Estonian,Volleyball players from Estonia,
-FIN,Q33,finlandese,finlandese,Finnish,Volleyball players from Finland,
+EST,Q191,estone,estone,Estonian,Volleyball players from Estonia,Men's volleyball players from Estonia
+FIN,Q33,finlandese,finlandese,Finnish,Volleyball players from Finland,Men's volleyball players from Finland
 FRA,Q142,francese,francese,French,Volleyball players from France,Men's volleyball players from France
 GER,Q183,tedesco,tedesca,German,Volleyball players from Germany,Men's volleyball players from Germany
 GRE,Q41,greco,greca,Greek,Volleyball players from Greece,Men's volleyball players from Greece
-HUN,Q28,ungherese,ungherese,Hungarian,Volleyball players from Hungary,
+HUN,Q28,ungherese,ungherese,Hungarian,Volleyball players from Hungary,Men's volleyball players from Hungary
 INA,Q252,indonesiano,indonesiana,Indonesian,Volleyball players from Indonesia,
-IRI,Q794,iraniano,iraniana,Iranian,Volleyball players from Iran,
-ISR,Q801,israeliano,israeliana,Israeli,Volleyball players from Israel,
+IRI,Q794,iraniano,iraniana,Iranian,Volleyball players from Iran,Men's volleyball players from Iran
+ISR,Q801,israeliano,israeliana,Israeli,Volleyball players from Israel,Men's volleyball players from Israel
 ITA,Q38,italiano,italiana,Italian,Volleyball players from Italy,Men's volleyball players from Italy
-JPN,Q17,giapponese,giapponese,Japanese,Volleyball players from Japan,
-LAT,Q211,lettone,lettone,Latvian,Volleyball players from Latvia,
-MEX,Q96,messicano,messicana,Mexican,Volleyball players from Mexico,
+JPN,Q17,giapponese,giapponese,Japanese,Volleyball players from Japan,Men's volleyball players from Japan
+LAT,Q211,lettone,lettone,Latvian,Volleyball players from Latvia,Men's volleyball players from Latvia
+MEX,Q96,messicano,messicana,Mexican,Volleyball players from Mexico,Men's volleyball players from Mexico
 MLD,Q826,maldiviano,maldiviana,Maldivian,,
-MNE,Q236,montenegrino,montenegrina,Montenegrin,Volleyball players from Montenegro,
+MNE,Q236,montenegrino,montenegrina,Montenegrin,Volleyball players from Montenegro,Men's volleyball players from Montenegro
 NED,Q55,olandese,olandese,Dutch,Volleyball players from the Netherlands,Men's volleyball players from the Netherlands
 NGR,Q1032,nigeriano,nigeriana,Nigerian,,
-NOR,Q20,norvegese,norvegese,Norwegian,Volleyball players from Norway,
+NOR,Q20,norvegese,norvegese,Norwegian,Volleyball players from Norway,Men's volleyball players from Norway
 NZL,Q664,neozelandese,neozelandese,New Zealander,,
-POL,Q36,polacco,polacca,Polish,Volleyball players from Poland,
-POR,Q45,portoghese,portoghese,Portuguese,Volleyball players from Portugal,
-PUR,Q1183,portoricano,portoricana,Puerto Rican,Volleyball players from Puerto Rico,
-ROM,Q218,romeno,romena,Romanian,Volleyball players from Romania,
-RUS,Q159,russo,russa,Russian,Volleyball players from Russia,
+POL,Q36,polacco,polacca,Polish,Volleyball players from Poland,Men's volleyball players from Poland
+POR,Q45,portoghese,portoghese,Portuguese,Volleyball players from Portugal,Men's volleyball players from Portugal
+PUR,Q1183,portoricano,portoricana,Puerto Rican,Volleyball players from Puerto Rico,Men's volleyball players from Puerto Rico
+ROM,Q218,romeno,romena,Romanian,Volleyball players from Romania,Men's volleyball players from Romania
+RUS,Q159,russo,russa,Russian,Volleyball players from Russia,Men's volleyball players from Russia
 SLO,Q215,sloveno,slovena,Slovenian,Volleyball players from Slovenia,Men's volleyball players from Slovenia
-SRB,Q403,serbo,serba,Serbian,Volleyball players from Serbia,
+SRB,Q403,serbo,serba,Serbian,Volleyball players from Serbia,Men's volleyball players from Serbia
 SUI,Q39,svizzero,svizzera,Swiss,Volleyball players from Switzerland,Men's volleyball players from Switzerland
-SVK,Q214,slovacco,slovacca,Slovakian,Volleyball players from Slovakia,
+SVK,Q214,slovacco,slovacca,Slovakian,Volleyball players from Slovakia,Men's volleyball players from Slovakia
 SWE,Q34,svedese,svedese,Swedish,Volleyball players from Sweden,Men's volleyball players from Sweden
-THA,Q869,tailandese,tailandese,Thai,Volleyball players from Thailand,
-TPE,Q865,taiwanese,taiwanese,Taiwanese,Volleyball players from Taiwan,
+THA,Q869,tailandese,tailandese,Thai,Volleyball players from Thailand,Men's volleyball players from Thailand
+TPE,Q865,taiwanese,taiwanese,Taiwanese,Volleyball players from Taiwan,Men's volleyball players from Taiwan
 UKR,Q212,ucraino,ucraina,Ukranian,Volleyball players from Ukraine,Men's volleyball players from Ukraine
 USA,Q30,statunitense,statunitense,American,Volleyball players from the United States,Men's volleyball players from the United States
-VEN,Q717,venezuelano,venezuelana,Venezuelan,Volleyball players from Venezuela,
+VEN,Q717,venezuelano,venezuelana,Venezuelan,Volleyball players from Venezuela,Men's volleyball players from Venezuela
