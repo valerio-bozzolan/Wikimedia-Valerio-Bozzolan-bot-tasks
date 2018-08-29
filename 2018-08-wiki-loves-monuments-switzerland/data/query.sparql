@@ -1,0 +1,27 @@
+#List of monuments in Switzerland(in English, local language, and fallback language), and status
+SELECT DISTINCT ?item ?labelEn ?labelNative ?itemLabel ?languageCode ?itemLabelCode ?status ?statusLabel ?canton ?cantonLabel WHERE {
+  ?item wdt:P381 ?pbc.
+  ?item wdt:P1435 ?status.
+  {
+    ?item wdt:P131 ?canton.
+    ?canton wdt:P31 wd:Q23058.
+  } UNION {
+    ?item wdt:P131 ?city.
+    ?city wdt:P131 ?canton.
+    ?canton wdt:P31 wd:Q23058.
+  }
+  OPTIONAL {
+    ?item rdfs:label ?labelEn
+    FILTER( LANG( ?labelEn ) = "en")
+  }
+  OPTIONAL {
+    ?item wdt:P131 ?where.
+    ?where wdt:P37 ?language.
+    ?language wdt:P218 ?languageCode.
+    ?item rdfs:label ?labelNative.
+    FILTER( LANG( ?labelNative ) = ?languageCode )
+  }
+  MINUS { ?item wdt:P373 ?cat. }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "en,rm,it,fr,de". }
+}
+ORDER BY DESC(?labelEn)

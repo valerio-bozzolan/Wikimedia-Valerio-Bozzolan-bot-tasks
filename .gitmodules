@@ -16,3 +16,6 @@
 [submodule "2017-11-wikidata-volleyball-players/includes/boz-mw"]
 	path = 2017-11-wikidata-volleyball-players/includes/boz-mw
 	url = https://github.com/valerio-bozzolan/boz-mw
+[submodule "2018-08-wiki-loves-monuments-switzerland/boz-mw"]
+	path = 2018-08-wiki-loves-monuments-switzerland/includes/boz-mw
+	url = git@github.com:valerio-bozzolan/boz-mw.git
