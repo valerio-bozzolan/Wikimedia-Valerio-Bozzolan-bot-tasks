@@ -118,7 +118,7 @@ foreach( $results as $result ) {
 	Log::info( "save Commons [[$category_name_prefixed]]" );
 	try {
 		// save in Commons without overwriting
-		$status = $commons->edit( [
+		$commons->edit( [
 			'title'      => $category_name_prefixed,
 			'text'       => $cat_content,
 			'summary'    => "[[Commons:Wiki Loves Monuments 2018 in Switzerland]]: creating category for monument [[d:$entity_id|$category_name]]",
