@@ -83,6 +83,11 @@ foreach( $results as $result ) {
 		continue;
 	}
 
+	// manual check asd
+	if( 'n' === cli\Input::yesNoQuestion( "Do you like [[$category_name_prefixed]]?" ) ) {
+		continue;
+	}
+
 	$category_has_images = false;
 
 	// has images?
@@ -91,14 +96,13 @@ foreach( $results as $result ) {
 			$image = $claim->getMainsnak()->getDataValue()->getValue();
 
 			// categorize that image with the unexisting category
-			if( $ALWAYS || 'y' === cli\Input::yesNoQuestion( "Categorize [[File:$image]] under [[$category_name_prefixed]]?" ) ) {
-				$commons->edit( [
-					'title'      => "File:$image",
-					'appendtext' => "\n[[$category_name_prefixed]]",
-					'summary'    =>  "[[Commons:Wiki Loves Monuments 2018 in Switzerland]]: +[[$category_name_prefixed]]",
-					'bot'        => 1,
-				] );
-			}
+			Log::info( "categorize [[File:$image]] under [[$category_name_prefixed]]" );
+			$commons->edit( [
+				'title'      => "File:$image",
+				'appendtext' => "\n[[$category_name_prefixed]]",
+				'summary'    =>  "[[Commons:Wiki Loves Monuments 2018 in Switzerland]]: +[[$category_name_prefixed]]",
+				'bot'        => 1,
+			] );
 
 			$category_has_images = true;
 		}
@@ -115,24 +119,21 @@ foreach( $results as $result ) {
 
 	// confirm save in Commons
 	echo "---\n$cat_content\n---\n";
-	if( $ALWAYS || 'y' === cli\Input::yesNoQuestion( "Save Commons [[$category_name_prefixed]]?" ) ) {
-
-		try {
-			// save in Commons without overwriting
-			$status = $commons->edit( [
-				'title'      => $category_name_prefixed,
-				'text'       => $cat_content,
-				'summary'    => "[[Commons:Wiki Loves Monuments 2018 in Switzerland]]: creating category for monument [[d:$entity_id|$category_name]]",
-				'createonly' => true,
-				'bot'        => 1,
-			] );
-		} catch( mw\API\ArticleExistsException $e ) {
-			Log::warn( "The page [[$category_name_prefixed]] already exists in Commons. skip" );
-			if( 'y' === cli\Input::yesNoQuestion( "Skip [[$category_name_prefixed]]?" ) ) {
-				continue;
-			}
+	Log::info( "save Commons [[$category_name_prefixed]]" );
+	try {
+		// save in Commons without overwriting
+		$status = $commons->edit( [
+			'title'      => $category_name_prefixed,
+			'text'       => $cat_content,
+			'summary'    => "[[Commons:Wiki Loves Monuments 2018 in Switzerland]]: creating category for monument [[d:$entity_id|$category_name]]",
+			'createonly' => true,
+			'bot'        => 1,
+		] );
+	} catch( mw\API\ArticleExistsException $e ) {
+		Log::warn( "The page [[$category_name_prefixed]] already exists in Commons. skip" );
+		if( 'y' === cli\Input::yesNoQuestion( "Skip [[$category_name_prefixed]]?" ) ) {
+			continue;
 		}
-
 	}
 
 	// save the Commons category in Wikidata
@@ -140,14 +141,13 @@ foreach( $results as $result ) {
 		->addClaim( new wb\StatementCommonsCategory( 'P373', $category_name ) );
 
 	// save the Commons category in Wikidata
-	if( $ALWAYS || 'y' === cli\Input::yesNoQuestion( "Save Wikidata [[$entity_id]]: {$entity_data->getEditSummary()}?" ) ) {
-		$wikidata->editEntity( [
-			'id'      => $entity_id,
-			'data'    => $entity_data->getJSON(),
-			'summary' => "[[c:Commons:Wiki Loves Monuments 2018 in Switzerland]]: " . $entity_data->getEditSummary(),
-			'bot'     => 1,
-		] );
-	}
+	Log::info( "saving Commons category in Wikidata" );
+	$wikidata->editEntity( [
+		'id'      => $entity_id,
+		'data'    => $entity_data->getJSON(),
+		'summary' => "[[c:Commons:Wiki Loves Monuments 2018 in Switzerland]]: " . $entity_data->getEditSummary(),
+		'bot'     => 1,
+	] );
 }
 
 function coalesce() {
