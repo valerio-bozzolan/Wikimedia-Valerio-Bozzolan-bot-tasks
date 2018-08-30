@@ -91,7 +91,7 @@ foreach( $results as $result ) {
 			$image = $claim->getMainsnak()->getDataValue()->getValue();
 
 			// categorize that image with the unexisting category
-			if( $ALWAYS || 'y' === cli\Input::yesNoQuestion( "Categorize [[File:$image]]?" ) ) {
+			if( $ALWAYS || 'y' === cli\Input::yesNoQuestion( "Categorize [[File:$image]] under [[$category_name_prefixed]]?" ) ) {
 				$commons->edit( [
 					'title'      => "File:$image",
 					'appendtext' => "\n[[$category_name_prefixed]]",
@@ -117,21 +117,22 @@ foreach( $results as $result ) {
 	echo "---\n$cat_content\n---\n";
 	if( $ALWAYS || 'y' === cli\Input::yesNoQuestion( "Save Commons [[$category_name_prefixed]]?" ) ) {
 
-		// save in Commons without overwriting
-		$status = $commons->edit( [
-			'title'      => $category_name_prefixed,
-			'text'       => $cat_content,
-			'summary'    => "[[Commons:Wiki Loves Monuments 2018 in Switzerland]]: creating category for monument [[d:$entity_id|$category_name]]",
-			'createonly' => true,
-			'bot'        => 1,
-		] );
-
-		if( isset( $status->error ) ) {
-			if( $status->error->code === 'articleexists' ) {
-				Log::warn( "The page $cat_content already exists in Commons. skip" );
+		try {
+			// save in Commons without overwriting
+			$status = $commons->edit( [
+				'title'      => $category_name_prefixed,
+				'text'       => $cat_content,
+				'summary'    => "[[Commons:Wiki Loves Monuments 2018 in Switzerland]]: creating category for monument [[d:$entity_id|$category_name]]",
+				'createonly' => true,
+				'bot'        => 1,
+			] );
+		} catch( mw\API\ArticleExistsException $e ) {
+			Log::warn( "The page [[$category_name_prefixed]] already exists in Commons. skip" );
+			if( 'y' === cli\Input::yesNoQuestion( "Skip [[$category_name_prefixed]]?" ) ) {
 				continue;
 			}
 		}
+
 	}
 
 	// save the Commons category in Wikidata
@@ -139,7 +140,7 @@ foreach( $results as $result ) {
 		->addClaim( new wb\StatementCommonsCategory( 'P373', $category_name ) );
 
 	// save the Commons category in Wikidata
-	if( $ALWAYS || 'y' === cli\Input::yesNoQuestion( "Save Wikidata [[$entity_id]]?" ) ) {
+	if( $ALWAYS || 'y' === cli\Input::yesNoQuestion( "Save Wikidata [[$entity_id]]: {$entity_data->getEditSummary()}?" ) ) {
 		$wikidata->editEntity( [
 			'id'      => $entity_id,
 			'data'    => $entity_data->getJSON(),
