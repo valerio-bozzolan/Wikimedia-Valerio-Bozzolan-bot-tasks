@@ -20,79 +20,110 @@ require '../config.php';
 use cli\Log;
 
 $CANTON_NAME = json_decode( file_get_contents( 'data/cantons.json' ) );
-$QUERY = file_get_contents( 'query.sparql' );
+$QUERY = file_get_contents( 'data/query.sparql' );
 
 $commons  = \wm\Commons ::getInstance()->login();
 $wikidata = \wm\Wikidata::getInstance()->login();
 
 // existing monuments
-$results = json_decode( ( new \network\HTTPRequest( 'https://query.wikidata.org/sparql' ) )
-	->fetch( [
-		'format' => 'json',
-		'query'  => $QUERY
-	] ) )
-	->results
-	->bindings;
+$results = \wm\Wikidata::querySPARQL( $QUERY );
 
 foreach( $results as $result ) {
 
-	$item         = $result->item       ->value;
+	// normalize stuff
+	$entity_id    = $result->item       ->value;
 	$label_en     = $result->labelEn    ->value;
 	$label_native = $result->labelNative->value;
 	$label        = $result->itemLabel  ->value;
 	$status       = $result->status     ->value;
 	$canton       = $result->canton     ->value;
 	$cantonLabel  = $result->cantonLabel->value;
+	$entity_id = str_replace( 'http://www.wikidata.org/entity/', '', $entity_id );
+	$status    = str_replace( 'http://www.wikidata.org/entity/', '', $status );
+	$canton    = str_replace( 'http://www.wikidata.org/entity/', '', $canton );
 
-	$item   = str_replace( 'http://www.wikidata.org/entity/', '', $item   );
-	$status = str_replace( 'http://www.wikidata.org/entity/', '', $status );
-	$canton = str_replace( 'http://www.wikidata.org/entity/', '', $canton );
 
+	// create Commons canton name
+	if( ! isset( $CANTON_NAME->{ $canton } ) ) {
+		Log::warn( "missing canton $canton $cantonLabel" );
+		continue;
+	}
+	$canton = $CANTON_NAME->{ $canton };
+
+
+	// create Commons category title
+	$category_name = ucfirst( coalesce( $label_en, $label_native, $label ) );
+	$category_name_prefixed = "Category:$category_name";
+	if( ! $category_name ) {
+		Log::warn( "skip $entity_id no best label" );
+		continue;
+	}
+	Log::info( "Commons category: [[$category_name_prefixed]]" );
+
+	// create Commons heritage category
 	$is_national = $status === 'Q8274529';
 	$is_regional = $status === 'Q12126757';
-
 	if( ! ( $is_national xor $is_regional ) ) {
 		Log::warn( "wtf regional or national; skip" );
 		continue;
 	}
-
-	$canton = $CANTON_NAME[ $canton ];
-	if( ! $canton ) {
-		Log::warn( "missing canton $canton $cantonLabel" );
-		continue;
-	}
-	$commons_canton_category = "Category:$commons_heritage_category";
-
-	$best_label = coalesce( $label_en, $label_native, $label );
-	if( ! $best_label ) {
-		Log::warn( "skip $item no label" );
-		continue;
-	}
-	$category_name = "Category:$best_label";
-
 	$commons_heritage_category = sprintf(
 		"Cultural properties of %s significance in the canton of $canton",
 		$is_national ? "national" : "regional",
 		$canton
 	);
+	$commons_canton_category = "Category:$commons_heritage_category";
 
-	$cat_content = [];
-	$cat_content[] = "{{Empty category|Populated by [[Commons:Wiki Loves Monuments 2018 in Switzerland|Wiki Loves Monuments 2018 in Switzerland]].}}";
-	$cat_content[] = "{{Wikidata Infobox|qid=$item}}";
-	$cat_content[] = "[[Category:$commons_canton_category]]";
+	// fetch existing entity
+	$entity = $wikidata->fetchSingleEntity( $entity_id, [ 'props'  => 'claims' ] );
 
-	$cat_content = implode( "\n", $cat_content );
+	// entity has images?
+	if( $entity->hasClaimsInProperty( 'P373' ) ) {
+		Log::warn( "already has Commons category; skip" );
+		continue;
+	}
+
+	$category_has_images = false;
+
+	// has images?
+	if( $entity->hasClaimsInProperty( 'P18' ) ) {
+		foreach( $entity->getClaimsInProperty( 'P18' ) as $claim ) {
+			$image = $claim->getMainsnak()->getDataValue()->getValue();
+
+			// categorize that image with the unexisting category
+			if( $ALWAYS || 'y' === cli\Input::yesNoQuestion( "Categorize [[File:$image]]?" ) ) {
+				$commons->edit( [
+					'title'      => "File:$image",
+					'appendtext' => "\n[[$category_name_prefixed]]",
+					'summary'    =>  "[[Commons:Wiki Loves Monuments 2018 in Switzerland]]: +[[$category_name_prefixed]]",
+					'bot'        => 1,
+				] );
+			}
+
+			$category_has_images = true;
+		}
+	}
+	Log::info( $category_has_images ? "has images" : "no images" );
+
+	// Commons category content
+	$cat_content = "";
+	if( ! $category_has_images ) {
+		$cat_content .= "{{Empty category|Populated by [[Commons:Wiki Loves Monuments 2018 in Switzerland|Wiki Loves Monuments 2018 in Switzerland]].}}\n";
+	}
+	$cat_content .= "{{Wikidata Infobox|qid=$entity_id}}\n";
+	$cat_content .= "[[Category:$commons_heritage_category]]";
 
 	// confirm save in Commons
-	if( $ALWAYS || 'y' === cli\Input::yesNoQuestion( "Save [[$category_name]]?" ) ) {
+	echo "---\n$cat_content\n---\n";
+	if( $ALWAYS || 'y' === cli\Input::yesNoQuestion( "Save Commons [[$category_name_prefixed]]?" ) ) {
 
 		// save in Commons without overwriting
-		$status = $commons->post( [
-			'title'      => $commons_canton_category,
+		$status = $commons->edit( [
+			'title'      => $category_name_prefixed,
 			'text'       => $cat_content,
-			'summary'    => "[[Commons:Wiki Loves Monuments 2018 in Switzerland]]: creating category for monument [[d:$item]]",
+			'summary'    => "[[Commons:Wiki Loves Monuments 2018 in Switzerland]]: creating category for monument [[d:$entity_id|$category_name]]",
 			'createonly' => true,
-			'token'      => $commons->getToken( mw\Tokens::CSRF ),
+			'bot'        => 1,
 		] );
 
 		if( isset( $status->error ) ) {
@@ -103,24 +134,20 @@ foreach( $results as $result ) {
 		}
 	}
 
-	// create item with data to be added
-	$data_new = new wb\DataModel();
-
-	// add Commons category to item
-	$data_new->addClaim( wb\StatementCommonsMedia( 'P373', $category_name ) );
+	// save the Commons category in Wikidata
+	$entity_data = ( new wb\DataModel() )
+		->addClaim( new wb\StatementCommonsCategory( 'P373', $category_name ) );
 
 	// save the Commons category in Wikidata
-	$wikidata->post( [
-		'action'  => 'wbeditentity',
-		'id'      => $item,
-		'data'    => $data_new->getJSON(),
-		'summary' => "[[c:Commons:Wiki Loves Monuments 2018 in Switzerland]]: " . $data_new->getEditSummary(),
-		'token'   => $wikidata->getToken( mw\Tokens::CSRF ),
-		'bot'     => 1,
-	] ) );
+	if( $ALWAYS || 'y' === cli\Input::yesNoQuestion( "Save Wikidata [[$entity_id]]?" ) ) {
+		$wikidata->editEntity( [
+			'id'      => $entity_id,
+			'data'    => $entity_data->getJSON(),
+			'summary' => "[[c:Commons:Wiki Loves Monuments 2018 in Switzerland]]: " . $entity_data->getEditSummary(),
+			'bot'     => 1,
+		] );
+	}
 }
-
-fclose( $out );
 
 function coalesce() {
 	$args = func_get_args();
