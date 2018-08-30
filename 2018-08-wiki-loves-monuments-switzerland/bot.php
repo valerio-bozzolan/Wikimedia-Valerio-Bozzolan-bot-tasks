@@ -7,10 +7,6 @@
  * @license GNU GPL v3+      *
  *****************************/
 
-define( 'SUMMARY', 'Bot: [[Wikidata:Requests for permissions/Bot/Valerio Bozzolan bot 6|importing monuments from LegaVolley]]' );
-
-$ALWAYS = false;
-
 // load boz-mw
 require 'includes/boz-mw/autoload.php';
 
