@@ -11,7 +11,7 @@
 require 'includes/boz-mw/autoload.php';
 
 // load configuration
-require '../config.php';
+require __DIR__ . '/../config.php';
 
 use cli\Log;
 
