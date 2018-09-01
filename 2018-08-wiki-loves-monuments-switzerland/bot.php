@@ -127,7 +127,13 @@ foreach( $results as $result ) {
 			'text'       => $cat_content,
 			'summary'    => "[[Commons:Wiki Loves Monuments 2018 in Switzerland]]: creating category for monument [[d:$entity_id|$category_name]] $NOTES",
 			'createonly' => true,
-			'bot'        => 1,
+
+			/**
+			 * No consensus for bot flag on Wikimedia Commons yet
+			 *
+			 * @see https://commons.wikimedia.org/wiki/Commons:Bots/Requests/Valerio_Bozzolan_bot_(4)
+			 */
+			// 'bot'        => 1, No consensus
 		] );
 	} catch( mw\API\ArticleExistsException $e ) {
 		Log::warn( "The page [[$category_name_prefixed]] already exists in Commons. skip" );
