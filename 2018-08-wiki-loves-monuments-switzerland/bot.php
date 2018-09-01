@@ -15,6 +15,12 @@ require __DIR__ . '/../config.php';
 
 use cli\Log;
 
+// cli options
+$opts = getopt( '', [
+	'notes:',
+] );
+$NOTES = @ $opts[ 'notes' ];
+
 $CANTON_NAME = json_decode( file_get_contents( 'data/cantons.json' ) );
 $QUERY = file_get_contents( 'data/query.sparql' );
 
@@ -27,17 +33,16 @@ $results = \wm\Wikidata::querySPARQL( $QUERY );
 foreach( $results as $result ) {
 
 	// normalize stuff
-	$entity_id    = $result->item       ->value;
-	$label_en     = $result->labelEn    ->value;
-	$label_native = $result->labelNative->value;
-	$label        = $result->itemLabel  ->value;
-	$status       = $result->status     ->value;
-	$canton       = $result->canton     ->value;
-	$cantonLabel  = $result->cantonLabel->value;
+	$entity_id    =  $result->item       ->value;
+	$label_en     = @$result->labelEn    ->value;
+	$label_native = @$result->labelNative->value;
+	$label        =  $result->itemLabel  ->value;
+	$status       =  $result->status     ->value;
+	$canton       =  $result->canton     ->value;
+	$cantonLabel  =  $result->cantonLabel->value;
 	$entity_id = str_replace( 'http://www.wikidata.org/entity/', '', $entity_id );
 	$status    = str_replace( 'http://www.wikidata.org/entity/', '', $status );
 	$canton    = str_replace( 'http://www.wikidata.org/entity/', '', $canton );
-
 
 	// create Commons canton name
 	if( ! isset( $CANTON_NAME->{ $canton } ) ) {
@@ -45,7 +50,6 @@ foreach( $results as $result ) {
 		continue;
 	}
 	$canton = $CANTON_NAME->{ $canton };
-
 
 	// create Commons category title
 	$category_name = ucfirst( coalesce( $label_en, $label_native, $label ) );
@@ -121,7 +125,7 @@ foreach( $results as $result ) {
 		$commons->edit( [
 			'title'      => $category_name_prefixed,
 			'text'       => $cat_content,
-			'summary'    => "[[Commons:Wiki Loves Monuments 2018 in Switzerland]]: creating category for monument [[d:$entity_id|$category_name]]",
+			'summary'    => "[[Commons:Wiki Loves Monuments 2018 in Switzerland]]: creating category for monument [[d:$entity_id|$category_name]] $NOTES",
 			'createonly' => true,
 			'bot'        => 1,
 		] );
@@ -133,14 +137,13 @@ foreach( $results as $result ) {
 	}
 
 	// save the Commons category in Wikidata
-	$entity_data = ( new wb\DataModel() )
-		->addClaim( new wb\StatementCommonsCategory( 'P373', $category_name ) );
+	Log::info( "saving Commons category in Wikidata" );
 
 	// save the Commons category in Wikidata
-	Log::info( "saving Commons category in Wikidata" );
-	$wikidata->editEntity( [
+	$entity_data = new wb\DataModel( $wikidata );
+	$entity_data->addClaim( new wb\StatementCommonsCategory( 'P373', $category_name ) );
+	$entity_data->editEntity( [
 		'id'      => $entity_id,
-		'data'    => $entity_data->getJSON(),
 		'summary' => "[[c:Commons:Wiki Loves Monuments 2018 in Switzerland]]: " . $entity_data->getEditSummary(),
 		'bot'     => 1,
 	] );
