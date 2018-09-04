@@ -45,18 +45,20 @@ while( 1 ) {
 				}
 				$new_lines[] = $line;
 			}
-			$wikitext = implode( "\n", $new_lines );
-			\wm\Commons::getInstance()->login()->edit( [
-				'title' => $title,
-				'summary' => sprintf(
-					'split in %d town headings',
-					$towns
-				),
-				'text' => $wikitext,
+			if( $towns > 1 ) {
+				$wikitext = implode( "\n", $new_lines );
+				\wm\Commons::getInstance()->login()->edit( [
+					'title' => $title,
+					'summary' => sprintf(
+						'split in %d town headings',
+						$towns
+					),
+					'text' => $wikitext,
 
-				// to operate like a human and avoid Wikimedia Commons bot request for permission :|
-				'bot' => 0,
-			] );
+					// to operate like a human and avoid Wikimedia Commons bot request for permission :|
+					'bot' => 0,
+				] );
+			}
 		}
 	}
 }
