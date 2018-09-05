@@ -1,0 +1,7 @@
+SELECT ?id ?catv ?url WHERE {
+  ?id p:P528 ?cat.
+  ?cat ps:P528 ?catv.
+  ?cat pq:P972 wd:Q52896862. 
+  ?cat pq:P2699 ?url. 
+  FILTER CONTAINS( STR( ?url ), "mibact/luoghi" )
+}
