@@ -36,12 +36,22 @@ foreach( wm\Wikidata::querySPARQL( file_get_contents( 'query.sparql' ) ) as $res
 		$data->addClaim( new wb\StatementExternalID( MIBACT_ID, $code ) );
 	}
 
-	// push for removal of any catalog code and described at URL claims
-	foreach( [ CATALOG_CODE, DESCRIBED_AT_URL ] as $property ) {
-		foreach( $item->getClaimsInProperty( $property ) as $claim ) {
+	// push for removal of any catalog code claims
+	foreach( $item->getClaimsInProperty( CATALOG_CODE ) as $claim ) {
+		$code = $claim->getMainsnak()->getDataValue()->getValue();
+		if( false !== strpos( $code, 'DBUnico.' ) ) {
 			$data->addClaim( $claim->cloneForRemoval() );
 		}
 	}
+
+	// push for removal of any described at URL claims
+	foreach( $item->getClaimsInProperty( DESCRIBED_AT_URL ) as $claim ) {
+		$code = $claim->getMainsnak()->getDataValue()->getValue();
+		if( false !== strpos( $code, 'http://dati.beniculturali.it/mibact/luoghi/resource/CulturalInstituteOrSite' ) ) {
+			$data->addClaim( $claim->cloneForRemoval() );
+		}
+	}
+
 	if( $data->countClaims() ) {
 		$data->printChanges();
 		if( 'y' === cli\Input::yesNoQuestion( 'save?' ) ) {
