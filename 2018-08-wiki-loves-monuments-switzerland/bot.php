@@ -36,10 +36,10 @@ foreach( $results as $result ) {
 	$entity_id    =  $result->item       ->value;
 	$label_en     = @$result->labelEn    ->value;
 	$label_native = @$result->labelNative->value;
-	$label        =  $result->itemLabel  ->value;
+	$label        = @$result->itemLabel  ->value;
 	$status       =  $result->status     ->value;
 	$canton       =  $result->canton     ->value;
-	$cantonLabel  =  $result->cantonLabel->value;
+	$cantonLabel  = @$result->cantonLabel->value;
 	$entity_id = str_replace( 'http://www.wikidata.org/entity/', '', $entity_id );
 	$status    = str_replace( 'http://www.wikidata.org/entity/', '', $status );
 	$canton    = str_replace( 'http://www.wikidata.org/entity/', '', $canton );
@@ -84,7 +84,8 @@ foreach( $results as $result ) {
 	}
 
 	// manual check asd
-	if( 'n' === cli\Input::yesNoQuestion( "Do you like [[$category_name_prefixed]]?" ) ) {
+	$url = 'https://commons.wikimedia.org/wiki/' . rawurlencode( $category_name_prefixed );
+	if( 'n' === cli\Input::yesNoQuestion( "Do you like [[$category_name_prefixed]]? https://www.wikidata.org/wiki/$entity_id $url" ) ) {
 		continue;
 	}
 
@@ -125,15 +126,9 @@ foreach( $results as $result ) {
 		$commons->edit( [
 			'title'      => $category_name_prefixed,
 			'text'       => $cat_content,
-			'summary'    => "[[Commons:Wiki Loves Monuments 2018 in Switzerland]]: creating category for monument [[d:$entity_id|$category_name]] $NOTES",
+			'summary'    => "[[Commons:Wiki Loves Monuments 2018 in Switzerland]] ([[Commons:Bots/Requests/Valerio Bozzolan bot (4)|not complete consensus]]): creating category for monument [[d:$entity_id|$category_name]] $NOTES",
 			'createonly' => true,
-
-			/**
-			 * No consensus for bot flag on Wikimedia Commons yet
-			 *
-			 * @see https://commons.wikimedia.org/wiki/Commons:Bots/Requests/Valerio_Bozzolan_bot_(4)
-			 */
-			// 'bot'        => 1, No consensus
+			'bot'        => 1,
 		] );
 	} catch( mw\API\ArticleExistsException $e ) {
 		Log::warn( "The page [[$category_name_prefixed]] already exists in Commons. skip" );
@@ -146,10 +141,9 @@ foreach( $results as $result ) {
 	Log::info( "saving Commons category in Wikidata" );
 
 	// save the Commons category in Wikidata
-	$entity_data = new wb\DataModel( $wikidata );
+	$entity_data = $entity->cloneEmpty();
 	$entity_data->addClaim( new wb\StatementCommonsCategory( 'P373', $category_name ) );
 	$entity_data->editEntity( [
-		'id'      => $entity_id,
 		'summary' => "[[c:Commons:Wiki Loves Monuments 2018 in Switzerland]]: " . $entity_data->getEditSummary(),
 		'bot'     => 1,
 	] );

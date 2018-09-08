@@ -2,6 +2,12 @@
 
 This PHP bot was developed to prepare Commons and Wikidata to the Wiki loves monuments CH event.
 
+## Consensus
+
+Well the consensus for a Wikimedia Foundation event is pleonastic... anyway:
+
+* https://commons.wikimedia.org/wiki/Commons:Bots/Requests/Valerio_Bozzolan_bot_(4)
+
 ## Usage
 
     ./bot.php

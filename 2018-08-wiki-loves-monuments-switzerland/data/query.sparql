@@ -1,27 +1,30 @@
-#List of monuments in Switzerland(in English, local language, and fallback language), and status
-SELECT DISTINCT ?item ?labelEn ?labelNative ?itemLabel ?languageCode ?itemLabelCode ?status ?statusLabel ?canton ?cantonLabel WHERE {
-  ?item wdt:P381 ?pbc.
+# Monuments in Switzerland with English label but without Commons category
+SELECT DISTINCT ?item ?itemLabel ?status ?canton WHERE {
+
+  # heritage status
   ?item wdt:P1435 ?status.
+
+  # has Swiss code
+  ?item wdt:P381 [].
+
+  # has English label
+  ?item rdfs:label ?itemLabel.
+  FILTER( LANG( ?itemLabel ) = "en" ).
+
+  # canton
+  ?canton wdt:P31 wd:Q23058.
+
+  # solve cantons inconsistences
   {
     ?item wdt:P131 ?canton.
-    ?canton wdt:P31 wd:Q23058.
   } UNION {
     ?item wdt:P131 ?city.
     ?city wdt:P131 ?canton.
-    ?canton wdt:P31 wd:Q23058.
   }
-  OPTIONAL {
-    ?item rdfs:label ?labelEn
-    FILTER( LANG( ?labelEn ) = "en")
+
+  # without commons category
+  MINUS {
+    ?item wdt:P373 [].
   }
-  OPTIONAL {
-    ?item wdt:P131 ?where.
-    ?where wdt:P37 ?language.
-    ?language wdt:P218 ?languageCode.
-    ?item rdfs:label ?labelNative.
-    FILTER( LANG( ?labelNative ) = ?languageCode )
-  }
-  MINUS { ?item wdt:P373 ?cat. }
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "en,rm,it,fr,de". }
+
 }
-ORDER BY DESC(?labelEn)
