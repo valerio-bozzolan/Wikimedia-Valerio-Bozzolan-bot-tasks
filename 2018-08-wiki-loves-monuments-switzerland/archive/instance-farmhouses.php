@@ -30,11 +30,10 @@ foreach( $results as $result ) {
 	$item = str_replace( 'http://www.wikidata.org/entity/', '', $result->item->value );
 	$data = \wm\Wikidata::getInstance()
 			->login()
-			->createDataModel()
+			->createDataModel( $item )
 			->addClaim( new \wb\StatementItem( 'P31', 'Q489357' ) )
 			->printChanges()
 			->editEntity( [
-				'id' => $item,
 				'summary.pre' => '[[c:Commons:Wiki Loves Monuments 2018 in Switzerland|Wiki Loves Monuments 2018 in Switzerland]]: ',
 				'bot' => 1,
 			] );
