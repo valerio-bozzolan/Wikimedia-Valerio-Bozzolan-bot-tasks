@@ -101,6 +101,8 @@ foreach( $datas as $data ) {
 	$EXISTING_PLAYERS[ $legavolley_id ] = $entity;
 }
 
+$out = fopen('out.csv', 'w');
+
 // Wikidata
 $wd = \wm\Wikidata::getInstance()->login();
 foreach( $NEW_PLAYERS as $NEW_PLAYER ) {
@@ -120,8 +122,19 @@ foreach( $NEW_PLAYERS as $NEW_PLAYER ) {
 
 	if( ! $entity_id ) {
 		echo "Look for an existing? https://www.wikidata.org/w/index.php?search=" . urlencode( "$name $surname" ) . "\n";
-		$entity_id = cli\Input::askInput( "Enter entity ID or nothing", false );
+		$entity_id = cli\Input::askInput( "Enter entity ID or nothing (expected code: $legavolley_id)", false );
 	}
+
+	if( ! $entity_id ) {
+		continue;
+	}
+
+	fputcsv($out, [
+		$entity_id,
+		$name,
+		$surname,
+		$legavolley_id,
+	] );
 
 	// Wikidata statements
 	$STATEMENTS = [
@@ -245,6 +258,8 @@ foreach( $NEW_PLAYERS as $NEW_PLAYER ) {
 		}
 	}
 }
+
+fclose($out);
 
 ##############################
 # Legavolley referenced claims
