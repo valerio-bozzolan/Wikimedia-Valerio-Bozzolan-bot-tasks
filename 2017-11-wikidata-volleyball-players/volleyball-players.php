@@ -453,7 +453,7 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 		// Image
 		legavolley_statement_property_commonsmedia('P18', $filepath),
 		// Commons category
-		legavolley_statement_property_string('P373', $personal_cat),
+		legavolley_statement_property_commonscat('P373', $personal_cat),
 		// Sex: male
 		legavolley_statement_item('P21', 'Q6581097'),
 		// Country of citizenship
@@ -923,6 +923,11 @@ function legavolley_statement_item( $property, $item ) {
 
 function legavolley_statement_property_string( $property, $string ) {
 	$statement = new wb\StatementString( $property, $string );
+	return $statement->setReferences( legavolley_references() );
+}
+
+function legavolley_statement_property_commonscat( $property, $cat ) {
+	$statement = new wb\StatementCommonsCategory( $property, $cat );
 	return $statement->setReferences( legavolley_references() );
 }
 
