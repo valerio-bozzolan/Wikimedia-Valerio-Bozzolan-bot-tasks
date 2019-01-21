@@ -1,4 +1,4 @@
-# 2017 Wikidata/Commons volleyball players bot
+# 2017, 2018 Wikidata/Commons volleyball players bot
 
 This PHP bot was developed to uniform volleyball players in Wikimedia Commons and Wikidata.
 

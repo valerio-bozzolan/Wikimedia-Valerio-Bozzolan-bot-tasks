@@ -1,12 +1,12 @@
 #!/usr/bin/php
 <?php
-/*****************************
- * Legavolley 2017 uniformer *
- *                           *
- * @author Valerio Bozzolan  *
- * @license GNU GPL v3+      *
- * @date 2017                *
- *****************************
+/*************************************
+ * Legavolley importer and uniformer *
+ *                                   *
+ * @author Valerio Bozzolan          *
+ * @license GNU GPL v3+              *
+ * @date 2017, 2018, 2019            *
+ *************************************
  *
  ***** WHAT ******************
  * Initially, this bot uniformed volleyball 2017 players' file descriptions
@@ -28,7 +28,7 @@
  * [[c:Commons:Bots/Requests/Valerio Bozzolan bot]]
  * https://commons.wikimedia.org/wiki/Commons:Bots/Requests/Valerio_Bozzolan_bot
  *
- * Italian task brainmasturbing:
+ * Italian task brainstorming:
  * [[w:it:Discussioni progetto:Sport/Pallavolo/Legavolley#Categorie e descrizioni]]
  * https://it.wikipedia.org/wiki/Discussioni_progetto:Sport/Pallavolo/Legavolley#Categorie_e_descrizioni
  * https://it.wikipedia.org/wiki/Speciale:PermaLink/93103795#Categorie_e_descrizioni
@@ -49,21 +49,42 @@
  * https://www.wikidata.org/wiki/Wikidata:Requests_for_permissions/Bot/Valerio_Bozzolan_bot_2
  */
 
-#################
-# Framework stuff
-#################
+// die on any warning
+set_error_handler( function( $severity, $message, $file, $line) {
+	if( error_reporting() & $severity ) {
+		throw new ErrorException( $message, 0, $severity, $file, $line );
+	}
+} );
 
+// Framework stuff
 require __DIR__ . '/includes/boz-mw/autoload.php';
 require __DIR__ . '/../config.php';
 
-##############################
-# Start of spaghetti constants
-##############################
+use \wm\Commons;
+use \wm\Wikidata;
+use \mw\Wikitext;
+use \cli\Input;
+use \cli\Log;
 
-if( isset( $argv[1] ) ) {
-	define( 'WIKIDATA_SANDBOX', $argv[1] );
-	define( 'SANDBOXED', true            );
-	define( 'ONE_SHOT', true             );
+$OPTS = getopt( '' ,[
+	'wikidata-sandbox:',
+	'players-file:',
+	'from:',
+	'inspect',
+] );
+
+if( ! $OPTS || empty( $OPTS[ 'players-file' ] ) ) {
+	die( "Usage: --players-file=filename.csv\n" );
+}
+
+if( isset( $OPTS[ 'inspect' ] ) ) {
+	\mw\API::$INSPECT_BEFORE_POST = true;
+}
+
+if( isset( $OPTS[ 'wikidata-sandbox' ] ) ) {
+	define( 'WIKIDATA_SANDBOX', $OPTS[ 'wikidata-sandbox' ] );
+	define( 'SANDBOXED', true );
+	define( 'ONE_SHOT',  true );
 	echo WIKIDATA_SANDBOX . "\n";
 }
 
@@ -87,13 +108,13 @@ define(  'WIKIDATA_CONSENSUS_PAGE', 'Wikidata:Requests for permissions/Bot/Valer
 
 defined( 'COMMONS_SUMMARY' ) or
 define(  'COMMONS_SUMMARY', sprintf(
-	"[[%s|uniforming Legavolley 2018 players]]",
+	"[[%s|uniforming Legavolley players]]",
 	COMMONS_CONSENSUS_PAGE
 ) );
 
 defined( 'WIKIDATA_SUMMARY' ) or
 define(  'WIKIDATA_SUMMARY', sprintf(
-	"[[%s|uniforming Legavolley 2018 players]]",
+	"[[%s|uniforming Legavolley players]]",
 	WIKIDATA_CONSENSUS_PAGE
 ) );
 
@@ -106,295 +127,435 @@ define(  'INTERACTION', true );
 defined( 'ALWAYS' ) or
 define(  'ALWAYS', true );
 
-$wikidata_api = \wm\Wikidata::getInstance()->login();
-$commons_api  = \wm\Commons ::getInstance()->login();
-
-$WIKIDATA_CSRF_TOKEN = $wikidata_api->getToken( \mw\Tokens::CSRF );
-$COMMONS_CSRF_TOKEN  = $commons_api ->getToken( \mw\Tokens::CSRF );
+$wd      = Wikidata::instance()->login();
+$commons = Commons ::instance()->login();
 
 #############
 # Nations CSV
 #############
 
-$NATIONS = [];
-if( ($handle = fopen('commons-volleyball-nationalities.csv', 'r') ) !== false ) {
-	$i = -1;
-	while( ($data = fgetcsv($handle, 1000, ',') ) !== false ) {
-		$i++;
-
-		if( $i === 0 ) {
-			// Skip header
-			continue;
-		}
-
-		// :P This prevents warnings if $better_cat is missing; or don't care if $better_cat is present.
-		$data[] = null;
-
-		list($code, $wikidata_id, $it_m, $it_f, $en, $cat, $better_cat ) = $data;
-		$NATIONS[ $code ] = new Nat($wikidata_id, $it_m, $en, $cat, $better_cat);
+$NAT_BY_CODE  = [];
+$NAT_BY_QCODE = [];
+$handle = fopen( 'commons-volleyball-nationalities.csv', 'r' ) or die( "cannot open nationalities" );
+$i = -1;
+while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
+	$i++;
+	if( $i === 0 ) {
+		continue; // Skip header
 	}
-	fclose($handle);
+	$data[] = null; // prevent warnings if $better_cat is missing; or don't care if $better_cat is present
+	list( $code, $item_id, $it_m, $it_f, $en, $cat, $better_cat ) = $data;
+	$NAT_BY_CODE [ $code ] = new Nat( $item_id, $it_m, $en, $cat, $better_cat );
+	$NAT_BY_QCODE[ $item_id ] = $NAT_BY_CODE [ $code ];
 }
-
-$missing_natcodes = [];
+fclose( $handle );
 
 ########################
 # Volleyball players CSV
 ########################
 
-$LATEST = file_exists( 'latest.txt' )
-	? trim( file_get_contents( 'latest.txt' ) )
-	: false;
+if( empty( $OPTS[ 'from' ] ) ) {
+	$LATEST = file_exists( 'latest.txt' )
+		? trim( file_get_contents( 'latest.txt' ) )
+		: false;
+} else {
+	$LATEST = $OPTS[ 'from' ];
+}
 
-if( ( $handle = fopen('commons-volleyball-players.csv', 'r') ) !== false ) {
+$handle = fopen( $OPTS[ 'players-file' ], 'r' ) or die( "cannot open {$OPTS[ 'players-file' ]}" );
+$i = -1;
+while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
+	$i++;
 
-	$porcelain = false;
+	if( $i === 0 ) {
+		// Skip header
+		continue;
+	}
 
-	$i = -1;
-	while( ( $data = fgetcsv($handle, 1000, ',')) !== false ) {
-		$i++;
+	list( $name, $surname, $file, $ID ) = $data;
 
-		if( $i === 0 ) {
-			// Skip header
+	// it seems OK
+	if( false !== $LATEST ) {
+		if( $ID !== $LATEST ) {
+			Log::warn( "Skipping $name $surname (jet processed)" );
 			continue;
+		} else {
+			$LATEST = false;
 		}
+	}
 
-		list($ID, $surname, $name, $natcode, $file, $item) = $data;
+	// The file path is well-known
+	$filepath = "$file.jpg";
+	$filename = "File:$filepath";
+	if( ! commons_page_exists( $filename ) ) {
+		Log::warn( "Skipping [[$filename]] that does not exist" );
+		continue;
+	}
+	$complete_name = "$name $surname";
 
-		if( ! isset( $NATIONS[ $natcode ] ) ) {
-			$missing_natcodes[] = $natcode;
-			$porcelain = true;
-		}
+	// Name Surname [[URL]]
+	Log::info( sprintf(
+		"%s [[%s]]",
+		$complete_name,
+		commons_page_url( $filename )
+	) );
 
-		if( $porcelain ) {
-			continue;
-		}
 
-		if( false !== $LATEST && $ID < $LATEST ) {
-			echo "Skipping $surname (jet processed)...\n";
-			continue;
-		}
-		$LATEST = $ID;
-		file_put_contents( 'latest.txt', $LATEST );
+	// get Wikidata item ID from title (or disperately with manual input)
+	$item_id = $ID ? $ID : get_wikidata_item( $filename, $complete_name );
+	if( SANDBOXED ) {
+		Log::warn( "SANDBOX MODE" );
+		$item_id = WIKIDATA_SANDBOX;
+	}
 
-		$filepath = "$file.jpg";
-		$filename = "File:$filepath";
-		if( ! commons_page_exists( $filename ) ) {
-			echo "# Skipping [[$filename]] that does not exist\n";
-			continue;
-		}
 
-		$filename_url = commons_page_url( $filename );
-		$complete_name = "$name $surname";
+	// get Wikidata item data
+	$item_data = null;
+	if( $item_id ) {
+		$item_data = $wd->fetchSingleEntity( $item_id, [
+			'props'  => [
+				'info',
+				'sitelinks',
+				'aliases',
+				'labels',
+				'descriptions',
+				'claims',
+			],
+		] );
+	}
 
-		$wikidata_item = $item ? $item : get_wikidata_item( $filename, $complete_name );
-		if( SANDBOXED ) {
-			echo "SANDBOXED\n";
-			$wikidata_item = WIKIDATA_SANDBOX;
-		}
-
-		$wikidata_item_data = null;
-		if( $wikidata_item ) {
-			// Retrieve & compare
-			// https://www.wikidata.org/w/api.php?action=help&modules=wbgetentities
-			$wikidata_item_data = $wikidata_api->fetch( [
-				'action' => 'wbgetentities',
-				'ids'    => $wikidata_item,
-				'props'  => 'info|sitelinks|aliases|labels|descriptions|claims|datatype'
-			] );
-			if( ! isset( $wikidata_item_data->entities->{ $wikidata_item } ) ) {
-				throw new Exception("$wikidata_item does not exist?");
+	// nation from P27: country of citizenship
+	$nat_qcode = null;
+	if( $item_data ) {
+		foreach( $item_data->getClaimsInProperty( 'P27' ) as $claims ) {
+			$nation = $claims->getMainSnak()->getDataValue()->getValue();
+			if( $nation ) {
+				$nat_qcode = $nation[ 'id' ];
 			}
-			$wikidata_item_data = wb\DataModel::createFromObject( $wikidata_item_data->entities->{ $wikidata_item } );
+			break;
 		}
+	}
+	if( empty( $NAT_BY_QCODE[ $nat_qcode ] ) ) {
+		throw new \Exception( "missing nation with Q-code $nat_qcode" );
+	}
+	$nation = $NAT_BY_QCODE[ $nat_qcode ];
 
-		$personal_category = $complete_name;
-		if( $wikidata_item && $wikidata_item_data->hasClaimsInProperty('P373') ) {
-			foreach( $wikidata_item_data->getClaimsInProperty('P373') as $claims ) {
-				$personal_category = $claims->getMainSnak()->getDataValue()->getValue();
+
+	// reset personal category
+	$personal_cat = null;
+	$personal_cat_exists = null;
+	$personal_cat_has_sense = null;
+
+	// personal category from Commons sitelink
+	if( ! $personal_cat && $item_data && $item_data->getSitelinks()->have( 'commonswiki' ) ) {
+		$personal_cat_prefixed = $item_data->getSitelinks()->get( 'commonswiki' )->getTitle();
+		$parts = explode( ':', $personal_cat_prefixed );
+		$ok = count( $parts ) === 2;
+		if( $ok ) {
+			list( $check, $personal_cat ) = explode( ':', $personal_cat_prefixed );
+			$ok = $check === 'Category';
+			if( $ok ) {
+				$personal_cat_exists = true;
+				$personal_cat_has_sense = true;
+			}
+		}
+		if( !$ok ) {
+			Log::error( "Commons sitelink contains 'Category:$personal_cat_prefixed' but it's not a category, don't know what to do, skip" );
+		}
+	}
+
+	// personal category from Commons category
+	if( ! $personal_cat && $item_data && $item_data->hasClaimsInProperty('P373') ) {
+		foreach( $item_data->getClaimsInProperty( 'P373' ) as $claims ) {
+			$personal_cat = $claims->getMainSnak()->getDataValue()->getValue();
+			$personal_cat_has_sense = true;
+			break;
+		}
+	}
+
+	// default personal category
+	if( !$personal_cat ) {
+		$personal_cat = $complete_name;
+	}
+
+	// personal category: eventually check existence
+	if( $personal_cat_exists === null ) {
+		$personal_cat_exists = commons_category_exists( $personal_cat );
+	}
+
+	// not sure about this category
+	if( !$personal_cat_has_sense && commons_category_exists( $personal_cat ) ) {
+		//if( ! commons_search_term_in_page_categories( "Category:$personal_cat", 'volleyball' ) ) {
+			if( ! INTERACTION ) {
+				interaction_warning();
+				continue;
+			}
+			do {
+				Log::warn( "[[Category:$personal_cat]]" );
+				Log::warn( commons_page_url( "Category:$personal_cat" ) );
+				$no = Input::yesNoQuestion( "Is he a volleyball player?" );
+				if( $no === 'n' ) {
+					$personal_cat .= ' (volleyball player)';
+					Log::warn( commons_page_url( "Category:$personal_cat" ) );
+					Log::warn( "Insert MANUALLY something as '$personal_cat' or just press ENTER" );
+					if( $input = Input::read( $personal_cat ) ) {
+						$personal_cat = $input;
+					}
+				}
+				$satisfied = true;
+				$personal_cat_exists = commons_category_exists( $personal_cat );
+				if( $personal_cat_exists ) {
+					Log::warn( "[[Category:$personal_cat]]" );
+					Log::warn( commons_page_url( "Category:$personal_cat" ) );
+					if( 'n' === Input::yesNoQuestion( "It already exists. Please confirm your choice." ) ) {
+						$satisfied = false;
+					}
+				}
+			} while( !$satisfied );
+		//}
+	}
+
+	$italian_category  = "Men's volleyball players from Italy";
+	$national_category = $nation->cat;
+	$better_national_cat_exists = ! empty( trim( $nation->better_cat ) );
+	if( $better_national_cat_exists ) {
+		$better_national_cat = $nation->better_cat;
+		$personal_cat_has_better_national_cat = commons_page_has_categories( "Category:$personal_cat", [ $better_national_cat ] );
+	}
+	$personal_cat_has_infobox = commons_page_has_templates( "Category:$personal_cat", [ 'Template:Wikidata Infobox' ] );
+	$personal_cat_has_national_cat = $national_category
+		? commons_page_has_categories( "Category:$personal_cat", [ $national_category ] )
+		: null;
+
+	$personal_cat_has_best_national_cat = $better_national_cat_exists
+		? $personal_cat_has_better_national_cat
+		: $personal_cat_has_national_cat;
+
+	$best_national_category = $better_national_cat_exists
+		? $better_national_cat
+		: $national_category;
+
+	$file_has_personal_cat = commons_page_has_categories( $filename, [ $personal_cat ] );
+	$file_has_italian_cat  = commons_page_has_categories( $filename, [ $italian_category ] );
+	$file_has_depicted     = commons_page_has_templates(  $filename, [ 'Template:Depicted person' ] );
+
+	if( !$personal_cat_exists ) {
+		$personal_cat_content = $commons->createWikitext();
+		$personal_cat_content->appendWikitext( "{{DEFAULTSORT:$surname, $name}}\n" );
+		$personal_cat_content->appendWikitext( "{{Wikidata Infobox|defaultsort=no}}\n" );
+		$personal_cat_content->appendWikitext( "[[Category:$best_national_category]]" );
+		$summary = COMMONS_SUMMARY . " +[[Template:Wikidata Infobox]] [[d:$item_id]]; +[[Category:$best_national_category]]";
+		$commons->edit( [
+			'title'   => "Category:$personal_cat",
+			'text'    => $personal_cat_content->getWikitext(),
+			'summary' => $summary,
+			'bot'     => 1,
+		] );
+		$personal_cat_exists = true;
+	}
+
+	// Wikitexts
+	// https://it.wikipedia.org/w/api.php?action=query&prop=revisions&titles=linux+%28kernel%29&rvprop=content
+	$titles = [
+		"Category:$personal_cat",
+		$filename
+	];
+	$pages = $commons->fetch( [
+		'action'  => 'query',
+		'prop'    => 'revisions',
+		'rvprop'  => 'content',
+		'rvslots' => 'main',
+		'titles'  => $titles,
+	] );
+	$title_pages = [];
+	foreach( $titles as $title ) {
+		$normalized_title = $title;
+		if( isset( $query->normalized ) ) {
+			foreach( $query->normalized as $normalized ) {
+				if( $normalized->from === $title ) {
+					$normalized_title = $normalized->to;
+					break;
+				}
+			}
+		}
+		$page_content = null;
+		foreach( $pages->query->pages as $page ) {
+			if( $page->title === $normalized_title ) {
+				foreach( $page->revisions as $revision ) {
+					$page_content = $revision->slots->main->{'*'};
+				}
 				break;
 			}
 		}
+		$title_pages[ $title ] = $page_content;
+	}
+	$personal_cat_content = $commons->createWikitext( $title_pages[ "Category:$personal_cat" ] );
+	$filename_content     = $commons->createWikitext( $title_pages[ $filename ]               );
 
-		$personal_category_prefixed = "Category:$personal_category";
-		$personal_category_url      = commons_page_url( $personal_category_prefixed );
-		$personal_category_exists   = commons_category_exists(  $personal_category_prefixed );
+	// personal category
+	if( $personal_cat_exists ) {
 
-		if( $personal_category_exists ) {
-			if( ! commons_search_term_in_page_categories( $personal_category_prefixed, 'volleyball' ) ) {
-				if( ! INTERACTION ) {
-					interaction_warning();
-					continue;
-				}
+		Log::info( "Category:$personal_cat " . commons_page_url( "Category:$personal_cat" ) );
 
-				echo "# Is he a volleyball player? [ENTER/n]\n";
-				echo "# [[$personal_category_prefixed]]\n";
-				echo "# " . commons_page_url( $personal_category_prefixed ) . "\n";
-				$no = read();
-				if( $no === 'n' || $no === 'N' ) {
-					$personal_category .= ' (volleyball player)';
-					echo "Insert MANUALLY something as '$personal_category':";
-					$personal_category = read( $personal_category );
-					$personal_category_prefixed = "Category:$personal_category";
-					echo "# Input: [[$personal_category_prefixed]]\n";
-					echo "# " . commons_page_url( $personal_category_prefixed ) . "\n";
-					$personal_category_exists = commons_category_exists(  $personal_category_prefixed );
-					echo "# Confirm category name.";
-					read();
-				}
-			}
- 		}
-
-		$italian_category = "Men's volleyball players from Italy";
-		$italian_category_prefixed = "Category:$italian_category";
-
-		$nation = $NATIONS[ $natcode ];
-		$national_category = $nation->cat;
-		$national_category_prefixed = "Category:$national_category";
-
-		$better_national_category_exists = ! empty( trim( $nation->better_cat ) );
-		if( $better_national_category_exists ) {
-			$better_national_category = $nation->better_cat;
-			$better_national_category_prefixed = "Category:$better_national_category";
-			$personal_category_has_better_national_category = commons_page_has_categories( $personal_category_prefixed, [ $better_national_category_prefixed ] );
+		// add {{Wikidata infobox}}
+		$summary = COMMONS_SUMMARY;
+		if( ! $personal_cat_has_infobox && 0 === $personal_cat_content->pregMatch( '/ikidata Infobox/' ) ) {
+			$personal_cat_content->prependWikitext( "{{Wikidata Infobox}}\n" );
+			$summary .= "; +[[Template:Wikidata Infobox]]";
 		}
 
-		$file_has_personal_category = commons_page_has_categories( $filename, [ $personal_category_prefixed ] );
-		$file_has_italian_category  = commons_page_has_categories( $filename, [ $italian_category_prefixed ] );
-		$file_has_iten_templates    = commons_page_has_templates(  $filename, [ 'Template:En', 'Template:It' ] );
-		$file_has_template_depicted = commons_page_has_templates(  $filename, [ 'Template:Depicted person' ] );
-		$personal_category_has_national_category = commons_page_has_categories( $personal_category_prefixed, [ $national_category_prefixed ] );
-		$personal_category_has_wikidata_template = commons_page_has_templates(  $personal_category_prefixed, [ 'Template:Wikidata person' ] );
-
-		$personal_category_has_best_national_category = $better_national_category_exists
-			? $personal_category_has_better_national_category
-			: $personal_category_has_national_category;
-
-		$best_national_category = $better_national_category_exists
-			? $better_national_category
-			: $national_category;
-
-		$best_national_category_prefixed = "Category:$best_national_category";
-
-		echo "# $name $surname [[$filename_url]]\n";
-
-		// Wikidata labels
-		$LABELS = [
-			'en' => sprintf( '%s %s', $name, $surname ),
-			'it' => sprintf( '%s %s', $name, $surname )
-		];
-		$DESCRIPTIONS = [
-			'en' => sprintf( '%s volleyball player', $nation->en ),
-			'it' => sprintf( 'pallavolista %s',      $nation->it )
-		];
-
-		// Wikidata statements
-		$STATEMENTS = [
-			// Insance of: human
-			legavolley_wikidata_statement_item('P31', 'Q5'),
-			// Image
-			legavolley_wikidata_statement_property_commonsmedia('P18', $filepath),
-			// Commons category
-			legavolley_wikidata_statement_property_string('P373', $personal_category),
-			// Sex: male
-			legavolley_wikidata_statement_item('P21', 'Q6581097'),
-			// Country of citizenship
-			legavolley_wikidata_statement_item('P27', $nation->wd),
-			// Occupation: volleyball player
-			legavolley_wikidata_statement_item('P106', 'Q15117302'),
-			// Sport: volleyball
-			legavolley_wikidata_statement_item('P641', 'Q1734'),
-			// ID LegaVolley
-			legavolley_wikidata_statement_property_string('P4303', $ID)
-		];
-
-		$wikidata_item_new_data = new wb\DataModel();
-
-		if( $wikidata_item ) {
-			$summary = WIKIDATA_SUMMARY;
-
-			// Labels that are not present
-			foreach( $LABELS as $lang => $label ) {
-				if( ! $wikidata_item_data->hasLabelsInLanguage( $lang ) ) {
-					$summary .= "; +label $lang";
-					$wikidata_item_new_data->setLabel( new wb\LabelAction(
-						$lang,
-						$label,
-						wb\LabelAction::ADD // BUG!!! THIS IS IGNORED SOMETIMES.
-					) );
+		if( $best_national_category && ! $personal_cat_has_best_national_cat ) {
+			Log::info( "personal category has not best national_category: 'Category:$best_national_category' ");
+			if( $better_national_cat_exists ) {
+				if( $personal_cat_has_national_cat ) {
+					// National → Best national
+					$summary .= "; better national category";
+					$personal_cat_content->pregReplace(
+						'/' . space2regex( "Category:$national_category" ) . '/',
+						"Category:$best_national_category"
+					);
+				} else {
+					// + Best national
+					$summary .= "; +[[Category:$better_national_cat]]";
+					$personal_cat_content->addCategory( $better_national_cat );
 				}
+			} elseif( $national_category && ! $personal_cat_has_national_cat ) {
+				// + National
+				$summary .= "; +[[Category:$national_category]]";
+				$personal_cat_content->addCategory( $national_category );
 			}
+		}
 
-			// Descriptions that are not present
-			foreach( $DESCRIPTIONS as $lang => $description ) {
-				if( ! $wikidata_item_data->hasDescriptionsInLanguage( $lang ) ) {
-					$summary .= "; +description $lang";
-					$wikidata_item_new_data->setDescription( new wb\DescriptionAction(
-						$lang,
-						$description,
-						wb\DescriptionAction::ADD
-					) );
-				}
+		if( $personal_cat_content->isChanged() ) {
+			$commons->edit( [
+				'title'   => "Category:$personal_cat",
+				'text'    => $personal_cat_content->getWikitext(),
+				'summary' => $summary,
+				'bot'     => 1,
+			] );
+		}
+	}
+
+	// Wikidata labels
+	$LABELS = [
+		'en' => sprintf( '%s %s', $name, $surname ),
+		'it' => sprintf( '%s %s', $name, $surname ),
+	];
+	$DESCRIPTIONS = [
+		'en' => sprintf( '%s volleyball player', $nation->en ),
+		'it' => sprintf( 'pallavolista %s',      $nation->it ),
+	];
+
+	// Wikidata statements
+	$STATEMENTS = [
+		// Insance of: human
+		legavolley_statement_item('P31', 'Q5'),
+		// Image
+		legavolley_statement_property_commonsmedia('P18', $filepath),
+		// Commons category
+		legavolley_statement_property_string('P373', $personal_cat),
+		// Sex: male
+		legavolley_statement_item('P21', 'Q6581097'),
+		// Country of citizenship
+		legavolley_statement_item('P27', $nation->wd),
+		// Occupation: volleyball player
+		legavolley_statement_item('P106', 'Q15117302'),
+		// Sport: volleyball
+		legavolley_statement_item('P641', 'Q1734'),
+		// ID LegaVolley
+		legavolley_statement_property_string('P4303', $ID),
+	];
+
+	$SITELINK = new wb\Sitelink( 'commonswiki', "Category:$personal_cat" );
+
+	$item_newdata = new wb\DataModel();
+
+	if( $item_id ) {
+		$summary = WIKIDATA_SUMMARY;
+
+		// Sitelink
+		if( $personal_cat_exists && ! $item_data->getSitelinks()->have( 'commonswiki' ) ) {
+			$item_newdata->getSitelinks()->set( $SITELINK );
+		}
+
+		// Labels that are not present
+		foreach( $LABELS as $lang => $label ) {
+			if( ! $item_data->hasLabelInLanguage( $lang ) ) {
+				$item_newdata->setLabel( new wb\LabelAction(
+					$lang,
+					$label,
+					wb\LabelAction::ADD // WIKIBASE BUG!!! THIS IS IGNORED SOMETIMES.
+				) );
 			}
+		}
 
-			// Statements that are not present
-			foreach( $STATEMENTS as $statement ) {
-				$property = $statement->getMainsnak()->getProperty();
-				if( ! $wikidata_item_data->hasClaimsInProperty( $property ) || FORCE_OVERWRITE ) {
-					$summary .= "; +[[P:$property]]";
-					$wikidata_item_new_data->addClaim( $statement );
-				}
+		// Descriptions that are not present
+		foreach( $DESCRIPTIONS as $lang => $description ) {
+			if( ! $item_data->hasDescriptionInLanguage( $lang ) ) {
+				$item_newdata->setDescription( new wb\DescriptionAction(
+					$lang,
+					$description,
+					wb\DescriptionAction::ADD
+				) );
 			}
+		}
 
-			if( $wikidata_item_new_data->countClaims() ) {
-				echo $wikidata_item_new_data->getJSON( JSON_PRETTY_PRINT );
-				echo "Confirm existing https://www.wikidata.org/wiki/$wikidata_item\n";
-				read();
-
-				// Save existing
-				// https://www.wikidata.org/w/api.php?action=help&modules=wbeditentity
-				$wikidata_api->post( [
-					'action'  => 'wbeditentity',
-					'id'      => $wikidata_item,
-					'summary' => $summary,
-					'token'   => $WIKIDATA_CSRF_TOKEN,
-					'bot'     => 1,
-					'data'    => $wikidata_item_new_data->getJSON()
-				] );
-			} else {
-				echo "# $wikidata_item OK, skip...\n";
+		// Statements that are not present
+		foreach( $STATEMENTS as $statement ) {
+			$property = $statement->getMainsnak()->getProperty();
+			if( ! $item_data->hasClaimsInProperty( $property ) || FORCE_OVERWRITE ) {
+				$item_newdata->addClaim( $statement );
 			}
+		}
+
+		if( ! $item_newdata->isEmpty() ) {
+			$item_newdata->printChanges();
+			$summary .= " " . $item_newdata->getEditSummary();
+
+			// Save existing
+			// https://www.wikidata.org/w/api.php?action=help&modules=wbeditentity
+			$wd->editEntity( [
+				'id'      => $item_id,
+				'summary' => $summary,
+				'data'    => $item_newdata->getJSON(),
+				'bot'     => 1,
+			] );
 		} else {
+			Log::info( "$item_id already OK" );
+		}
+	} else {
 
-			// Labels
-			foreach( $LABELS as $language => $label ) {
-				$wikidata_item_new_data->setLabel( new wb\Label( $language, $label ) );
-			}
+		// Commons sitelink
+		if( $personal_cat_exists ) {
+			$item_newdata->getSitelinks()->set( $SITELINK );
+		}
 
-			// Descriptions
-			foreach( $DESCRIPTIONS as $lang => $description ) {
-				$wikidata_item_new_data->setDescription( new wb\Description( $lang, $description ) );
-			}
+		// Labels
+		foreach( $LABELS as $language => $label ) {
+			$item_newdata->setLabel( new wb\Label( $language, $label ) );
+		}
 
-			// Claims
-			foreach( $STATEMENTS as $statement ) {
-				$wikidata_item_new_data->addClaim( $statement );
-			}
+		// Descriptions
+		foreach( $DESCRIPTIONS as $lang => $description ) {
+			$item_newdata->setDescription( new wb\Description( $lang, $description ) );
+		}
 
-			echo $wikidata_item_new_data->getJSON( JSON_PRETTY_PRINT );
+		// Claims
+		foreach( $STATEMENTS as $statement ) {
+			$item_newdata->addClaim( $statement );
+		}
 
-			echo "Confirm creation https://www.wikidata.org/w/index.php?search=" . urlencode( $complete_name );
-			read();
-
+		Log::info( "Confirm creation https://www.wikidata.org/w/index.php?search=" . urlencode( $complete_name ) );
+		$item_newdata->printChanges();
+		$save = Input::yesNoQuestion( "Save?" );
+		if( 'y' === $save ) {
 			// Create
 			// https://www.wikidata.org/w/api.php?action=help&modules=wbeditentity
-			$result = $wikidata_api->post( [
-				'action'  => 'wbeditentity',
+			$result = $wd->editEntity( [
 				'new'     => 'item',
 				'summary' => WIKIDATA_SUMMARY,
-				'token'   => $WIKIDATA_CSRF_TOKEN,
+				'data'    => $item_newdata->getJSON(),
 				'bot'     => 1,
-				'data'    => $wikidata_item_new_data->getJSON()
 			] );
 
 			if( ! $result->success ) {
@@ -402,214 +563,87 @@ if( ( $handle = fopen('commons-volleyball-players.csv', 'r') ) !== false ) {
 				die("API error");
 			}
 
-			$wikidata_item = $result->entity->id;
+			$item_id = $result->entity->id;
 		}
+	}
 
-		echo "$wikidata_item\n";
-
-		// Wikitext
-		// https://it.wikipedia.org/w/api.php?action=query&prop=revisions&titles=linux+%28kernel%29&rvprop=content
-		$titles = [
-			$personal_category_prefixed,
-			$filename
-		];
-		$pages = $commons_api->fetch( [
-			'action' => 'query',
-			'prop'   => 'revisions',
-			'titles' => implode( '|', $titles ),
-			'rvprop' => 'content'
+	// NULL edit on personal category if added sitelink
+	if( $item_newdata->getSitelinks()->have( 'commonswiki' ) && $personal_cat_content ) {
+		Log::info( "NULL EDIT" );
+		$commons->edit( [
+			'title'      => "Category:$personal_cat",
+			'appendtext' => "\n",
+			'summary'    => "null edit to refresh Wikidata Infobox cache",
+			'bot'        => 1,
+			'minor'      => 1,
 		] );
-		$title_pages = [];
-		foreach( $titles as $title ) {
-			$normalized_title = $title;
-			if( isset( $query->normalized ) ) {
-				foreach( $query->normalized as $normalized ) {
-					if( $normalized->from === $title ) {
-						$normalized_title = $normalized->to;
-						break;
-					}
-				}
-			}
-			$page_content = null;
-			foreach( $pages->query->pages as $page ) {
-				if( $page->title === $normalized_title ) {
-					$page_content = $page->revisions[0]->{'*'};
-					break;
-				}
-			}
-			$title_pages[ $title ] = $page_content;
-		}
+	}
 
-		$personal_category_content = $title_pages[ $personal_category_prefixed ];
-		$filename_content          = $title_pages[ $filename ];
+	// strip out {{Uncategorized}}
+	$filename_content->pregReplace( '/{{Uncategorized.*}}[ \t\n]*/', '' );
 
-		if( ! $file_has_template_depicted || ! $file_has_personal_category ) {
-
-			$summary = COMMONS_SUMMARY;
-
-			$replace = false;
-
-			$search_and_replace = [];
-			if( ! $file_has_template_depicted ) {
-				$search_and_replace = [
-					'/{{[ ]*[eE]n *\|.+?}}\n?/'                    => '',
-					'/{{[ ]*[iI]t *\|.+?}}/'                       => "{{Depicted person|$wikidata_item}}",
-					"/({{Depicted person\|Q[0-9]+}})\n([a-zA-Z])/" => "\$1<br />\n\$2"
-				];
-				$filename_content = preg_replace(
-					array_keys(   $search_and_replace ),
-					array_values( $search_and_replace ),
-					$filename_content
-				);
-
-				$summary .= "; +[[Template:Depicted person]] [[d:$wikidata_item]]";
-				$replace = true;
-			}
-
-			if( $file_has_italian_category ) {
-				if( $national_category !== $italian_category ) {
-					if( ! $file_has_personal_category ) {
-						$filename_content = preg_replace(
-							'/' . space2regex( $italian_category_prefixed ) . '/',
-							$personal_category_prefixed,
-							$filename_content
-						);
-						$summary .= "; [[$italian_category_prefixed]] → [[$personal_category_prefixed]]";
-
-						$file_has_italian_category = false;
-						$file_has_personal_category = true;
-						$replace = true;
-					}
-				}
-				if( $file_has_italian_category ) {
-					$filename_content = preg_replace(
-						'/\[\[ *' . space2regex( $italian_category_prefixed ) . ' *\]\]\n*/',
-						'',
-						$filename_content
-					);
-					$summary .= "; -[[$italian_category_prefixed]]";
-					$replace = true;
-				}
-			}
-
-			if( ! $file_has_personal_category ) {
-				$filename_content = preg_replace(
-					'/$/',
-					"\n[[$personal_category_prefixed]]",
-					$filename_content
-				);
-				$summary .= "; +[[$personal_category_prefixed]]";
-				$replace = true;
-
-				// Probably it has two very similar categories
-				if( $personal_category !== $complete_name ) {
-					var_dump( $personal_category, $complete_name );
-					if( 1 === preg_match( '/' . space2regex( $complete_name ) . '/', $complete_name ) ) {
-						$filename_content = preg_replace(
-							'/\[\[ *' . space2regex( "Category:$complete_name" ) . ' *\]\]\n*/',
-							'',
-							$filename_content
-						);
-						$summary .= "; -[[Category:$complete_name]] (wrong name)";
-					}
-				}
-			}
-
-			if( $replace ) {
-				commons_save( $filename, $filename_content, $summary );
-			}
-		}
-
-		echo "\n\n";
+	if( ! $file_has_depicted || ! $file_has_personal_cat ) {
 
 		$summary = COMMONS_SUMMARY;
 
-		if( $personal_category_exists ) {
-			echo "# [[Category:$personal_category]] [[$personal_category_url]]\n";
-
-			// Decides if skip
-			if( $personal_category_has_best_national_category ) {
-				if( $personal_category_has_wikidata_template ) {
-					echo "# It's perfect yet! Skip.\n";
-					continue;
-				}
-			}
-
-			if( ! $personal_category_has_wikidata_template ) {
-				$summary .= sprintf("; +[[Template:Wikidata person]] [[d:%s]]", $wikidata_item);
-				$personal_category_content = preg_replace(
-					'/^(?!{{Wikidata person)/',
-					"{{Wikidata person|$wikidata_item}}\n",
-					$personal_category_content
-				);
-			}
-
-			if( ! $personal_category_has_best_national_category ) {
-				echo "personal category has not best national_category: '$best_national_category_prefixed'\n";
-
-				if( $better_national_category_exists ) {
-					if( $personal_category_has_national_category ) {
-						// National → Best national
-						$summary .= "; better national category";
-						$personal_category_content = preg_replace(
-							'/' . space2regex( $national_category_prefixed ) . '/',
-							$best_national_category_prefixed,
-							$personal_category_content
-						);
-					} else {
-						// + Best national
-						$summary .= "; +[[$better_national_category_prefixed]]";
-						$personal_category_content = preg_replace(
-							'/$/',
-							"\n[[$better_national_category_prefixed]]",
-							$personal_category_content
-						);
-					}
-				} elseif( ! $personal_category_has_national_category ) {
-					// + National
-					$summary .= "; +[[$national_category_prefixed]]";
-					$personal_category_content = preg_replace(
-						'/$/',
-						"\n[[$national_category_prefixed]]",
-						$personal_category_content
-					);
-				}
-			}
-
-			commons_save( $personal_category_prefixed, $personal_category_content, $summary );
-		} else {
-			// Create
-
-			$summary = COMMONS_SUMMARY;
-
-			$lines = [];
-			$lines[] = sprintf(
-				'{{Wikidata person|%s}}',
-				$wikidata_item
-			);
-			$summary .= "; +[[Template:Wikidata person]] [[d:$wikidata_item]]";
-
-			$lines[] = sprintf(
-				'{{DEFAULTSORT:%s, %s}}',
-				$surname,
-				$name
+		$search_and_replace = [];
+		if( ! $file_has_depicted ) {
+			$search_and_replace = [
+				'/{{[ ]*[eE]n *\|.+?}}\n?/'                    => '',
+				'/{{[ ]*[iI]t *\|.+?}}/'                       => "{{Depicted person|$item_id}}",
+				"/({{Depicted person\|Q[0-9]+}})\n([a-zA-Z])/" => "\$1<br />\n\$2"
+			];
+			$filename_content->pregReplace(
+				array_keys(   $search_and_replace ),
+				array_values( $search_and_replace )
 			);
 
-			$lines[] = "[[$best_national_category_prefixed]]";
-			$summary .= "; +[[$best_national_category_prefixed]]";
-
-			commons_save( $personal_category_prefixed, implode("\n", $lines), $summary );
+			$summary .= "; +[[Template:Depicted person]] [[d:$item_id]]";
 		}
 
-		if( ONE_SHOT ) {
-			break;
+		if( $file_has_italian_cat ) {
+			if( $national_category && $national_category !== $italian_category ) {
+				if( ! $file_has_personal_cat ) {
+					$filename_content->pregReplace(
+						'/' . space2regex( "Category:$italian_category" ) . '/',
+						"Category:$personal_cat"
+					);
+					$summary .= "; [[Category:$italian_category]] → [[Category:$personal_cat]]";
+
+					$file_has_italian_cat = false;
+					$file_has_personal_cat = true;
+				}
+			}
+			if( $file_has_italian_cat ) {
+				$filename_content->pregReplace(
+					'/\[\[ *' . space2regex( "Category:$italian_category" ) . ' *\]\]\n*/',
+					''
+				);
+				$summary .= "; -[[Category:$italian_category]]";
+			}
+		}
+
+		// add personal category
+		if( $filename_content->addCategory( $personal_cat ) ) {
+			$summary .= "; +[[Category:$personal_cat]]";
+		}
+
+		if( $filename_content->isChanged() ) {
+			$commons->edit( [
+				'title'   => $filename,
+				'text'    => $filename_content->getWikitext(),
+				'summary' => $summary,
+				'bot'     => 1,
+			] );
 		}
 	}
-}
 
-if( $missing_natcodes ) {
-	echo "Missing natcodes: ";
-	echo implode("\n", array_unique( $missing_natcodes ) );
+	// save next
+	file_put_contents( 'latest.txt', $item_id );
+
+	if( ONE_SHOT ) {
+		break;
+	}
 }
 
 #################
@@ -618,30 +652,33 @@ if( $missing_natcodes ) {
 
 function commons_page_exists( $page_title ) {
 	if( VERBOSE ) {
-		echo "# Does [[$page_title]] exists?\n";
+		Log::debug( "Does [[$page_title]] exists?" );
 	}
-	$pages_exists = mw\APIRequest::factory('https://commons.wikimedia.org/w/api.php', [
+	$pages_exists = Commons::instance()->fetch( [
 		'action' => 'query',
 		'titles' => $page_title,
 		'prop'   => 'info'
-	] )->fetch();
+	] );
+	$v = false;
 	foreach( $pages_exists->query->pages as $page_id => $page ) {
-		if( $page_id > 0 ) {
-			return true;
+		if( isset( $page->pageid ) && $page->pageid > 0 ) {
+			$v = true;
+			break;
 		}
 	}
-	return false;
+	debug_yes_no( $v );
+	return $v;
 }
 
-function commons_category_exists($category_name) {
+function commons_category_exists( $category_name ) {
 	if( VERBOSE ) {
-		echo "# Does [[$category_name]] exist?\n";
+		Log::debug( "Does [[$category_name]] exist?" );
 	}
-	$category_info = mw\APIRequest::factory('https://commons.wikimedia.org/w/api.php', [
+	$category_info = Commons::instance()->fetch( [
 		'action' => 'query',
 		'prop'   => 'categoryinfo',
-		'titles' => $category_name
-	] )->fetch();
+		'titles' => "Category:$category_name"
+	] );
 	foreach( $category_info->query->pages as $page_id => $page ) {
 		if( $page_id > 0 ) {
 			return true;
@@ -651,38 +688,35 @@ function commons_category_exists($category_name) {
 }
 
 function commons_search_term_in_page_categories( $page_title, $search_term ) {
-	if( VERBOSE ) {
-		echo "# Cesarelombrosing [[$page_title]] looking for '$search_term'\n";
-	}
-	$categories = mw\APIRequest::factory('https://commons.wikimedia.org/w/api.php', [
+	Log::debug( "Cesarelombrosing [[$page_title]] looking for '$search_term' ");
+	$categories = Commons::instance()->fetch( [
 		'action' => 'query',
 		'prop'   => 'categories',
 		'clshow' => '!hidden',
 		'titles' => $page_title
-	] )->fetch();
+	] );
 	foreach( $categories->query->pages as $page ) {
-		foreach( $page->categories as $category ) {
-			$title = strtolower( $category->title );
-			if( false !== strpos( $title, $search_term ) ) {
-				if( VERBOSE ) {
-					echo "# Matches\n";
+		if( isset( $page->categories ) ) {
+			foreach( $page->categories as $category ) {
+				$title = strtolower( $category->title );
+				if( false !== strpos( $title, $search_term ) ) {
+					Log::debug( "matches" );
+					return true;
 				}
-				return true;
 			}
 		}
 	}
-	if( VERBOSE ) {
-		echo "# Doesn't match\n";
-	}
+	Log::debug( "doesn't match" );
 	return false;
 }
 
 function commons_page_has_categories( $page_title, $categories = [] ) {
-	if( VERBOSE ) {
-		echo "# Does [[$page_title]] have these categories? ([[{$categories[0]}]], ...)\n";
+	foreach( $categories as & $category ) {
+		$category = "Category:$category";
 	}
+	Log::debug( "[[$page_title]] have these categories? ([[{$categories[0]}]], ...)" );
 	$results = commons_page_props( $page_title, 'categories', [
-		'clcategories' => implode( '|', $categories )
+		'clcategories' => $categories,
 	] );
 	$status = false;
 	foreach( $results as $result ) {
@@ -698,12 +732,10 @@ function commons_page_has_categories( $page_title, $categories = [] ) {
 }
 
 function commons_page_has_templates( $page_title, $templates = [] ) {
-	if( VERBOSE ) {
-		echo "# Does [[$page_title]] have these templates? ([[{$templates[0]}]], ...)\n";
-	}
+	Log::debug( "[[$page_title]] have these templates? ([[{$templates[0]}]], ...)" );
 	$results = commons_page_props( $page_title, 'templates', [
 		'tlnamespace' => 10,
-		'tltemplates' => implode( '|', $templates )
+		'tltemplates' => $templates,
 	] );
 	$status = false;
 	foreach( $results as $result ) {
@@ -719,11 +751,12 @@ function commons_page_has_templates( $page_title, $templates = [] ) {
 }
 
 function commons_page_props( $page, $prop, $args = [] ) {
-	$api = \wm\Commons::getInstance()->createQuery( array_merge( [
-		'action' => 'query',
-		'prop'   => $prop,
-		'titles' => $page,
-	] ) );
+	$api = Commons::instance()->createQuery( array_replace( [
+		'action'    => 'query',
+		'prop'      => $prop,
+		'titles'    => $page,
+		'requestid' => date( 'U' ), // cache invalidator
+	], $args ) );
 	$pages = [];
 	foreach( $api->getGenerator() as $page ) {
 		// TODO: callback to obtain the right object?
@@ -737,8 +770,8 @@ function commons_page_props( $page, $prop, $args = [] ) {
 ##################
 
 function search_disperately_wikidata_item( $title ) {
-	echo "# Searching Wikidata item as '$title'\n";
-	$wbsearch = \wm\Wikidata::getInstance()->fetch( [
+	Log::debug( "Searching Wikidata item as '$title'" );
+	$wbsearch = Wikidata::instance()->fetch( [
 		'action'      => 'query',
 		'list'        => 'wbsearch',
 		'wbssearch'   => $title,
@@ -759,15 +792,15 @@ function search_disperately_wikidata_item( $title ) {
 /**
  * Giving a list of volleyball player Wikidata IDs, returns which of them has a "volleyball label".
  */
-function filter_volleyball_wikidata_IDs( $wikidata_IDs ) {
-	if( ! $wikidata_IDs ) {
+function filter_volleyball_wikidata_IDs( $item_ids ) {
+	if( ! $item_ids ) {
 		return [];
 	}
 
-	if( VERBOSE ) {
-		echo "# Cesarelombrosing following volleyball players:\n";
-		foreach( $wikidata_IDs as $wikidata_ID ) {
-			echo "# \t https://www.wikidata.org/wiki/$wikidata_ID \n";
+	if( Log::$DEBUG ) {
+		Log::debug( "Cesarelombrosing following volleyball players:" );
+		foreach( $item_ids as $item_id ) {
+			Log::debug( "https://www.wikidata.org/wiki/$item_id" );
 		}
 	}
 
@@ -780,25 +813,23 @@ function filter_volleyball_wikidata_IDs( $wikidata_IDs ) {
 	$languages = array_keys( $SEARCH_TERMS );
 
 	// https://www.wikidata.org/w/api.php?action=wbgetentities&props=descriptions&ids=Q19675&languages=en|it
-	$entities = \wm\Wikidata::getInstance()->createQuery( [
+	$entities = Wikidata::instance()->createQuery( [
 		'action'    => 'wbgetentities',
 		'props'     => 'descriptions|claims',
-		'ids'       => implode( '|', $wikidata_IDs ),
-		'languages' => implode( '|', $languages    )
+		'ids'       => $item_ids,
+		'languages' => $languages,
 	] );
 	$matching_wikidata_IDs = [];
 	foreach( $entities->getGenerator() as $entity ) {
-		foreach( $entity->entities as $entity_ID => $entity ) {
+		foreach( $entity->entities as $item_id => $entity ) {
 			$entity_object = wb\DataModel::createFromObject( $entity );
-			foreach( $wikidata_IDs as $wikidata_ID ) {
-				if( $wikidata_ID === $entity_ID ) {
+			foreach( $item_ids as $item_id ) {
+				if( $item_id === $item_id ) {
 
 					// Find LegaVolley ID
 					if( $entity_object->hasClaimsInProperty('P4303') ) {
-						if( VERBOSE ) {
-							echo "ID LegaVolley match\n";
-						}
-						$matching_wikidata_IDs[ $wikidata_ID ] = true;
+						Log::debug( "ID LegaVolley match" );
+						$matching_wikidata_IDs[ $item_id ] = true;
 						break;
 					}
 
@@ -807,10 +838,8 @@ function filter_volleyball_wikidata_IDs( $wikidata_IDs ) {
 						if( isset( $entity->descriptions->{ $language } ) ) {
 							$label = $entity->descriptions->{ $language };
 							if( false !== strpos( $label->value, $term ) ) {
-								if( VERBOSE ) {
-									echo "Wikidata $language label match\n";
-								}
-								$matching_wikidata_IDs[ $wikidata_ID ] = true;
+								Log::debug( "Wikidata $language label match" );
+								$matching_wikidata_IDs[ $item_id ] = true;
 								break;
 							}
 						}
@@ -821,10 +850,8 @@ function filter_volleyball_wikidata_IDs( $wikidata_IDs ) {
 					foreach( $images as $image ) {
 						$image_value = $image->getMainsnak()->getDataValue()->getValue();
 						if( false !== strpos( $image_value, 'Legavolley' ) ) {
-							if( VERBOSE ) {
-								echo "Image name with 'Legavolley' match\n";
-							}
-							$matching_wikidata_IDs[ $wikidata_ID ] = true;
+							Log::debug( "image name with 'Legavolley' match" );
+							$matching_wikidata_IDs[ $item_id ] = true;
 							break;
 						}
 					}
@@ -836,10 +863,10 @@ function filter_volleyball_wikidata_IDs( $wikidata_IDs ) {
 	if( VERBOSE ) {
 		echo "# Matching:\n";
 		foreach( $matching_wikidata_IDs as $matching_wikidata_ID ) {
-			echo "# https://www.wikidata.org/wiki/$wikidata_ID \n";
+			Log::debug( "https://www.wikidata.org/wiki/$item_id" );
 		}
 		if( ! $matching_wikidata_IDs ) {
-			echo "# None :(\n";
+			Log::debug( "none :(" );
 		}
 	}
 	return $matching_wikidata_IDs;
@@ -847,7 +874,7 @@ function filter_volleyball_wikidata_IDs( $wikidata_IDs ) {
 
 function fetch_wikidata_item( $page_name ) {
 	// https://commons.wikimedia.org/w/api.php?action=query&prop=wbentityusage&titles=Category:Alberto+Casadei
-	$wbentityusage = \wm\Commons::getInstance()->fetch( [
+	$wbentityusage = Commons::instance()->fetch( [
 		'action' => 'query',
 		'prop'   => 'wbentityusage',
 		'titles' => $page_name
@@ -860,9 +887,9 @@ function fetch_wikidata_item( $page_name ) {
 
 	foreach( $wbentityusage->query->pages as $page_id => $page ) {
 		if( isset( $page->wbentityusage ) ) {
-			foreach( $page->wbentityusage as $wikidata_id => $aspects ) {
+			foreach( $page->wbentityusage as $item_id => $aspects ) {
 				// Just the first is enough
-				return $wikidata_id;
+				return $item_id;
 			}
 		}
 	}
@@ -889,17 +916,17 @@ function get_wikidata_item( $page_name, $title ) {
 # Legavolley referenced claims
 ##############################
 
-function legavolley_wikidata_statement_item( $property, $item ) {
+function legavolley_statement_item( $property, $item ) {
 	$statement = new wb\StatementItem( $property, $item );
 	return $statement->setReferences( legavolley_references() );
 }
 
-function legavolley_wikidata_statement_property_string( $property, $string ) {
+function legavolley_statement_property_string( $property, $string ) {
 	$statement = new wb\StatementString( $property, $string );
 	return $statement->setReferences( legavolley_references() );
 }
 
-function legavolley_wikidata_statement_property_commonsmedia( $property, $filename ) {
+function legavolley_statement_property_commonsmedia( $property, $filename ) {
 	$statement = new wb\StatementCommonsMedia( $property, $filename );
 	return $statement->setReferences( legavolley_references() );
 }
@@ -923,8 +950,8 @@ class Nat {
 	var $cat;
 	var $better_cat;
 
-	function __construct( $wikidata_id, $it, $en, $cat, $better_cat ) {
-		$this->wd         = $wikidata_id;
+	function __construct( $item_id, $it, $en, $cat, $better_cat ) {
+		$this->wd         = $item_id;
 		$this->it         = $it;
 		$this->en         = $en;
 		$this->cat        = $cat;
@@ -935,11 +962,6 @@ class Nat {
 ############
 # Mixed shit
 ############
-
-function read( $default = '' ) {
-	$v = chop( fgets(STDIN) );
-	return $v ? $v : $default;
-}
 
 function interaction_warning() {
 	echo "# Skipping: it requires interaction\n";
@@ -952,7 +974,7 @@ function commons_page_url($page) {
 function debug_yes_no($v) {
 	if( VERBOSE ) {
 		$yesno = $v ? "yes" : "no";
-		echo "# $yesno\n";
+		Log::debug( $yesno );
 	}
 }
 
@@ -981,36 +1003,9 @@ function ask_which($answers, $question, $callback = null) {
 
 	printf("\t[ENTER]: none\n");
 
-	$in = (int) read();
+	$in = (int) Input::read();
 
 	return $in <= 0 ? false : $answers[ $in - 1 ];
-}
-
-function wiki_save( $api, $csrf, $title, $content, $summary ) {
-	echo "########### Saving [[$title]]: ##########\n";
-	echo $content;
-	echo "\n";
-	echo "#########################################\n";
-	echo "Confirm: |$summary|";
-	read();
-	return $api->post( [
-		'action'   => 'edit',
-		'title'    => $title,
-		'summary'  => $summary,
-		'text'     => $content,
-		'token'    => $csrf,
-		'bot'      => ''
-	] );
-}
-
-function commons_save( $title, $content, $summary ) {
-	return wiki_save(
-		$GLOBALS['commons_api'],
-		$GLOBALS['COMMONS_CSRF_TOKEN'],
-		$title,
-		$content,
-		$summary
-	);
 }
 
 function space2regex( $s ) {
