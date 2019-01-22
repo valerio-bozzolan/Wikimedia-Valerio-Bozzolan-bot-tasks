@@ -13,6 +13,7 @@ This PHP bot was developed to uniform volleyball players in Wikimedia Commons an
 * [Bot consensus for Wikidata](https://www.wikidata.org/wiki/Wikidata:Requests_for_permissions/Bot/Valerio_Bozzolan_bot_2)
 
 ## Wikimedia files involved
+* [Category:2018 files from Legavolley stream](https://commons.wikimedia.org/wiki/Category:2018_files_from_Legavolley_stream)
 * [Category:2017 files from Legavolley stream](https://commons.wikimedia.org/wiki/Category:2017_files_from_Legavolley_stream)
 * [Category:Volleyball by country](https://commons.wikimedia.org/wiki/Category:Volleyball_by_country)
 * Wikimedia Common's [Module:Depicted person](https://commons.wikimedia.org/wiki/Module:Depicted_people) (created)
