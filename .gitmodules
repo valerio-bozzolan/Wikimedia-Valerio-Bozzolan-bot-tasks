@@ -25,3 +25,6 @@
 [submodule "2018-09-23-itwiki-gnu-fdl/boz-mw"]
 	path = 2018-09-23-itwiki-gnu-fdl/boz-mw
 	url = https://github.com/valerio-bozzolan/boz-mw
+[submodule "2019-05-commons-volleyball-players-upload/boz-mw"]
+	path = 2019-05-commons-volleyball-players-upload/include/boz-mw
+	url = https://github.com/valerio-bozzolan/boz-mw

@@ -5,8 +5,7 @@ This PHP bot was developed to import LegaVolley volleyball players in Wikimedia 
 ## Consensus
 - [X] [Consensus on it.wiki](https://it.wikipedia.org/wiki/Progetto:Sport/Pallavolo/Legavolley)
 - [X] [Similar consensus on Wikimedia Commons](https://commons.wikimedia.org/wiki/Commons:Bots/Requests/Valerio_Bozzolan_bot) (previous year)
-- [ ] Consensus on Wikimedia Commons
-
+- [ ] [Consensus on Wikimedia Commons](https://commons.wikimedia.org/wiki/Commons:Bots/Requests/Valerio_Bozzolan_bot_(5))
 ## Usage
 
     ./bot.php
