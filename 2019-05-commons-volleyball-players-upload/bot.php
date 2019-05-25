@@ -15,14 +15,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+// autoload framework
 require 'include/boz-mw/autoload.php';
+
+// load credentials
 require '../config.php';
 
 use \web\MediaWikis;
 use \cli\Log;
+use \network\ContentDisposition;
 
+// login in MediaWiki Commons
 $wiki = MediaWikis::findFromUID( 'commonswiki' );
-//$wiki->login();
+$wiki->login();
 
 // fingerprint of the default pic
 $default_pic_md5 = md5( file_get_contents( 'data/default-pic.jpg' ) );
@@ -30,52 +35,36 @@ $default_pic_md5 = md5( file_get_contents( 'data/default-pic.jpg' ) );
 $header = true;
 $handle = fopen( 'data/2019-volleyball-players.csv', 'r' );
 while( ( $data = fgetcsv( $handle ) ) !== false ) {
+
+	// skip header
 	if( $header ) {
 		$header = false;
 		continue;
 	}
-	$n = count( $data );
 
-	/*
-	array(11) {
-	  [0]=>
-	  string(2) "id"
-	  [1]=>
-	  string(7) "cognome"
-	  [2]=>
-	  string(4) "nome"
-	  [3]=>
-	  string(7) "Altezza"
-	  [4]=>
-	  string(11) "DataNascita"
-	  [5]=>
-	  string(14) "NazioneNascita"
-	  [6]=>
-	  string(12) "LuogoNascita"
-	  [7]=>
-	  string(19) "NazionalitaSportiva"
-	  [8]=>
-	  string(13) "UltimaSquadra"
-	  [9]=>
-	  string(14) "ultimastagione"
-	  [10]=>
-	  string(7) "urlFoto"
-	}
-	*/
+	// populate arguments
+	list(
+		$id,
+		$surname,
+		$name,
+		$h,
+		$birth,
+		$birth_nation,
+		$birth_where,
+		$nation,
+		$last_team,
+		$last_season,
+		$url_photo
+	) = $data;
 
-	list( $id, $surname, $name, $h, $birth, $birth_nation, $birth_where, $nation, $last_team, $last_season, $url_photo ) = $data;
-
-	if( empty( $url_photo ) ) {
-		Log::warn( "skip $id $surname $name without URL" );
-		continue;
-	}
-
+	// avoid nonsense files
 	$pic = file_get_contents( $url_photo );
 	if( strlen( $pic ) < 300 ) {
 		Log::warn( "skip $id $surname $name with no pic $url_photo" );
 		continue;
 	}
 
+	// avoid default pic
 	if( md5( $pic ) === $default_pic_md5 ) {
 		Log::warn( "skip $id $surname $name with default pic $url_photo" );
 		continue;
@@ -86,25 +75,8 @@ while( ( $data = fgetcsv( $handle ) ) !== false ) {
 		continue;
 	}
 
+	// check if the page already exists
 	$filename = "$name $surname (Legavolley 2019).jpg";
-
-$date = date('Y-m-d H:i:s');
-$text = <<<EOF
-== {{int:filedesc}} ==
-{{Information
-|Description=profile image of $name $surname, volleyball player ($nation)
-|Source=[http://www.legavolley.it/ricerca/?TipoOgg=ATL Lega Pallavolo Serie A]
-|Date=$date
-|Author=Lega Pallavolo Serie A
-|Permission=
-|other_versions=
-}}
-== {{int:license-header}} ==
-{{Lega Pallavolo|2019}}
-
-[[Category:2019 files from Legavolley stream]]
-EOF;
-
 	$response = $wiki->fetch( [
 		'action' => 'query',
 		'prop'   => 'info',
@@ -116,20 +88,35 @@ EOF;
 			$exists = empty( $page->missing );
 		}
 	}
-
 	if( !$exists )  {
 		Log::warn( "skip File:$filename already existing" );
 		continue;
 	}
 
+	$date = date('Y-m-d H:i:s');
+	$text = require( 'data/content.wiki.php' );
 	$comment = "Bot: test [[Commons:Bots/Requests/Valerio Bozzolan bot (5)|upload 2019 volleyball players from Legavolley]]";
-	$token = $commons->getToken( \mw\Tokens::CSRF );
-	$commons->post( [
-		'filename' => $filename,
-		'comment'  => $comment,
-		'text'     => $text,
-		'url'      > $url_photo,
-		'token'    => $token,
-	] );
-	exit;
+
+	try {
+		// send a POST with multipart
+		$response = $wiki->upload( [
+			'comment'  => $comment,
+			'text'     => $text,
+			'filename' => $filename,
+			ContentDisposition::createFromNameURLType( 'file', $url_photo, 'image/jpg' ),
+		] );
+
+	} catch( \mw\API\PermissionDeniedException $e ) {
+		Log::error( "permission denied (wtf?): " . $e->getMessage() );
+		continue;
+	}
+
+	// look at the response
+	$msg = $response->upload->result;
+	Log::info( "response: $msg" );
+	if( isset( $response->upload->warnings ) ) {
+		print_r( $response->upload->warnings );
+	}
+
+	file_put_contents( 'done.log', "$id;$filename;$msg\n", FILE_APPEND );
 }
