@@ -106,8 +106,8 @@ while( ( $data = fgetcsv( $handle ) ) !== false ) {
 			ContentDisposition::createFromNameURLType( 'file', $url_photo, 'image/jpg' ),
 		] );
 
-	} catch( \mw\API\PermissionDeniedException $e ) {
-		Log::error( "permission denied (wtf?): " . $e->getMessage() );
+	} catch( \mw\API\Exception $e ) {
+		Log::error( $e->getMessage() );
 		continue;
 	}
 
