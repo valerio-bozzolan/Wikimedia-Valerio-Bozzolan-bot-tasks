@@ -98,7 +98,6 @@ while( ( $data = fgetcsv( $handle ) ) !== false ) {
 	$comment = "Bot: test [[Commons:Bots/Requests/Valerio Bozzolan bot (5)|upload 2019 volleyball players from Legavolley]]";
 
 	try {
-		// send a POST with multipart
 		$response = $wiki->upload( [
 			'comment'  => $comment,
 			'text'     => $text,
@@ -117,6 +116,4 @@ while( ( $data = fgetcsv( $handle ) ) !== false ) {
 	if( isset( $response->upload->warnings ) ) {
 		print_r( $response->upload->warnings );
 	}
-
-	file_put_contents( 'done.log', "$id;$filename;$msg\n", FILE_APPEND );
 }
