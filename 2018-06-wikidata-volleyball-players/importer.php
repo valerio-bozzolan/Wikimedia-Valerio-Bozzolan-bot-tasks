@@ -9,8 +9,6 @@
 
 define( 'SUMMARY', 'Bot: [[Wikidata:Requests for permissions/Bot/Valerio Bozzolan bot 6|importing volleyball players from LegaVolley]]' );
 
-$ALWAYS = false;
-
 // load boz-mw
 require 'includes/boz-mw/autoload.php';
 
@@ -18,6 +16,7 @@ use cli\Log;
 use cli\ConfigWizard;
 use cli\Opts;
 use cli\ParamValuedLong;
+use cli\ParamFlagLong;
 use wb\References;
 use wb\Reference;
 use wb\SnakItem;
@@ -29,10 +28,14 @@ ConfigWizard::requireOrCreate( __DIR__ . '/../config.php' );
 // load options
 $opts = new Opts( [
 	new ParamValuedLong( 'start-qid', "start from this Wikidata Q ID" ),
+	new ParamFlagLong(   'always',    "save without confirmation" ),
 ] );
 
 // starting QID
 $start_from_qid = $opts->getArg( 'start-qid' );
+
+// check if you want to save without confirmation
+$ALWAYS = $opts->getArg( 'always' );
 
 // COUNTRIES
 $COUNTRIES = [];
