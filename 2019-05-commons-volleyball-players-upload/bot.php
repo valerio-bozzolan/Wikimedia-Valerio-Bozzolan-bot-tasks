@@ -18,12 +18,13 @@
 // autoload framework
 require 'include/boz-mw/autoload.php';
 
-// load credentials
-require '../config.php';
-
 use \web\MediaWikis;
 use \cli\Log;
+use \cli\ConfigWizard;
 use \network\ContentDisposition;
+
+// load configuration file or create one
+ConfigWizard::requireOrCreate( __DIR__ . '/../config.php' );
 
 // login in MediaWiki Commons
 $wiki = MediaWikis::findFromUID( 'commonswiki' );
