@@ -18,10 +18,10 @@
 	url = https://gitpull.it/source/boz-mw.git
 [submodule "2018-08-wiki-loves-monuments-switzerland/boz-mw"]
 	path = 2018-08-wiki-loves-monuments-switzerland/includes/boz-mw
-	url = git@github.com:valerio-bozzolan/boz-mw.git
+	url = https://gitpull.it/source/boz-mw.git
 [submodule "2018-09-mibact-fixer/boz-mw"]
 	path = 2018-09-mibact-fixer/boz-mw
-	url = git@github.com:valerio-bozzolan/boz-mw.git
+	url = https://gitpull.it/source/boz-mw.git
 [submodule "2018-09-23-itwiki-gnu-fdl/boz-mw"]
 	path = 2018-09-23-itwiki-gnu-fdl/boz-mw
 	url = https://gitpull.it/source/boz-mw.git
