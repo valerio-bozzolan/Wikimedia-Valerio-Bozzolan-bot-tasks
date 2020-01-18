@@ -16,12 +16,23 @@ require 'includes/boz-mw/autoload.php';
 
 use cli\Log;
 use cli\ConfigWizard;
+use cli\Opts;
+use cli\ParamValuedLong;
 use wb\References;
+use wb\Reference;
 use wb\SnakItem;
 use wb\StatementItem;
 
 // load configuration file or create one
 ConfigWizard::requireOrCreate( __DIR__ . '/../config.php' );
+
+// load options
+$opts = new Opts( [
+	new ParamValuedLong( 'start-qid', "start from this Wikidata Q ID" ),
+] );
+
+// starting QID
+$start_from_qid = $opts->getArg( 'start-qid' );
 
 // COUNTRIES
 $COUNTRIES = [];
@@ -83,19 +94,14 @@ fclose( $handle );
 
 // existing volleyball players
 $asd = date( 'U' );
-$datas = json_decode( ( new \network\HTTPRequest( 'https://query.wikidata.org/sparql' ) )
-	->fetch( [
-		'format' => 'json',
-		'query'  =>
-			  "# Sorry but I have to invalidate this cache somehow: $asd. asd\n"
-			. "SELECT ?item ?legavolley_id "
-			. "WHERE "
-			. "{ "
-			. "  ?item wdt:P4303 ?legavolley_id." // ID LegaVolley
-			. "}"
-	] ) )
-	->results
-	->bindings;
+$datas = \wm\Wikidata::querySPARQL(
+	  "# Sorry but I have to invalidate this cache somehow: $asd. asd\n"
+	. "SELECT ?item ?legavolley_id "
+	. "WHERE "
+	. "{ "
+	. "  ?item wdt:P4303 ?legavolley_id." // ID LegaVolley
+	. "}"
+);
 
 // existing players (LegaVolleyID => Wikidata entity ID)
 $EXISTING_PLAYERS = [];
@@ -124,13 +130,21 @@ foreach( $NEW_PLAYERS as $NEW_PLAYER ) {
 		$entity_id = $EXISTING_PLAYERS[ $legavolley_id ];
 	}
 
-	if( ! $entity_id ) {
+	if( !$entity_id ) {
 		echo "Look for an existing? https://www.wikidata.org/w/index.php?search=" . urlencode( "$name $surname" ) . "\n";
 		$entity_id = cli\Input::askInput( "Enter entity ID or nothing (expected code: $legavolley_id)", false );
 	}
 
-	if( ! $entity_id ) {
+	if( !$entity_id ) {
 		continue;
+	}
+
+	// eventually skip until reached wanted ID
+	if( $start_from_qid ) {
+		if( $entity_id !== $start_from_qid ) {
+			continue;
+		}
+		$start_from_qid = null;
 	}
 
 	fputcsv($out, [
@@ -278,5 +292,5 @@ function legavolley_references() {
 	$reference->add( new SnakItem( 'P248', 'Q16571730' ) );
 	$references->add( $reference );
 
-	return $references->toData();
+	return $references;
 }
