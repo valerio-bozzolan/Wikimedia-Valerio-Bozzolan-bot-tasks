@@ -9,15 +9,19 @@
 
 define( 'SUMMARY', 'Bot: [[Wikidata:Requests for permissions/Bot/Valerio Bozzolan bot 6|importing volleyball players from LegaVolley]]' );
 
-$ALWAYS = true;
+$ALWAYS = false;
 
 // load boz-mw
 require 'includes/boz-mw/autoload.php';
 
-// load configuration
-require '../config.php';
-
 use cli\Log;
+use cli\ConfigWizard;
+use wb\References;
+use wb\SnakItem;
+use wb\StatementItem;
+
+// load configuration file or create one
+ConfigWizard::requireOrCreate( __DIR__ . '/../config.php' );
 
 // COUNTRIES
 $COUNTRIES = [];
@@ -83,7 +87,7 @@ $datas = json_decode( ( new \network\HTTPRequest( 'https://query.wikidata.org/sp
 	->fetch( [
 		'format' => 'json',
 		'query'  =>
-				"# Sorry but I have to invalidate this cache somehow: $asd. asd\n"
+			  "# Sorry but I have to invalidate this cache somehow: $asd. asd\n"
 			. "SELECT ?item ?legavolley_id "
 			. "WHERE "
 			. "{ "
@@ -104,7 +108,7 @@ foreach( $datas as $data ) {
 $out = fopen('out.csv', 'w');
 
 // Wikidata
-$wd = \wm\Wikidata::getInstance()->login();
+$wd = \wm\Wikidata::instance()->login();
 foreach( $NEW_PLAYERS as $NEW_PLAYER ) {
 
 	$name          = $NEW_PLAYER[ 'name'          ];
@@ -195,7 +199,7 @@ foreach( $NEW_PLAYERS as $NEW_PLAYER ) {
 
 	// append labels without overwriting
 	foreach( $LABELS as $lang => $text ) {
-		if( ! $data_old || ! $data_old->hasLabelsInLanguage( $lang ) ) {
+		if( ! $data_old || ! $data_old->hasLabelInLanguage( $lang ) ) {
 			$data_new->setLabel( new wb\LabelAction( $lang, $text, wb\LabelAction::ADD ) );
 			$changes[] = "+[label][$lang]";
 		}
@@ -203,7 +207,7 @@ foreach( $NEW_PLAYERS as $NEW_PLAYER ) {
 
 	// append descriptions without overwriting
 	foreach( $DESCRIPTIONS as $lang => $text ) {
-		if( ! $data_old || ! $data_old->hasDescriptionsInLanguage( $lang ) ) {
+		if( ! $data_old || ! $data_old->hasDescriptionInLanguage( $lang ) ) {
 			$data_new->setDescription( new wb\DescriptionAction( $lang, $text, wb\DescriptionAction::ADD ) );
 			$changes[] = "+[description][$lang]";
 		}
@@ -266,9 +270,13 @@ fclose($out);
 ##############################
 
 function legavolley_references() {
-	$snaks = new wb\Snaks( [
-		// stated in: Lega Pallavolo Serie A
-		new wb\SnakItem( 'P248', 'Q16571730' )
-	] );
-	return [ [ 'snaks' => $snaks->getAll() ] ];
+
+	$references = new References();
+
+	// stated in: Lega Pallavolo Serie A
+	$reference = new Reference();
+	$reference->add( new SnakItem( 'P248', 'Q16571730' ) );
+	$references->add( $reference );
+
+	return $references->toData();
 }
