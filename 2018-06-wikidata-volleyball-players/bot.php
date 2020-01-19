@@ -282,6 +282,8 @@ foreach( $NEW_PLAYERS as $NEW_PLAYER ) {
 
 fclose($out);
 
+echo "End of the story\n";
+
 ##############################
 # Legavolley referenced claims
 ##############################
