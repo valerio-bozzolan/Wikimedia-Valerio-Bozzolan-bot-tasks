@@ -2,6 +2,12 @@
 
 This PHP bot was developed to uniform volleyball players in Wikimedia Commons and Wikidata.
 
+## Usage
+
+```
+./bot.php
+```
+
 ## Changeset
 * [Wikimedia Commons](https://commons.wikimedia.org/w/index.php?limit=500&title=Special%3AContributions&contribs=user&target=Valerio+Bozzolan+bot&namespace=&tagfilter=&start=2019-01-17&end=2019-01-22)
 * [Wikidata](https://www.wikidata.org/w/index.php?limit=500&title=Special%3AContributions&contribs=user&target=Valerio+Bozzolan+bot&namespace=&tagfilter=&start=2019-01-14&end=2019-01-22)

@@ -58,13 +58,19 @@ set_error_handler( function( $severity, $message, $file, $line) {
 
 // Framework stuff
 require __DIR__ . '/includes/boz-mw/autoload.php';
-require __DIR__ . '/../config.php';
 
-use \wm\Commons;
-use \wm\Wikidata;
-use \mw\Wikitext;
-use \cli\Input;
-use \cli\Log;
+use wm\Commons;
+use wm\Wikidata;
+use cli\Input;
+use cli\Log;
+use cli\ConfigWizard;
+use mw\Wikitext;
+use wb\References;
+use wb\Reference;
+use wb\SnakItem;
+
+// load configuration file or create one
+ConfigWizard::requireOrCreate( __DIR__ . '/../config.php' );
 
 $OPTS = getopt( '' ,[
 	'wikidata-sandbox:',
@@ -468,11 +474,9 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 
 	$SITELINK = new wb\Sitelink( 'commonswiki', "Category:$personal_cat" );
 
-	$item_newdata = new wb\DataModel();
+	$item_newdata = $wd->createDataModel( $item_id );
 
 	if( $item_id ) {
-		$summary = WIKIDATA_SUMMARY;
-
 		// Sitelink
 		if( $personal_cat_exists && ! $item_data->getSitelinks()->have( 'commonswiki' ) ) {
 			$item_newdata->getSitelinks()->set( $SITELINK );
@@ -508,17 +512,14 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 			}
 		}
 
-		if( ! $item_newdata->isEmpty() ) {
+		if( !$item_newdata->isEmpty() ) {
 			$item_newdata->printChanges();
-			$summary .= " " . $item_newdata->getEditSummary();
 
 			// Save existing
 			// https://www.wikidata.org/w/api.php?action=help&modules=wbeditentity
-			$wd->editEntity( [
-				'id'      => $item_id,
-				'summary' => $summary,
-				'data'    => $item_newdata->getJSON(),
-				'bot'     => 1,
+			$item_newdata->editEntity( [
+				'summary.pre' => WIKIDATA_SUMMARY . ": ",
+				'bot'         => 1,
 			] );
 		} else {
 			Log::info( "$item_id already OK" );
@@ -551,10 +552,9 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 		if( 'y' === $save ) {
 			// Create
 			// https://www.wikidata.org/w/api.php?action=help&modules=wbeditentity
-			$result = $wd->editEntity( [
+			$result = $item_newdata->editEntity( [
 				'new'     => 'item',
 				'summary' => WIKIDATA_SUMMARY,
-				'data'    => $item_newdata->getJSON(),
 				'bot'     => 1,
 			] );
 
@@ -937,17 +937,23 @@ function legavolley_statement_property_commonsmedia( $property, $filename ) {
 }
 
 function legavolley_references() {
-	$snaks = new wb\Snaks( [
-		// stated in: Lega Pallavolo Serie A
-		new wb\SnakItem( 'P248', 'Q16571730' )
-	] );
-	return [ [ 'snaks' => $snaks->getAll() ] ];
+	$references = new References();
+
+	// stated in: Lega Pallavolo Serie A
+	$reference = new Reference();
+	$reference->add( new SnakItem( 'P248', 'Q16571730' ) );
+	$references->add( $reference );
+
+	return $references;
 }
 
 ###########
 # CSV stuff
 ###########
 
+/**
+ * Store nationality stuff
+ */
 class Nat {
 	var $wd;
 	var $it;
