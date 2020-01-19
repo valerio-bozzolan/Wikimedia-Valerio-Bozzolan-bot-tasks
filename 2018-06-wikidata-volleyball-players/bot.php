@@ -150,13 +150,6 @@ foreach( $NEW_PLAYERS as $NEW_PLAYER ) {
 		$start_from_qid = null;
 	}
 
-	fputcsv($out, [
-		$entity_id,
-		$name,
-		$surname,
-		$legavolley_id,
-	] );
-
 	// Wikidata statements
 	$STATEMENTS = [
 		// ID LegaVolley
@@ -248,19 +241,17 @@ foreach( $NEW_PLAYERS as $NEW_PLAYER ) {
 	}
 
 	// Wikidata new data
-	// https://www.wikidata.org/w/api.php?action=help&modules=wbeditentity
 	$wbeditentity = [
-		'action'  => 'wbeditentity',
-		'summary' => SUMMARY . ' ' . implode( $changes ),
-		'token'   => $wd->getToken( mw\Tokens::CSRF ),
-		'bot'     => 1,
+		'summary.pre' => SUMMARY . ' ',
+		'bot'         => 1,
 	];
 
 	if( $entity_id ) {
 		if( $data_new->countClaims() ) {
 			print_r( $changes );
+			// https://www.wikidata.org/w/api.php?action=help&modules=wbeditentity
 			if( $ALWAYS || 'y' === cli\Input::yesNoQuestion( "Save $name $surname $entity_id?" ) ) {
-				$wd->post( array_replace( $wbeditentity, [
+				$wd->editEntity( array_replace( $wbeditentity, [
 					'id'   => $entity_id,
 					'data' => $data_new->getJSON()
 				] ) );
@@ -272,12 +263,24 @@ foreach( $NEW_PLAYERS as $NEW_PLAYER ) {
 		print_r( $changes );
 		if( $ALWAYS || 'y' === cli\Input::yesNoQuestion( "Create $name $surname?" ) ) {
 			// Create new item
-			$result = $wd->post( array_replace( $wbeditentity, [
+			// https://www.wikidata.org/w/api.php?action=help&modules=wbeditentity
+			$result = $wd->editEntity( array_replace( $wbeditentity, [
 				'new'  => 'item',
 				'data' => $data_new->getJSON()
 			] ) );
+
+			var_dump( $result );
+			echo "TODO: get the QID from that shit";
+			exit( 2 );
 		}
 	}
+
+	fputcsv($out, [
+		$entity_id,
+		$name,
+		$surname,
+		$legavolley_id,
+	] );
 }
 
 fclose($out);
