@@ -95,6 +95,10 @@ while( ($data = fgetcsv($handle, 1000, ",")) !== false ) {
 	$height   = 'NULL' === $height       ? null : (int) $height;
 	$birthday = 'NULL' === $birthday_raw ? null : DateTime::createFromFormat( 'd/m/Y', $birthday_raw );
 
+	// try birthday from another format
+	if( false === $birthday ) {
+		$birthday = DateTime::createFromFormat( 'Y-m-d', $birthday_raw );
+	}
 	if( false === $birthday ) {
 		die( "wrong birthday $birthday_raw" );
 	}
