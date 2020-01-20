@@ -7,7 +7,7 @@ This PHP bot was developed to import LegaVolley volleyball players in Wikidata.
 
 ## Usage
 
-    ./bot.php
+    ./bot.php file.csv
 
 ## License
 

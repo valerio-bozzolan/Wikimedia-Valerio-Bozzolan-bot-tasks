@@ -16,6 +16,7 @@ use cli\Log;
 use cli\ConfigWizard;
 use cli\Opts;
 use cli\ParamValuedLong;
+use cli\ParamFlag;
 use cli\ParamFlagLong;
 use wb\References;
 use wb\Reference;
@@ -28,18 +29,34 @@ ConfigWizard::requireOrCreate( __DIR__ . '/../config.php' );
 // load options
 $opts = new Opts( [
 	new ParamValuedLong( 'start-qid', "start from this Wikidata Q ID" ),
-	new ParamFlagLong(   'always',    "save without confirmation" ),
+	new ParamFlagLong(  'always',    "save without confirmation" ),
+	new ParamFlag(      'help', 'h', "show this help and quit" ),
 ] );
+
+// check if you loaded the help message
+if( $opts->getArg( 'help' ) ) {
+	help();
+}
 
 // starting QID
 $start_from_qid = $opts->getArg( 'start-qid' );
+
+// input CSV path name
+$input_csv = Opts::unnamedArguments()[0] ?? null;
+if( !$input_csv ) {
+	help( "please specify a CSV file" );
+}
 
 // check if you want to save without confirmation
 $ALWAYS = $opts->getArg( 'always' );
 
 // COUNTRIES
 $COUNTRIES = [];
-$handle = fopen( 'data/volleyball-nationalities.csv', 'r' ) or die( 'cannot open nationalities' );
+$handle = @fopen( 'data/volleyball-nationalities.csv', 'r' );
+if( !$handle ) {
+	help( "cannot open nationalities" );
+}
+
 $i = 0;
 while( ($data = fgetcsv($handle, 1000, ",")) !== false ) {
 	if( 0 === $i++ ) {
@@ -59,7 +76,10 @@ fclose( $handle );
 // new volleyball players
 $NEW_PLAYERS = [];
 $i = 0;
-$handle = fopen( 'data/2018-legavolley-volleyball-players.csv', 'r' ) or die( 'cannot open volleyball players' );
+$handle = @fopen( $input_csv, 'r' );
+if( !$handle ) {
+	help( "cannot open volleyball players from CSV file: $input_csv" );
+}
 while( ($data = fgetcsv($handle, 1000, ",")) !== false ) {
 	if( 0 === $i++ ) {
 		continue;
@@ -301,4 +321,41 @@ function legavolley_references() {
 	$references->add( $reference );
 
 	return $references;
+}
+
+/**
+ * Show an help menu and quit
+ *
+ * @param string $error_message Error message
+ */
+function help( $error_message = null ) {
+	global $opts, $argv;
+
+	echo "Usage:\n {$argv[ 0 ]} file.csv [OPTIONS]\n";
+	echo "OPTIONS:\n";
+	foreach( $opts->getParams() as $param ) {
+		$commands = [];
+		if( $param->hasLongName() ) {
+			$commands[] = '--' . $param->getLongName();
+		}
+		if( $param->hasShortName() ) {
+			$commands[] = '-' . $param->getShortName();
+		}
+		$command = implode( '|', $commands );
+		if( $command && ! $param->isFlag() ) {
+			$command .= $param->isValueOptional()
+				? '=[VALUE]'
+				: '=VALUE';
+		}
+		printf( ' % -20s ', $command );
+		if( $param->hasDescription() ) {
+			echo ' ' . $param->getDescription();
+		}
+		echo "\n";
+	}
+	if( $error_message ) {
+		echo "\nError: $error_message\n";
+		exit( 1 );
+	}
+	exit( 0 );
 }
