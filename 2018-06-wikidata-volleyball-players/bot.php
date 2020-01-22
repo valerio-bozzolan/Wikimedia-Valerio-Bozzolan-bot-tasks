@@ -162,10 +162,6 @@ foreach( $NEW_PLAYERS as $NEW_PLAYER ) {
 		$entity_id = cli\Input::askInput( "Enter entity ID or nothing (expected code: $legavolley_id)", false );
 	}
 
-	if( !$entity_id ) {
-		continue;
-	}
-
 	// eventually skip until reached wanted ID
 	if( $start_from_qid ) {
 		if( $entity_id !== $start_from_qid ) {
@@ -265,20 +261,18 @@ foreach( $NEW_PLAYERS as $NEW_PLAYER ) {
 	}
 
 	// Wikidata new data
-	$wbeditentity = [
+	$wbeditentity_data = [
 		'summary.pre' => SUMMARY . ' ',
 		'bot'         => 1,
 	];
 
 	if( $entity_id ) {
 		if( $data_new->countClaims() ) {
-			print_r( $changes );
+			$data_new->printChanges();
+
 			// https://www.wikidata.org/w/api.php?action=help&modules=wbeditentity
 			if( $ALWAYS || 'y' === cli\Input::yesNoQuestion( "Save $name $surname $entity_id?" ) ) {
-				$wd->editEntity( array_replace( $wbeditentity, [
-					'id'   => $entity_id,
-					'data' => $data_new->getJSON()
-				] ) );
+				$data_new->editEntity( $wbeditentity_data );
 			}
 		} else {
 			Log::info( "Nothing to be done to $name $surname $entity_id" );
@@ -288,10 +282,11 @@ foreach( $NEW_PLAYERS as $NEW_PLAYER ) {
 		if( $ALWAYS || 'y' === cli\Input::yesNoQuestion( "Create $name $surname?" ) ) {
 			// Create new item
 			// https://www.wikidata.org/w/api.php?action=help&modules=wbeditentity
-			$result = $wd->editEntity( array_replace( $wbeditentity, [
-				'new'  => 'item',
-				'data' => $data_new->getJSON()
+			$data_new->editEntity( array_replace( $wbeditentity_data, [
+				'new' => 'item',
 			] ) );
+
+			$qid = $new_data->getEntityID();
 
 			var_dump( $result );
 			echo "TODO: get the QID from that shit";
