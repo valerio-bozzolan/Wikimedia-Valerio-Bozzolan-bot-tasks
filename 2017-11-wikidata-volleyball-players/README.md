@@ -1,4 +1,4 @@
-# 2017, 2018 Wikidata/Commons volleyball players bot
+# 2017, 2018, 2019, 2020 Wikidata/Commons volleyball players bot
 
 This PHP bot was developed to uniform volleyball players in Wikimedia Commons and Wikidata.
 
@@ -9,6 +9,7 @@ This PHP bot was developed to uniform volleyball players in Wikimedia Commons an
 ```
 
 ## Changeset
+
 * [Wikimedia Commons](https://commons.wikimedia.org/w/index.php?limit=500&title=Special%3AContributions&contribs=user&target=Valerio+Bozzolan+bot&namespace=&tagfilter=&start=2019-01-17&end=2019-01-22)
 * [Wikidata](https://www.wikidata.org/w/index.php?limit=500&title=Special%3AContributions&contribs=user&target=Valerio+Bozzolan+bot&namespace=&tagfilter=&start=2019-01-14&end=2019-01-22)
 
@@ -19,6 +20,7 @@ This PHP bot was developed to uniform volleyball players in Wikimedia Commons an
 * [Bot consensus for Wikidata](https://www.wikidata.org/wiki/Wikidata:Requests_for_permissions/Bot/Valerio_Bozzolan_bot_2)
 
 ## Wikimedia files involved
+
 * [Category:2018 files from Legavolley stream](https://commons.wikimedia.org/wiki/Category:2018_files_from_Legavolley_stream)
 * [Category:2017 files from Legavolley stream](https://commons.wikimedia.org/wiki/Category:2017_files_from_Legavolley_stream)
 * [Category:Volleyball by country](https://commons.wikimedia.org/wiki/Category:Volleyball_by_country)
