@@ -213,18 +213,25 @@ foreach( $NEW_PLAYERS as $NEW_PLAYER ) {
 	];
 
 	// item with data to be added
-	$data_new = new wb\DataModel();
+	$data_new = $wd->createDataModel();
 
 	// Existing data
 	$data_old = null;
 	if( $entity_id ) {
+		$data_new->setEntityID( $entity_id );
+
 		// https://www.wikidata.org/w/api.pkhp?action=help&modules=wbgetentities
-		$data_old = $wd->fetch( [
-			'action' => 'wbgetentities',
-			'ids'    => $entity_id,
-			'props'  => 'info|sitelinks|aliases|labels|descriptions|claims|datatype'
+		$data_old = $wd->fetchSingleEntity( $entity_id, [
+			'props'  => [
+				'info',
+				'sitelinks',
+				'aliases',
+				'labels',
+				'descriptions',
+				'claims',
+				'datatype',
+			],
 		] );
-		$data_old = wb\DataModel::createFromObject( $data_old->entities->{ $entity_id } );
 	}
 
 	// append labels without overwriting
@@ -262,8 +269,6 @@ foreach( $NEW_PLAYERS as $NEW_PLAYER ) {
 
 	// Wikidata new data
 	$wbeditentity_data = [
-		'summary.pre' => SUMMARY . ' ',
-		'bot'         => 1,
 	];
 
 	if( $entity_id ) {
@@ -272,7 +277,10 @@ foreach( $NEW_PLAYERS as $NEW_PLAYER ) {
 
 			// https://www.wikidata.org/w/api.php?action=help&modules=wbeditentity
 			if( $ALWAYS || 'y' === cli\Input::yesNoQuestion( "Save $name $surname $entity_id?" ) ) {
-				$data_new->editEntity( $wbeditentity_data );
+				$data_new->editEntity( [
+					'summary.pre' => SUMMARY . ' ',
+					'bot'         => 1,
+				] );
 			}
 		} else {
 			Log::info( "Nothing to be done to $name $surname $entity_id" );
@@ -282,15 +290,19 @@ foreach( $NEW_PLAYERS as $NEW_PLAYER ) {
 		if( $ALWAYS || 'y' === cli\Input::yesNoQuestion( "Create $name $surname?" ) ) {
 			// Create new item
 			// https://www.wikidata.org/w/api.php?action=help&modules=wbeditentity
-			$data_new->editEntity( array_replace( $wbeditentity_data, [
-				'new' => 'item',
-			] ) );
+			$result = $data_new->editEntity( [
+				'new'         => 'item',
+				'summary.pre' => SUMMARY . ' ',
+				'bot'         => 1,
+			] );
 
-			$qid = $new_data->getEntityID();
-
-			var_dump( $result );
-			echo "TODO: get the QID from that shit";
-			exit( 2 );
+			if( $result->success ) {
+				$entity_id = $result->entity->id;
+			} else {
+				var_dump( $result );
+				echo "exit because API not said success\n";
+				exit( 2 );
+			}
 		}
 	}
 
