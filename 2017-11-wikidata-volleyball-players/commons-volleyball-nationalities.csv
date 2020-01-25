@@ -21,7 +21,7 @@ CZE,Q213,ceco,ceca,Czech,Volleyball players from the Czech Republic,Men's volley
 DEN,Q35,danese,danese,Danish,Volleyball players from Denmark,Men's volleyball players from Denmark
 DOM,Q786,dominicense,dominicense,Dominican,Volleyball players from the Dominican Republic,
 EGY,Q79,egiziano,egiziana,Egyptian,,
-ESP,Q29,spagnolo,spagnola,Spanish,Men's volleyball players from Spain,Men's volleyball players from Spain
+ESP,Q29,spagnolo,spagnola,Spanish,Volleyball players from Spain,Men's volleyball players from Spain
 EST,Q191,estone,estone,Estonian,Volleyball players from Estonia,Men's volleyball players from Estonia
 FIN,Q33,finlandese,finlandese,Finnish,Volleyball players from Finland,Men's volleyball players from Finland
 FRA,Q142,francese,francese,French,Volleyball players from France,Men's volleyball players from France
@@ -34,6 +34,8 @@ ISR,Q801,israeliano,israeliana,Israeli,Volleyball players from Israel,Men's voll
 ITA,Q38,italiano,italiana,Italian,Volleyball players from Italy,Men's volleyball players from Italy
 JPN,Q17,giapponese,giapponese,Japanese,Volleyball players from Japan,Men's volleyball players from Japan
 LAT,Q211,lettone,lettone,Latvian,Volleyball players from Latvia,Men's volleyball players from Latvia
+LUX,Q32,lussemburghese,lussemburghese,Luxembourger,,
+MAR,Q1028,marocchino,marocchina,Maroccan,,
 MEX,Q96,messicano,messicana,Mexican,Volleyball players from Mexico,Men's volleyball players from Mexico
 MLD,Q826,maldiviano,maldiviana,Maldivian,,
 MNE,Q236,montenegrino,montenegrina,Montenegrin,Volleyball players from Montenegro,Men's volleyball players from Montenegro
@@ -47,7 +49,9 @@ POR,Q45,portoghese,portoghese,Portuguese,Volleyball players from Portugal,Men's 
 PUR,Q1183,portoricano,portoricana,Puerto Rican,Volleyball players from Puerto Rico,Men's volleyball players from Puerto Rico
 ROM,Q218,romeno,romena,Romanian,Volleyball players from Romania,Men's volleyball players from Romania
 RUS,Q159,russo,russa,Russian,Volleyball players from Russia,Men's volleyball players from Russia
+SEN,Q1041,senegalese,senegalese,Senegalese,,
 SLO,Q215,sloveno,slovena,Slovenian,Volleyball players from Slovenia,Men's volleyball players from Slovenia
+SMR,Q238,sammarinese,sammarinese,Sammarinese,,
 SRB,Q403,serbo,serba,Serbian,Volleyball players from Serbia,Men's volleyball players from Serbia
 SUI,Q39,svizzero,svizzera,Swiss,Volleyball players from Switzerland,Men's volleyball players from Switzerland
 SVK,Q214,slovacco,slovacca,Slovakian,Volleyball players from Slovakia,Men's volleyball players from Slovakia
