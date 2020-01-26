@@ -1,1 +1,4 @@
 config.php
+
+# output files
+/2018-06-wikidata-volleyball-players/out.csv
