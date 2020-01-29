@@ -267,10 +267,6 @@ foreach( $NEW_PLAYERS as $NEW_PLAYER ) {
 		}
 	}
 
-	// Wikidata new data
-	$wbeditentity_data = [
-	];
-
 	if( $entity_id ) {
 		if( $data_new->countClaims() ) {
 			$data_new->printChanges();
