@@ -300,6 +300,8 @@ foreach( $NEW_PLAYERS as $NEW_PLAYER ) {
 				exit( 2 );
 			}
 		}
+
+		Log::info( "Created $entity_id" );
 	}
 
 	fputcsv($out, [
