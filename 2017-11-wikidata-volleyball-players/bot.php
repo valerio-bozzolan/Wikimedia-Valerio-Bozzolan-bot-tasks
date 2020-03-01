@@ -66,6 +66,8 @@ use cli\Log;
 use cli\ConfigWizard;
 use mw\Wikitext;
 use mw\API\PageMatcher;
+use wb\LabelAction;
+use wb\DescriptionAction;
 use wb\References;
 use wb\Reference;
 use wb\SnakItem;
@@ -383,6 +385,9 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 	// associative array of page title => page content
 	$title_content = [];
 
+	// associative array of a page title => page ID
+	$title_pageid = [];
+
 	// for each page and my requested titles
 	foreach( $matcher->getMatchesByMyTitle() as $title => $page ) {
 
@@ -397,11 +402,17 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 			reset( $page->revisions )
 				// get just the wikitext from the main slot
 				->slots->main->{'*'};
+
+		// remember the page ID
+		$title_pageid[ $title ] = $page->pageid;
 	}
 
 	// initialize the wikitexts
 	$personal_cat_content = $commons->createWikitext( $title_content[ "Category:$personal_cat" ] );
 	$filename_content     = $commons->createWikitext( $title_content[ $filename                ] );
+
+	// pageid of the filename
+	$filename_pageid = $title_pageid[ $filename ];
 
 	// personal category
 	if( $personal_cat_exists ) {
@@ -490,10 +501,10 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 		// Labels that are not present
 		foreach( $LABELS as $lang => $label ) {
 			if( ! $item_data->hasLabelInLanguage( $lang ) ) {
-				$item_newdata->setLabel( new wb\LabelAction(
+				$item_newdata->setLabel( new LabelAction(
 					$lang,
 					$label,
-					wb\LabelAction::ADD // WIKIBASE BUG!!! THIS IS IGNORED SOMETIMES.
+					LabelAction::ADD // WIKIBASE BUG!!! THIS IS IGNORED SOMETIMES.
 				) );
 			}
 		}
@@ -501,10 +512,10 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 		// Descriptions that are not present
 		foreach( $DESCRIPTIONS as $lang => $description ) {
 			if( ! $item_data->hasDescriptionInLanguage( $lang ) ) {
-				$item_newdata->setDescription( new wb\DescriptionAction(
+				$item_newdata->setDescription( new DescriptionAction(
 					$lang,
 					$description,
-					wb\DescriptionAction::ADD
+					DescriptionAction::ADD
 				) );
 			}
 		}
@@ -642,6 +653,63 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 			] );
 		}
 	}
+
+	// page ID for the Wikimedia Commons structured data
+	$filename_structured_data_id = "M" . $filename_pageid;
+
+	// get the Structured data
+	$existing_structured_data = $commons->fetchSingleEntity( $filename_structured_data_id, [
+		'props' => [
+			'labels',
+			'descriptions',
+			'claims',
+		],
+	] );
+
+	// create an empty object to be filled with Wikimedia Commons structured data to be saved
+	$proposed_structured_data = $existing_structured_data->cloneEmpty();
+
+	// eventually add labels in Wikimedia Commons structured data
+	foreach( $LABELS as $lang => $label ) {
+		if( !$existing_structured_data->hasLabelInLanguage( $lang ) ) {
+			$proposed_structured_data->setLabel( new LabelAction( $lang, $label, LabelAction::ADD ) );
+		}
+	}
+
+	// eventually add labels in Wikimedia Commons Structured Data
+	foreach( $DESCRIPTIONS as $lang => $description ) {
+		if( !$existing_structured_data->hasDescriptionInLanguage( $lang ) ) {
+			$proposed_structured_data->setDescription( new DescriptionAction( $lang, $description, DescriptionAction::ADD ) );
+		}
+	}
+
+	// eventually set who is "depicted" in the Wikimedia Commons Structured Data
+	if( $item_id && !$existing_structured_data->hasClaimsInProperty( 'P180' ) ) {
+
+		// add "Depicted" P180 and mark as prominent
+		$proposed_structured_data->addClaim(
+			legavolley_statement_item( 'P180', $item_id )
+				->setRank( 'preferred' )
+		);
+	}
+
+	// check if we can propose some edits
+	if( !$proposed_structured_data->isEmpty() ) {
+		// show changes
+		$proposed_structured_data->printChanges();
+
+		// eventually submit changes
+		$save = Input::yesNoQuestion( "Save?" );
+		if( 'y' === $save ) {
+
+			// submit changes with the edit summary
+			$proposed_structured_data->editEntity( [
+				'summary.pre' => WIKIDATA_SUMMARY,
+			] );
+		}
+	}
+
+	// eventually add descriptions in Wikimedia Commons structured data
 
 	// save next
 	file_put_contents( 'latest.txt', $item_id );
@@ -922,7 +990,7 @@ function get_wikidata_item( $page_name, $title ) {
 ##############################
 
 function legavolley_statement_item( $property, $item ) {
-	$statement = new wb\StatementItem( $property, $item );
+	$statement = new \wb\StatementItem( $property, $item );
 	return $statement->setReferences( legavolley_references() );
 }
 
