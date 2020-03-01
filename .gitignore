@@ -2,3 +2,6 @@ config.php
 
 # output files
 /2018-06-wikidata-volleyball-players/out.csv
+
+# status files
+/2017-11-wikidata-volleyball-players/latest.txt
