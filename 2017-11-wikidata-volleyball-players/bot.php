@@ -65,6 +65,7 @@ use cli\Input;
 use cli\Log;
 use cli\ConfigWizard;
 use mw\Wikitext;
+use mw\API\PageMatcher;
 use wb\References;
 use wb\Reference;
 use wb\SnakItem;
@@ -360,12 +361,14 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 		$personal_cat_exists = true;
 	}
 
-	// Wikitexts
-	// https://it.wikipedia.org/w/api.php?action=query&prop=revisions&titles=linux+%28kernel%29&rvprop=content
+	// titles to be requested
 	$titles = [
 		"Category:$personal_cat",
 		$filename
 	];
+
+	// query the revisions from multiple pages (and their page IDs)
+	// https://it.wikipedia.org/w/api.php?action=query&prop=revisions&titles=linux+%28kernel%29&rvprop=content
 	$pages = $commons->fetch( [
 		'action'  => 'query',
 		'prop'    => 'revisions',
@@ -373,30 +376,32 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 		'rvslots' => 'main',
 		'titles'  => $titles,
 	] );
-	$title_pages = [];
-	foreach( $titles as $title ) {
-		$normalized_title = $title;
-		if( isset( $query->normalized ) ) {
-			foreach( $query->normalized as $normalized ) {
-				if( $normalized->from === $title ) {
-					$normalized_title = $normalized->to;
-					break;
-				}
-			}
+
+	// associate the results to my pages
+	$matcher = new PageMatcher( $pages, $titles );
+
+	// associative array of page title => page content
+	$title_content = [];
+
+	// for each page and my requested titles
+	foreach( $matcher->getMatchesByMyTitle() as $title => $page ) {
+
+		// no revisions no party
+		if( empty( $page->revisions ) ) {
+			throw new Exception( "missing revisions from $title" );
 		}
-		$page_content = null;
-		foreach( $pages->query->pages as $page ) {
-			if( $page->title === $normalized_title ) {
-				foreach( $page->revisions as $revision ) {
-					$page_content = $revision->slots->main->{'*'};
-				}
-				break;
-			}
-		}
-		$title_pages[ $title ] = $page_content;
+
+		// remember the page infos
+		$title_content[ $title ] =
+			// the revision should be just one (the latest one)
+			reset( $page->revisions )
+				// get just the wikitext from the main slot
+				->slots->main->{'*'};
 	}
-	$personal_cat_content = $commons->createWikitext( $title_pages[ "Category:$personal_cat" ] );
-	$filename_content     = $commons->createWikitext( $title_pages[ $filename ]               );
+
+	// initialize the wikitexts
+	$personal_cat_content = $commons->createWikitext( $title_content[ "Category:$personal_cat" ] );
+	$filename_content     = $commons->createWikitext( $title_content[ $filename                ] );
 
 	// personal category
 	if( $personal_cat_exists ) {
