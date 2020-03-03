@@ -704,7 +704,7 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 
 			// submit changes with the edit summary
 			$proposed_structured_data->editEntity( [
-				'summary.pre' => WIKIDATA_SUMMARY,
+				'summary.pre' => WIKIDATA_SUMMARY . ': ',
 			] );
 		}
 	}
