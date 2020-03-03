@@ -123,7 +123,7 @@ define(  'COMMONS_SUMMARY', sprintf(
 
 defined( 'WIKIDATA_SUMMARY' ) or
 define(  'WIKIDATA_SUMMARY', sprintf(
-	"[[%s|uniforming Legavolley players]]",
+	"[[wikidata:%s|uniforming Legavolley players]]",
 	WIKIDATA_CONSENSUS_PAGE
 ) );
 
