@@ -5,3 +5,7 @@ config.php
 
 # status files
 /2017-11-wikidata-volleyball-players/latest.txt
+
+# other stupid dependencies
+/2020-10-04-mendrisio-sucker-iconoteca.arc.usi.ch/phpquery
+/2020-10-04-mendrisio-sucker-iconoteca.arc.usi.ch/images
