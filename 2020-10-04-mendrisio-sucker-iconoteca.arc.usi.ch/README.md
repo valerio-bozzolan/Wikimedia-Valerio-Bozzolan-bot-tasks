@@ -16,6 +16,28 @@ From this directory:
 git clone https://github.com/phpquery/phpquery
 ```
 
+## Usage ##
+
+First download locally one of their collections:
+
+```
+wget https://iconoteca..../collection-asd.html
+```
+
+Then you can examine that HTML page and bulk-download the available images from it:
+
+```
+./parse-html-and-import.php collection-asd.html
+```
+
+The you can bulk-upload your files just selecting your directory with the images/metadata and selecting a template:
+
+```
+./upload.php images/ template/collezione-biblioteca.php
+```
+
+Happy hacking!
+
 ## License
 
 Copyright (C) 2020 Valerio Bozzolan
