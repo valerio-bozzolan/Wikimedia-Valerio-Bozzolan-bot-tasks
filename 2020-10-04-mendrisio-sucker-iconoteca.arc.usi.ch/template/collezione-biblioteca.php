@@ -16,23 +16,42 @@
 
 // this is a template to build a generic Commons file description
 
+// this is not used, same as description
 ?>
 =={{int:filedesc}}==
-{{Information
-|description=<?= $DESCRIPTION ?>
+{{Artwork
+|author = <?= $CREATOR_COMMONS ?>
 
-|date=<?= $DATE ?>
+|title = <?= $TITLE ?>
 
-|source=<?= $SOURCE ?>
+|description = <?= $DESCRIPTION ?>
 
-|author=<?= $AUTHOR ?>
+|date = <?= $DATE ?>
 
-|permission=
-|other versions=
+|source = <?= $SOURCE ?>
+
+|medium = <?= $MEDIUM ?>
+
+|dimensions = <?= $SIZE_TEMPLATE ?>
+
+|institution = {{Institution:Iconoteca dell'Accademia di architettura di Mendrisio}}
+|department = Collezione Biblioteca
+|inscriptions = <?php
+	if( !empty( $METADATA->{ 'Iscrizione' } ) ) {
+		// sometime they put "asasdd" in quotes, so strip them
+		$METADATA->{ 'Iscrizione' } = trim( $METADATA->{ 'Iscrizione' }, '"' );
+
+		 printf(
+		 	"{{Inscription|1 = %s}}",
+		 	$METADATA->{'Iscrizione'}
+		 );
+	}
+?>
+
+|permission = <?= $LICENSE_TEMPLATES ?>
+
+|other versions =
 }}
-
-=={{int:license-header}}==
-<?= $LICENSE_TEMPLATES ?>
 
 == {{int:metadata}} ==
 {| class="wikitable"

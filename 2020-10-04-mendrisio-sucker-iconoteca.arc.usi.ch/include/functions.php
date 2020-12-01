@@ -99,3 +99,221 @@ function template_content( $name, $args = [] ) {
 	ob_end_clean();
 	return $text;
 }
+
+/**
+ * Generator of name variants
+ *
+ * @param string $name
+ * @return string
+ */
+function generator_name_variants( $name ) {
+
+	// "Anderson, Domenico" → "Domenico Anderson"
+	$parts = explode( ", ", $name );
+	if( count( $parts ) === 2 ) {
+		yield "{$parts[1]} {$parts[0]}";
+		yield "{$parts[0]} {$parts[1]}";
+	} else {
+		yield $name;
+	}
+}
+
+/**
+ * Generate the first name variant
+ */
+function first_name_variant( $name ) {
+	foreach( generator_name_variants( $name ) as $variant ) {
+		return $variant;
+	}
+	return $name;
+}
+
+/**
+ * Search an Author in Wikidata
+ *
+ * @param string $name
+ * @return string Q-ID or NULL
+ */
+function search_author_in_wikidata( $name ) {
+
+	// terms that can be found in a description to classify someone
+	$TERMS = [
+		'photographer',
+		'fotograf',
+	];
+
+	$all = [
+		'good'       => [],
+		'undetected' => [],
+	];
+
+	// generate a list of possible query terms
+	foreach( generator_name_variants( $name ) as $variant ) {
+
+		// query Wikidata results using wbsearcentity API
+		$candidates = find_wikidata_entity_by_title( $variant );
+		foreach( $candidates as $id => $description ) {
+
+			// check if this Wikidata result matches one of the well-known terms
+			$found = is_term_found( $TERMS, $description );
+
+			// index in the right namespace
+			$key = $found ? 'good' : 'undetected';
+			$all[ $key ][ $id ] = $description;
+		}
+
+		// if something good was found, quit earlier with the first ID. otherwise continue
+		if( count( $all[ 'good' ] ) === 1 ) {
+			return array_keys( $all[ 'good' ] )[0];
+		}
+	}
+
+	// check if something was undetected
+	if( $all[ 'undetected' ] ) {
+		print_r( $all );
+		throw new Exception( "undetected. TODO: pick" );
+	}
+
+	if( $all[ 'good' ] ) {
+		print_r( $all );
+		throw new Exception( "detected multiple good possibilities. TODO: pick" );
+	}
+
+	// nothing found
+	return null;
+}
+
+/**
+ * Search a Creator in Commons
+ *
+ * @param string $name
+ * @return string Q-ID or NULL
+ */
+function search_creator_on_commons( $name ) {
+
+	$wiki = \wm\Commons::instance();
+
+	// generate a list of possible query terms
+	foreach( generator_name_variants( $name ) as $variant ) {
+
+		$title = "Creator:$variant";
+		if( wiki_page_id( $wiki, $title ) ) {
+			return $title;
+		}
+	}
+
+	return false;
+}
+
+
+/**
+ * Search something in Wikidata
+ *
+ * @param string $search
+ * @return array Associative array of ID and its description
+ */
+function find_wikidata_entity_by_title( $search ) {
+
+	$founds = [];
+
+	$wikidata = \wm\Wikidata::instance();
+
+	// https://www.wikidata.org/w/api.php?action=help&modules=wbsearchentities
+	$queries =
+		$wikidata->createQuery( [
+			'action'   => 'wbsearchentities',
+			'search'   => $search,
+			'language' => 'it',
+			'type'     => 'item',
+		] );
+
+	// loop queries
+	foreach( $queries as $query ) {
+
+		$results = $query->search ?? [];
+		foreach( $results as $result ) {
+
+			$id = $result->id;
+
+			$description = $result->description;
+
+			// store as ID => description
+			$founds[ $id ] = $description;
+		}
+	}
+
+	return $founds;
+}
+
+/**
+ * Test an array of terms and return true if one is found in the subject
+ *
+ * @param array $terms
+ * @param string $subject
+ * @return bool
+ */
+function is_term_found( $terms, $subject ) {
+
+	// for each term
+	foreach( $terms as $term ) {
+
+		// check if the term is part of the subject
+		if( strpos( $subject, $term ) !== false ) {
+
+			// gotcha!
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
+ * Check if a page exists
+ *
+ * @return int|false
+ */
+function wiki_page_id( $wiki, $title ) {
+
+	$result =
+		$wiki->fetch( [
+			'action' => 'query',
+			'prop'   => 'info',
+			'titles' => $title,
+		] );
+
+	$pages = $result->query->pages ?? [];
+	foreach( $pages as $page ) {
+
+		// no page no party
+		if( isset( $page->missing ) ) {
+			return false;
+		}
+
+		// that's OK
+		return $page->pageid;
+	}
+
+	// no page no party
+	throw new Exception( "what" );
+}
+
+/**
+ * Parse "27x20 cm" and return a {{Size}} template if possible
+ *
+ * @return string
+ */
+function parse_size( $size ) {
+
+	$found = preg_match( '/^ *([0-9]+)x([0-9]+) *([a-zA-Z]+) *$/', $size, $matches );
+
+	if( $found ) {
+		$w    = $matches[ 1 ];
+		$h    = $matches[ 2 ];
+		$unit = $matches[ 3 ];
+
+		return "{{Size|unit = $unit |width = $w |height = $h}}";
+	}
+
+	return $size;
+}

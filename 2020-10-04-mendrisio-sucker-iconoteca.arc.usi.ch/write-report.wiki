@@ -1,0 +1,1458 @@
+{| class="wikitable"
+|-
+! FILE_WLINK
+! FILE_THUMB
+! TITLE
+! DESCRIPTION
+! LICENSE
+! DATE
+! AUTHOR
+! CREATOR_COMMONS_LINK
+! SIZE_TEMPLATE
+! MEDIUM
+! DOI_ID
+! SOURCE
+|-
+| [[:File:Stemma papale del XIV secolo rilevato nel Chiostro della Basilica di San Giovanni in Laterano.jpg]]
+| [[File:Stemma papale del XIV secolo rilevato nel Chiostro della Basilica di San Giovanni in Laterano.jpg|100px]]
+| {{it|Roma. Stemma del XIV secolo. Chiostro di S. Giovanni in Laterano}}
+| {{it|Stemma papale del XIV secolo rilevato nel Chiostro della Basilica di San Giovanni in Laterano}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 1890
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 26 |height = 20}}
+| Materiale fotografico. Procedimento all'albumina
+| 283
+| https://iconoteca.arc.usi.ch/it/inventario/283
+|-
+| [[:File:Stemma di papa Clemente VI rilevato nel Chiostro della Basilica di San Giovanni in Laterano.jpg]]
+| [[File:Stemma di papa Clemente VI rilevato nel Chiostro della Basilica di San Giovanni in Laterano.jpg|100px]]
+| {{it|Roma. Stemma del XIV secolo. Chiostro di S. Giovanni in Laterano}}
+| {{it|Stemma di papa Clemente VI rilevato nel Chiostro della Basilica di San Giovanni in Laterano}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 1890
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 26 |height = 20}}
+| Materiale fotografico. Procedimento all'albumina
+| 284
+| https://iconoteca.arc.usi.ch/it/inventario/284
+|-
+| [[:File:Stemma reale del XIV secolo rilevato nel Chiostro della Basilica di San Giovanni in Laterano.jpg]]
+| [[File:Stemma reale del XIV secolo rilevato nel Chiostro della Basilica di San Giovanni in Laterano.jpg|100px]]
+| {{it|Roma. Stemma del XIV secolo. Chiostro di S. Giovanni in Laterano}}
+| {{it|Stemma reale del XIV secolo rilevato nel Chiostro della Basilica di San Giovanni in Laterano}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 1890
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 26 |height = 20}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 285
+| https://iconoteca.arc.usi.ch/it/inventario/285
+|-
+| [[:File:Stemma di papa Niccolò V rilevato nel Chiostro della Basilica di San Giovanni in Laterano.jpg]]
+| [[File:Stemma di papa Niccolò V rilevato nel Chiostro della Basilica di San Giovanni in Laterano.jpg|100px]]
+| {{it|Roma. Stemma di Nicola V?. Chiostro di S. Giovanni in Laterano}}
+| {{it|Stemma di papa Niccolò V rilevato nel Chiostro della Basilica di San Giovanni in Laterano}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 1890
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 26 |height = 20}}
+| Materiale fotografico. Procedimento all'albumina
+| 286
+| https://iconoteca.arc.usi.ch/it/inventario/286
+|-
+| [[:File:Monumento funerario del cardinale Pietro Fonseca presso le Grotte vaticane.jpg]]
+| [[File:Monumento funerario del cardinale Pietro Fonseca presso le Grotte vaticane.jpg|100px]]
+| {{it|Roma. Card. Pietro Fonsecca. Grotte Vatic.}}
+| {{it|Monumento funerario del cardinale Pietro Fonseca presso le Grotte vaticane}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 1890
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 20 |height = 26}}
+| Materiale fotografico. Procedimento all'albumina
+| 287
+| https://iconoteca.arc.usi.ch/it/inventario/287
+|-
+| [[:File:Monumento al Gran maestro Riccardo Caracciolo presso la Chiesa di Santa Maria del Priorato.jpg]]
+| [[File:Monumento al Gran maestro Riccardo Caracciolo presso la Chiesa di Santa Maria del Priorato.jpg|100px]]
+| {{it|Monumento al Gran maestro Riccardo Caracciolo priorato di Malta}}
+| {{it|Monumento al Gran maestro Riccardo Caracciolo presso la Chiesa di Santa Maria del Priorato}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 1890-1925
+| Moscioni, Romualdo
+| 
+| 
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 288
+| https://iconoteca.arc.usi.ch/it/inventario/288
+|-
+| [[:File:Monumento funebre del cardinale Guillaume De Bray presso la Chiesa di San Domenico.jpg]]
+| [[File:Monumento funebre del cardinale Guillaume De Bray presso la Chiesa di San Domenico.jpg|100px]]
+| {{it|Monumento di Arnaldo di Lapo}}
+| {{it|Monumento funebre del cardinale Guillaume De Bray presso la Chiesa di San Domenico}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 1868-1920
+| Moscioni, Romualdo
+| 
+| {{Size|unit = cm |width = 20 |height = 25}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 289
+| https://iconoteca.arc.usi.ch/it/inventario/289
+|-
+| [[:File:Monumento funebre del cardinale Antonio Martinez de Chavez di Portogallo presso San Giovanni in Laterano.jpg]]
+| [[File:Monumento funebre del cardinale Antonio Martinez de Chavez di Portogallo presso San Giovanni in Laterano.jpg|100px]]
+| 
+| {{it|Monumento funebre del cardinale Antonio Martinez de Chavez di Portogallo presso San Giovanni in Laterano}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 1890
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 20 |height = 26}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 290
+| https://iconoteca.arc.usi.ch/it/inventario/290
+|-
+| [[:File:La Prudenza, statua facente parte del monumento funebre al cardinale Giulio Acquaviva presso San Giovanni in Laterano.jpg]]
+| [[File:La Prudenza, statua facente parte del monumento funebre al cardinale Giulio Acquaviva presso San Giovanni in Laterano.jpg|100px]]
+| {{it|Basilica di S. Giovanni in Laterano. Monumento al Card. Giulio Acquaviva. La Prudenza}}
+| {{it|La Prudenza, statua facente parte del monumento funebre al cardinale Giulio Acquaviva presso San Giovanni in Laterano}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 1920-1930
+| Fratelli Alinari
+| 
+| {{Size|unit = cm |width = 26 |height = 19}}
+| Materiale fotografico. Procedimento all'albumina
+| 291
+| https://iconoteca.arc.usi.ch/it/inventario/291
+|-
+| [[:File:La Temperanza, statua facente parte del monumento funebre al cardinale Giulio Acquaviva presso San Giovanni in Laterano.jpg]]
+| [[File:La Temperanza, statua facente parte del monumento funebre al cardinale Giulio Acquaviva presso San Giovanni in Laterano.jpg|100px]]
+| {{it|Basilica di S. Giovanni in Laterano. Monumento al Card. Giulio Acquaviva. La Temperanza}}
+| {{it|La Temperanza, statua facente parte del monumento funebre al cardinale Giulio Acquaviva presso San Giovanni in Laterano}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 1920-1930
+| Fratelli Alinari
+| 
+| {{Size|unit = cm |width = 26 |height = 19}}
+| Materiale fotografico. Procedimento all'albumina
+| 292
+| https://iconoteca.arc.usi.ch/it/inventario/292
+|-
+| [[:File:Dettaglio del monumento funebre al cardinale Martinez de Chavescon presso San Giovanni Laterano.jpg]]
+| [[File:Dettaglio del monumento funebre al cardinale Martinez de Chavescon presso San Giovanni Laterano.jpg|100px]]
+| 
+| {{it|Dettaglio del monumento funebre al cardinale Martinez de Chavescon presso San Giovanni Laterano}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 1890
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 21 |height = 27}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 293
+| https://iconoteca.arc.usi.ch/it/inventario/293
+|-
+| [[:File:Statua di soldato. Dettaglio del monumento funebre del cardinale Antonio Martinez de Chavez di Portogallo presso San Giovanni in Laterano.jpg]]
+| [[File:Statua di soldato. Dettaglio del monumento funebre del cardinale Antonio Martinez de Chavez di Portogallo presso San Giovanni in Laterano.jpg|100px]]
+| {{it|Dettaglio del Monumento al cardinaleMartinez de Chiaves}}
+| {{it|Statua di soldato. Dettaglio del monumento funebre del cardinale Antonio Martinez de Chavez di Portogallo presso San Giovanni in Laterano}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 1890
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 26 |height = 20}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 294
+| https://iconoteca.arc.usi.ch/it/inventario/294
+|-
+| [[:File:Dettaglio del monumento funebre di papa Eugenio IV presso San Salvatore in Lauro.jpg]]
+| [[File:Dettaglio del monumento funebre di papa Eugenio IV presso San Salvatore in Lauro.jpg|100px]]
+| 
+| {{it|Dettaglio del monumento funebre di papa Eugenio IV presso San Salvatore in Lauro}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| 
+| 
+| {{Size|unit = cm |width = 17 |height = 23}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 296
+| https://iconoteca.arc.usi.ch/it/inventario/296
+|-
+| [[:File:Monumento funebre di papa Eugenio IV presso San Salvatore in Lauro.jpg]]
+| [[File:Monumento funebre di papa Eugenio IV presso San Salvatore in Lauro.jpg|100px]]
+| 
+| {{it|Monumento funebre di papa Eugenio IV presso San Salvatore in Lauro}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| Moscioni, Romualdo
+| 
+| {{Size|unit = cm |width = 26 |height = 20}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 297
+| https://iconoteca.arc.usi.ch/it/inventario/297
+|-
+| [[:File:Monumento funebre di papa Eugenio IV presso San Salvatore in Lauro (DOI 298).jpg]]
+| [[File:Monumento funebre di papa Eugenio IV presso San Salvatore in Lauro (DOI 298).jpg|100px]]
+| {{it|Chiesa di S. Salvatore in Lauro, antico refettorio. Mausoleo di Eugenio IV}}
+| {{it|Monumento funebre di papa Eugenio IV presso San Salvatore in Lauro}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| 
+| 
+| {{Size|unit = cm |width = 23 |height = 17}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 298
+| https://iconoteca.arc.usi.ch/it/inventario/298
+|-
+| [[:File:Monumento funebre dei cardinali Latino Malabranca Orsini e Matteo Orsini.jpg]]
+| [[File:Monumento funebre dei cardinali Latino Malabranca Orsini e Matteo Orsini.jpg|100px]]
+| 
+| {{it|Monumento funebre dei cardinali Latino Malabranca Orsini e Matteo Orsini}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| 
+| 
+| {{Size|unit = cm |width = 20 |height = 26}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 299
+| https://iconoteca.arc.usi.ch/it/inventario/299
+|-
+| [[:File:Monumento funebre del cardinale Pietro Manzi.jpg]]
+| [[File:Monumento funebre del cardinale Pietro Manzi.jpg|100px]]
+| 
+| {{it|Monumento funebre del cardinale Pietro Manzi}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 1890
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 26 |height = 20}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 300
+| https://iconoteca.arc.usi.ch/it/inventario/300
+|-
+| [[:File:Particolare della cappella Mazzatosta della Chiesa di Santa Maria della Verità.jpg]]
+| [[File:Particolare della cappella Mazzatosta della Chiesa di Santa Maria della Verità.jpg|100px]]
+| {{it|Viterbo. Cappella Mazzatosta, part.re Lorenzo da Viterbo}}
+| {{it|Particolare della cappella Mazzatosta della Chiesa di Santa Maria della Verità}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| 
+| 
+| {{Size|unit = cm |width = 26 |height = 21}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 301
+| https://iconoteca.arc.usi.ch/it/inventario/301
+|-
+| [[:File:Dettaglio dell'altare della cappella Mazzatosta della Chiesa di Santa Maria della Verità.jpg]]
+| [[File:Dettaglio dell'altare della cappella Mazzatosta della Chiesa di Santa Maria della Verità.jpg|100px]]
+| 
+| {{it|Dettaglio dell'altare della cappella Mazzatosta della Chiesa di Santa Maria della Verità}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| 
+| 
+| {{Size|unit = cm |width = 17 |height = 24}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 302
+| https://iconoteca.arc.usi.ch/it/inventario/302
+|-
+| [[:File:Sarcofago di papa Urbano VI presso le Grotte Vaticane.jpg]]
+| [[File:Sarcofago di papa Urbano VI presso le Grotte Vaticane.jpg|100px]]
+| {{it|Urban VI}}
+| {{it|Sarcofago di papa Urbano VI presso le Grotte Vaticane}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| Moscioni, Romualdo
+| 
+| {{Size|unit = cm |width = 19 |height = 25}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 303
+| https://iconoteca.arc.usi.ch/it/inventario/303
+|-
+| [[:File:Lato destro del bassorilievo del Giudizio finale, parte del monumento sepolcrale di Paolo II presso le Grotte Vaticane.jpg]]
+| [[File:Lato destro del bassorilievo del Giudizio finale, parte del monumento sepolcrale di Paolo II presso le Grotte Vaticane.jpg|100px]]
+| 
+| {{it|Lato destro del bassorilievo del Giudizio finale, parte del monumento sepolcrale di Paolo II presso le Grotte Vaticane}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 1890
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 26 |height = 20}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 304
+| https://iconoteca.arc.usi.ch/it/inventario/304
+|-
+| [[:File:Lato sinistro del bassorilievo del Giudizio finale, parte del monumento sepolcrale di Paolo II presso le Grotte Vaticane.jpg]]
+| [[File:Lato sinistro del bassorilievo del Giudizio finale, parte del monumento sepolcrale di Paolo II presso le Grotte Vaticane.jpg|100px]]
+| 
+| {{it|Lato sinistro del bassorilievo del Giudizio finale, parte del monumento sepolcrale di Paolo II presso le Grotte Vaticane}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 1890
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 26 |height = 20}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 305
+| https://iconoteca.arc.usi.ch/it/inventario/305
+|-
+| [[:File:Corpo centrale del bassorilievo del Giudizio finale, parte del monumento sepolcrale di Paolo II presso le Grotte Vaticane.jpg]]
+| [[File:Corpo centrale del bassorilievo del Giudizio finale, parte del monumento sepolcrale di Paolo II presso le Grotte Vaticane.jpg|100px]]
+| 
+| {{it|Corpo centrale del bassorilievo del Giudizio finale, parte del monumento sepolcrale di Paolo II presso le Grotte Vaticane}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 1890
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 26 |height = 20}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 306
+| https://iconoteca.arc.usi.ch/it/inventario/306
+|-
+| [[:File:Interno della Basilica di San Francesco alla Rocca con vista dei monumenti funebri di Clemente IV e di Adriano V.jpg]]
+| [[File:Interno della Basilica di San Francesco alla Rocca con vista dei monumenti funebri di Clemente IV e di Adriano V.jpg|100px]]
+| {{it|Monumenti di Clemente IV e di Adriano V nella chiesa di S. Francesco}}
+| {{it|Interno della Basilica di San Francesco alla Rocca con vista dei monumenti funebri di Clemente IV e di Adriano V}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| 
+| 
+| {{Size|unit = cm |width = 20 |height = 25}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 307
+| https://iconoteca.arc.usi.ch/it/inventario/307
+|-
+| [[:File:Monumento funebre di papa Adriano V presso la Basilica di San Francesco alla Rocca.jpg]]
+| [[File:Monumento funebre di papa Adriano V presso la Basilica di San Francesco alla Rocca.jpg|100px]]
+| {{it|Monumento di Papa Adriano V nella chiesa di S. Francesco}}
+| {{it|Monumento funebre di papa Adriano V presso la Basilica di San Francesco alla Rocca}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| 
+| 
+| {{Size|unit = cm |width = 25 |height = 19}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 308
+| https://iconoteca.arc.usi.ch/it/inventario/308
+|-
+| [[:File:Sarcofago con statua di una nobile viterbese presso la Basilica di San Francesco alla Rocca.jpg]]
+| [[File:Sarcofago con statua di una nobile viterbese presso la Basilica di San Francesco alla Rocca.jpg|100px]]
+| {{it|A Lady of the Courtenay Family, Tertiarij of St. Francis. ca. 1280. In the church of S. Francesco}}
+| {{it|Sarcofago con statua di una nobile viterbese presso la Basilica di San Francesco alla Rocca}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| 
+| 
+| {{Size|unit = cm |width = 21 |height = 25}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 309
+| https://iconoteca.arc.usi.ch/it/inventario/309
+|-
+| [[:File:Pietra tombale di Jean de Villiers de Groslaye presso le Grotte vaticane.jpg]]
+| [[File:Pietra tombale di Jean de Villiers de Groslaye presso le Grotte vaticane.jpg|100px]]
+| 
+| {{it|Pietra tombale di Jean de Villiers de Groslaye presso le Grotte vaticane}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 26 |height = 20}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 310
+| https://iconoteca.arc.usi.ch/it/inventario/310
+|-
+| [[:File:Statua funebre del cardinale Cristoforo Moroni presso le Grotte vaticane.jpg]]
+| [[File:Statua funebre del cardinale Cristoforo Moroni presso le Grotte vaticane.jpg|100px]]
+| {{it|Statua sepolcrale del Card. Cristoforo Moroni. Grotte Vaticane}}
+| {{it|Statua funebre del cardinale Cristoforo Moroni presso le Grotte vaticane}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 1901
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 21 |height = 26}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 311
+| https://iconoteca.arc.usi.ch/it/inventario/311
+|-
+| [[:File:Pietra tombale di Teobaldo di Rougemont presso le Grotte vaticane.jpg]]
+| [[File:Pietra tombale di Teobaldo di Rougemont presso le Grotte vaticane.jpg|100px]]
+| {{it|Basilica Vaticana - Grotte. Pietra Tombale di Teobaldo di Rougemont}}
+| {{it|Pietra tombale di Teobaldo di Rougemont presso le Grotte vaticane}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 1908-1910
+| 
+| 
+| {{Size|unit = cm |width = 27 |height = 20}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 312
+| https://iconoteca.arc.usi.ch/it/inventario/312
+|-
+| [[:File:Monumento funebre del cardinale Christopher Bainbridge presso il Collegio inglese.jpg]]
+| [[File:Monumento funebre del cardinale Christopher Bainbridge presso il Collegio inglese.jpg|100px]]
+| {{it|Collegio inglese. Monumento al Card. Cristoforo Bainbridge, arcivescovo di York}}
+| {{it|Monumento funebre del cardinale Christopher Bainbridge presso il Collegio inglese}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| 
+| 
+| {{Size|unit = cm |width = 18 |height = 24}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 313
+| https://iconoteca.arc.usi.ch/it/inventario/313
+|-
+| [[:File:Monumento funebre del Gran Priore dei Cavalieri di Malta Bartolomeo Carafa presso la Chiesa di Santa Maria del Priorato.jpg]]
+| [[File:Monumento funebre del Gran Priore dei Cavalieri di Malta Bartolomeo Carafa presso la Chiesa di Santa Maria del Priorato.jpg|100px]]
+| {{it|Monumento al Gran Maestro Bartolomeo Carafa Priorato di Malta}}
+| {{it|Monumento funebre del Gran Priore dei Cavalieri di Malta Bartolomeo Carafa presso la Chiesa di Santa Maria del Priorato}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| Moscioni, Romualdo
+| 
+| {{Size|unit = cm |width = 20 |height = 26}}
+| Materiale fotografico. Procedimento all'albumina
+| 314
+| https://iconoteca.arc.usi.ch/it/inventario/314
+|-
+| [[:File:Monumento funebre di Stefano De Surdis presso la Chiesa di San Balbina.jpg]]
+| [[File:Monumento funebre di Stefano De Surdis presso la Chiesa di San Balbina.jpg|100px]]
+| 
+| {{it|Monumento funebre di Stefano De Surdis presso la Chiesa di San Balbina}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| 
+| 
+| {{Size|unit = cm |width = 27 |height = 20}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 315
+| https://iconoteca.arc.usi.ch/it/inventario/315
+|-
+| [[:File:Statua sepolcrale di Paolo II presso le Grotte vaticane.jpg]]
+| [[File:Statua sepolcrale di Paolo II presso le Grotte vaticane.jpg|100px]]
+| 
+| {{it|Statua sepolcrale di Paolo II presso le Grotte vaticane}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 20 |height = 26}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 316
+| https://iconoteca.arc.usi.ch/it/inventario/316
+|-
+| [[:File:Particolare del monumento funebre di Paolo II presso le Grotte vaticane.jpg]]
+| [[File:Particolare del monumento funebre di Paolo II presso le Grotte vaticane.jpg|100px]]
+| {{it|Roma. Particolare del monumento di Paolo II. Dalmata .Grotte Vaticane}}
+| {{it|Particolare del monumento funebre di Paolo II presso le Grotte vaticane}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 20 |height = 26}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 317
+| https://iconoteca.arc.usi.ch/it/inventario/317
+|-
+| [[:File:Monumento funebre di papa Bonifacio VIII presso le Grotte vaticane.jpg]]
+| [[File:Monumento funebre di papa Bonifacio VIII presso le Grotte vaticane.jpg|100px]]
+| {{it|Roma. Papa Bonifazio VIII. Grotte Vaticane}}
+| {{it|Monumento funebre di papa Bonifacio VIII presso le Grotte vaticane}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 21 |height = 26}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 318
+| https://iconoteca.arc.usi.ch/it/inventario/318
+|-
+| [[:File:Monumento funebre del cardinale Pietro Valeriano Duraguerra presso la Basilica di San Giovanni in Laterano.jpg]]
+| [[File:Monumento funebre del cardinale Pietro Valeriano Duraguerra presso la Basilica di San Giovanni in Laterano.jpg|100px]]
+| {{it|Roma. Monumento Cardinalizio. Epoca medioevale}}
+| {{it|Monumento funebre del cardinale Pietro Valeriano Duraguerra presso la Basilica di San Giovanni in Laterano}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 1890
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 20 |height = 26}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 319
+| https://iconoteca.arc.usi.ch/it/inventario/319
+|-
+| [[:File:Monumento funebre del cardinale Nicola Cusano presso la Chiesa di San Pietro in Vincoli.jpg]]
+| [[File:Monumento funebre del cardinale Nicola Cusano presso la Chiesa di San Pietro in Vincoli.jpg|100px]]
+| {{it|Roma. Monumento al Card. de' Cusa, 1500. Chiesa di S. Pietro in Vincoli}}
+| {{it|Monumento funebre del cardinale Nicola Cusano presso la Chiesa di San Pietro in Vincoli}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 20 |height = 26}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 320
+| https://iconoteca.arc.usi.ch/it/inventario/320
+|-
+| [[:File:Dettaglio di un bassorilievo con figura papale inginocchiata.jpg]]
+| [[File:Dettaglio di un bassorilievo con figura papale inginocchiata.jpg|100px]]
+| 
+| {{it|Dettaglio di un bassorilievo con figura papale inginocchiata}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| 
+| 
+| {{Size|unit = cm |width = 26 |height = 20}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 321
+| https://iconoteca.arc.usi.ch/it/inventario/321
+|-
+| [[:File:Busto di papa Benedetto XII presso le Grotte vaticane.jpg]]
+| [[File:Busto di papa Benedetto XII presso le Grotte vaticane.jpg|100px]]
+| {{it|Roma. Benedetto XII. Grotte vaticane}}
+| {{it|Busto di papa Benedetto XII presso le Grotte vaticane}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 26 |height = 20}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 322
+| https://iconoteca.arc.usi.ch/it/inventario/322
+|-
+| [[:File:Dettaglio della statua attribuita a papa Nicola IV presso la Basilica di San Giovanni in Laterano.jpg]]
+| [[File:Dettaglio della statua attribuita a papa Nicola IV presso la Basilica di San Giovanni in Laterano.jpg|100px]]
+| {{it|Roma. Dett. Nicola IV, opera cosmatesca. S. Giovanni in Laterano}}
+| {{it|Dettaglio della statua attribuita a papa Nicola IV presso la Basilica di San Giovanni in Laterano}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 26 |height = 20}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 323
+| https://iconoteca.arc.usi.ch/it/inventario/323
+|-
+| [[:File:Dettaglio della statua di papa Bonifacio IX presso la Basilica di San Paolo fuori le mura.jpg]]
+| [[File:Dettaglio della statua di papa Bonifacio IX presso la Basilica di San Paolo fuori le mura.jpg|100px]]
+| {{it|Roma. Bonifacio IX (Dettaglio). Chiostro della Basilica di S. Paolo}}
+| {{it|Dettaglio della statua di papa Bonifacio IX presso la Basilica di San Paolo fuori le mura}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 27 |height = 21}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 324
+| https://iconoteca.arc.usi.ch/it/inventario/324
+|-
+| [[:File:Statua di papa Bonifacio IX presso la Basilica di San Paolo fuori le mura.jpg]]
+| [[File:Statua di papa Bonifacio IX presso la Basilica di San Paolo fuori le mura.jpg|100px]]
+| {{it|Roma. Bonifacio IX. Chiostro della Basilica di S. Paolo}}
+| {{it|Statua di papa Bonifacio IX presso la Basilica di San Paolo fuori le mura}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 27 |height = 20}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 325
+| https://iconoteca.arc.usi.ch/it/inventario/325
+|-
+| [[:File:Arnolfo di Cambio. Busto di Bonifacio VIII presso le Grotte vaticane.jpg]]
+| [[File:Arnolfo di Cambio. Busto di Bonifacio VIII presso le Grotte vaticane.jpg|100px]]
+| {{it|Roma. Bonifazio VIII, Arnolfo di Cambio. Grotte Vaticane}}
+| {{it|Arnolfo di Cambio. Busto di Bonifacio VIII presso le Grotte vaticane}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 27 |height = 20}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 326
+| https://iconoteca.arc.usi.ch/it/inventario/326
+|-
+| [[:File:Monumento funebre del cardinale Consalvo Rodriguez presso la Basilica di Santa Maria Maggiore.jpg]]
+| [[File:Monumento funebre del cardinale Consalvo Rodriguez presso la Basilica di Santa Maria Maggiore.jpg|100px]]
+| {{it|Roma. Monumento a Consalvo Rodriguez, Cosmati. S. M. Maggiore}}
+| {{it|Monumento funebre del cardinale Consalvo Rodriguez presso la Basilica di Santa Maria Maggiore}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 1938
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 26 |height = 20}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 327
+| https://iconoteca.arc.usi.ch/it/inventario/327
+|-
+| [[:File:Vista d'insieme sulla cappella Mazzatosta presso la Chiesa di Santa Maria della Verità.jpg]]
+| [[File:Vista d'insieme sulla cappella Mazzatosta presso la Chiesa di Santa Maria della Verità.jpg|100px]]
+| 
+| {{it|Vista d'insieme sulla cappella Mazzatosta presso la Chiesa di Santa Maria della Verità}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| 
+| 
+| {{Size|unit = cm |width = 24 |height = 17}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 328
+| https://iconoteca.arc.usi.ch/it/inventario/328
+|-
+| [[:File:Interno di una chiesa e cappella laterale.jpg]]
+| [[File:Interno di una chiesa e cappella laterale.jpg|100px]]
+| 
+| {{it|Interno di una chiesa e cappella laterale}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| 
+| 
+| {{Size|unit = cm |width = 23 |height = 18}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 329
+| https://iconoteca.arc.usi.ch/it/inventario/329
+|-
+| [[:File:Monumento sepolcrale di Giovanni Alberini presso Santa Maria sopra Minerva.jpg]]
+| [[File:Monumento sepolcrale di Giovanni Alberini presso Santa Maria sopra Minerva.jpg|100px]]
+| 
+| {{it|Monumento sepolcrale di Giovanni Alberini presso Santa Maria sopra Minerva}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| Moscioni, Romualdo
+| 
+| {{Size|unit = cm |width = 25 |height = 20}}
+| Materiale fotografico. Procedimento all'albumina
+| 330
+| https://iconoteca.arc.usi.ch/it/inventario/330
+|-
+| [[:File:Monumento funebre del cardinale Ludovico d'Albret presso la Chiesa di Santa Maria in Aracoeli.jpg]]
+| [[File:Monumento funebre del cardinale Ludovico d'Albret presso la Chiesa di Santa Maria in Aracoeli.jpg|100px]]
+| {{it|Roma. Monumento a Ludovico Lebretto. Aracoeli}}
+| {{it|Monumento funebre del cardinale Ludovico d'Albret presso la Chiesa di Santa Maria in Aracoeli}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 1890
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 26 |height = 20}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 331
+| https://iconoteca.arc.usi.ch/it/inventario/331
+|-
+| [[:File:Dettaglio del monumento funebre del cardinale Ludovico d'Albret presso la Chiesa di Santa Maria in Aracoeli.jpg]]
+| [[File:Dettaglio del monumento funebre del cardinale Ludovico d'Albret presso la Chiesa di Santa Maria in Aracoeli.jpg|100px]]
+| {{it|Roma. Dett. del Monumento al Cardinal Lebretto. Chiesa di S. Maria in Aracoeli}}
+| {{it|Dettaglio del monumento funebre del cardinale Ludovico d'Albret presso la Chiesa di Santa Maria in Aracoeli}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 1890
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 20 |height = 26}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 332
+| https://iconoteca.arc.usi.ch/it/inventario/332
+|-
+| [[:File:Monumento funebre di papa Onorio IV presso la Chiesa di Santa Maria in Aracoeli.jpg]]
+| [[File:Monumento funebre di papa Onorio IV presso la Chiesa di Santa Maria in Aracoeli.jpg|100px]]
+| {{it|Roma. Chiesa di S. Maria in Aracoeli. Monumento del Papa Onorio IV, di G. Savelli ed altri della famiglia.}}
+| {{it|Monumento funebre di papa Onorio IV presso la Chiesa di Santa Maria in Aracoeli}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| Prima del 1893
+| 
+| 
+| {{Size|unit = cm |width = 25 |height = 19}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 333
+| https://iconoteca.arc.usi.ch/it/inventario/333
+|-
+| [[:File:Giovanni Dalmata. Monumento funebre del cardinale Juan de Mella presso la Chiesa di Santa Maria in Monserrato.jpg]]
+| [[File:Giovanni Dalmata. Monumento funebre del cardinale Juan de Mella presso la Chiesa di Santa Maria in Monserrato.jpg|100px]]
+| {{it|Roma. Monumento al Card. Mella, G. Dalmata. Chiesa di S. Maria in Monserrato}}
+| {{it|Giovanni Dalmata. Monumento funebre del cardinale Juan de Mella presso la Chiesa di Santa Maria in Monserrato}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 26 |height = 20}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 334
+| https://iconoteca.arc.usi.ch/it/inventario/334
+|-
+| [[:File:Giovanni Dalmata. Sarcofago del monumento funebre del cardinale Tebaldi presso la Basilica di Santa Maria sopra Minerva.jpg]]
+| [[File:Giovanni Dalmata. Sarcofago del monumento funebre del cardinale Tebaldi presso la Basilica di Santa Maria sopra Minerva.jpg|100px]]
+| {{it|Roma. Sarcofago del Monumento al Card. Tebaldi, Giovanni Dalmata. S. Maria sopra Minerva}}
+| {{it|Giovanni Dalmata. Sarcofago del monumento funebre del cardinale Tebaldi presso la Basilica di Santa Maria sopra Minerva}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 1890
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 20 |height = 26}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 335
+| https://iconoteca.arc.usi.ch/it/inventario/335
+|-
+| [[:File:Monumento funebre del cardinale Anchiera presso lal Basilica di Santa Prassede.jpg]]
+| [[File:Monumento funebre del cardinale Anchiera presso lal Basilica di Santa Prassede.jpg|100px]]
+| {{it|Monumento al Cardinale Anchiera, opera de' Cosmati. S. Prassede}}
+| {{it|Monumento funebre del cardinale Anchiera presso lal Basilica di Santa Prassede}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 20 |height = 26}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 336
+| https://iconoteca.arc.usi.ch/it/inventario/336
+|-
+| [[:File:Paolo Romano. Monumento funebre del cardinale di Alençon presso la Basilica di Santa Maria in Trastevere.jpg]]
+| [[File:Paolo Romano. Monumento funebre del cardinale di Alençon presso la Basilica di Santa Maria in Trastevere.jpg|100px]]
+| {{it|Roma. Sepolcro del Cardinale di Alençon, Paolo Romano. S. Maria in Trastevere}}
+| {{it|Paolo Romano. Monumento funebre del cardinale di Alençon presso la Basilica di Santa Maria in Trastevere}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 1890
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 27 |height = 20}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 337
+| https://iconoteca.arc.usi.ch/it/inventario/337
+|-
+| [[:File:Monumento funebre ai Fratelli Anguillara presso la Chiesa di San Francesco.jpg]]
+| [[File:Monumento funebre ai Fratelli Anguillara presso la Chiesa di San Francesco.jpg|100px]]
+| 
+| {{it|Monumento funebre ai Fratelli Anguillara presso la Chiesa di San Francesco}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| prima del 1926
+| 
+| 
+| {{Size|unit = cm |width = 27 |height = 20}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 338
+| https://iconoteca.arc.usi.ch/it/inventario/338
+|-
+| [[:File:Paolo Romano. Edicola con altare di San Filippo e Giacomo presso la Basilica di Santa Maria in Trastevere.jpg]]
+| [[File:Paolo Romano. Edicola con altare di San Filippo e Giacomo presso la Basilica di Santa Maria in Trastevere.jpg|100px]]
+| {{it|Roma. Altare di S. Filippo e Giacomo, Paolo Romano. S. Maria in Trastevere}}
+| {{it|Paolo Romano. Edicola con altare di San Filippo e Giacomo presso la Basilica di Santa Maria in Trastevere}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 27 |height = 20}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 339
+| https://iconoteca.arc.usi.ch/it/inventario/339
+|-
+| [[:File:Paolo Romano. Monumento funebre del cardinale Pietro Stefaneschi presso la Basilica di Santa Maria in Trastevere.jpg]]
+| [[File:Paolo Romano. Monumento funebre del cardinale Pietro Stefaneschi presso la Basilica di Santa Maria in Trastevere.jpg|100px]]
+| {{it|Roma. Sepolcro del Cardinale Stefaneschi, Paolo Romano. S. Maria in Trastevere}}
+| {{it|Paolo Romano. Monumento funebre del cardinale Pietro Stefaneschi presso la Basilica di Santa Maria in Trastevere}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 26 |height = 20}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 340
+| https://iconoteca.arc.usi.ch/it/inventario/340
+|-
+| [[:File:Monumento funebre del cardinale Marco da Viterbo presso la Basilica di San Francesco alla Rocca.jpg]]
+| [[File:Monumento funebre del cardinale Marco da Viterbo presso la Basilica di San Francesco alla Rocca.jpg|100px]]
+| {{it|Viterbo. Chiesa di S. Francesco. Mausoleo del Card. Marco}}
+| {{it|Monumento funebre del cardinale Marco da Viterbo presso la Basilica di San Francesco alla Rocca}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| 
+| 
+| {{Size|unit = cm |width = 18 |height = 23}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 341
+| https://iconoteca.arc.usi.ch/it/inventario/341
+|-
+| [[:File:Monumento funebre del cardinale Adam Easton presso la Basilica di Santa Cecilia in Trastevere.jpg]]
+| [[File:Monumento funebre del cardinale Adam Easton presso la Basilica di Santa Cecilia in Trastevere.jpg|100px]]
+| {{it|Monumento Adamo Angelo S. Cecilia. Roma}}
+| {{it|Monumento funebre del cardinale Adam Easton presso la Basilica di Santa Cecilia in Trastevere}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| 
+| 
+| {{Size|unit = cm |width = 20 |height = 25}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 342
+| https://iconoteca.arc.usi.ch/it/inventario/342
+|-
+| [[:File:Monumento funebre del cardinale Adam Easton  presso la Basilica di Santa Cecilia in Trastevere.jpg]]
+| [[File:Monumento funebre del cardinale Adam Easton  presso la Basilica di Santa Cecilia in Trastevere.jpg|100px]]
+| {{it|Roma. Monumento del Cardinale Adam. Chiesa di S. Cecilia}}
+| {{it|Monumento funebre del cardinale Adam Easton  presso la Basilica di Santa Cecilia in Trastevere}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 27 |height = 20}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 343
+| https://iconoteca.arc.usi.ch/it/inventario/343
+|-
+| [[:File:Statua di angelo tra colonne ritorte collocato presso le Grotte vaticane.jpg]]
+| [[File:Statua di angelo tra colonne ritorte collocato presso le Grotte vaticane.jpg|100px]]
+| {{it|Roma. Frammento di una tomba. Grotte Vatic.}}
+| {{it|Statua di angelo tra colonne ritorte collocato presso le Grotte vaticane}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 25 |height = 20}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 344
+| https://iconoteca.arc.usi.ch/it/inventario/344
+|-
+| [[:File:Monumento funebre del cardinale Durante presso la Basilica di Santa Maria sopra Minerva.jpg]]
+| [[File:Monumento funebre del cardinale Durante presso la Basilica di Santa Maria sopra Minerva.jpg|100px]]
+| {{it|Roma. Monumento al Cardinale Durante. S. Maria della Minerva}}
+| {{it|Monumento funebre del cardinale Durante presso la Basilica di Santa Maria sopra Minerva}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| 
+| 
+| {{Size|unit = cm |width = 26 |height = 20}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 345
+| https://iconoteca.arc.usi.ch/it/inventario/345
+|-
+| [[:File:Monumento funebre di papa Callisto III presso le Grotte vaticane.jpg]]
+| [[File:Monumento funebre di papa Callisto III presso le Grotte vaticane.jpg|100px]]
+| {{it|Roma. Papa Callisto III - Borgia. Grotte Vatic.}}
+| {{it|Monumento funebre di papa Callisto III presso le Grotte vaticane}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 1920
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 20 |height = 26}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 346
+| https://iconoteca.arc.usi.ch/it/inventario/346
+|-
+| [[:File:Monumento funebre di papa Callisto III presso le Grotte vaticane (DOI 347).jpg]]
+| [[File:Monumento funebre di papa Callisto III presso le Grotte vaticane (DOI 347).jpg|100px]]
+| {{it|Roma. Grotte Vaticane. Statua funeraria di Aless.o VI°}}
+| {{it|Monumento funebre di papa Callisto III presso le Grotte vaticane}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 1920
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 18 |height = 23}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 347
+| https://iconoteca.arc.usi.ch/it/inventario/347
+|-
+| [[:File:Monumento funebre di papa Niccolò V presso le Grotte vaticane.jpg]]
+| [[File:Monumento funebre di papa Niccolò V presso le Grotte vaticane.jpg|100px]]
+| {{it|Roma. Papa Nicola V. Grotte Vatic.}}
+| {{it|Monumento funebre di papa Niccolò V presso le Grotte vaticane}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 20 |height = 26}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 348
+| https://iconoteca.arc.usi.ch/it/inventario/348
+|-
+| [[:File:Giovanni Dalmata. Monumento funebre del cardinale Eroli presso le Grotte vaticane.jpg]]
+| [[File:Giovanni Dalmata. Monumento funebre del cardinale Eroli presso le Grotte vaticane.jpg|100px]]
+| {{it|Roma. Sepolcro del Cardianle Eroli, Giovanni Dalmata. Grotte Vatic.}}
+| {{it|Giovanni Dalmata. Monumento funebre del cardinale Eroli presso le Grotte vaticane}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 20 |height = 26}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 349
+| https://iconoteca.arc.usi.ch/it/inventario/349
+|-
+| [[:File:Monumento funebre del cardinale Acquasparta presso la Basilica di Santa Maria in Aracoeli.jpg]]
+| [[File:Monumento funebre del cardinale Acquasparta presso la Basilica di Santa Maria in Aracoeli.jpg|100px]]
+| {{it|Roma. Monumento al Cardinale Acquasparta. Aracoeli}}
+| {{it|Monumento funebre del cardinale Acquasparta presso la Basilica di Santa Maria in Aracoeli}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 26 |height = 20}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 350
+| https://iconoteca.arc.usi.ch/it/inventario/350
+|-
+| [[:File:Monumento funebre del cardinale Della Porta presso le Grotte vaticane.jpg]]
+| [[File:Monumento funebre del cardinale Della Porta presso le Grotte vaticane.jpg|100px]]
+| {{it|Roma. Card. Ardicino della Porta (Seniore). Grotte Vatic.}}
+| {{it|Monumento funebre del cardinale Della Porta presso le Grotte vaticane}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 20 |height = 26}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 351
+| https://iconoteca.arc.usi.ch/it/inventario/351
+|-
+| [[:File:Dettaglio del monumento funebre del cardinale De Bray presso la Chiesa di San Domenico.jpg]]
+| [[File:Dettaglio del monumento funebre del cardinale De Bray presso la Chiesa di San Domenico.jpg|100px]]
+| 
+| {{it|Dettaglio del monumento funebre del cardinale De Bray presso la Chiesa di San Domenico}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| 
+| 
+| {{Size|unit = cm |width = 9 |height = 15}}
+| Materiale fotografico
+| 352
+| https://iconoteca.arc.usi.ch/it/inventario/352
+|-
+| [[:File:Andrea Bregno. Dettaglio del monumento funebre del papa Callisto III presso le Grotte vaticane.jpg]]
+| [[File:Andrea Bregno. Dettaglio del monumento funebre del papa Callisto III presso le Grotte vaticane.jpg|100px]]
+| {{it|Roma. S. Agostino, frammento del monumento di Callisto III. A Bregno. Grotte vatic.}}
+| {{it|Andrea Bregno. Dettaglio del monumento funebre del papa Callisto III presso le Grotte vaticane}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 27 |height = 21}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 353
+| https://iconoteca.arc.usi.ch/it/inventario/353
+|-
+| [[:File:Frammento di tomba trecentesca raffigurante un angelo presso le Grotte vaticane.jpg]]
+| [[File:Frammento di tomba trecentesca raffigurante un angelo presso le Grotte vaticane.jpg|100px]]
+| {{it|Roma. Frammento di tomba trecentesca. Grotte vatic.}}
+| {{it|Frammento di tomba trecentesca raffigurante un angelo presso le Grotte vaticane}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 26 |height = 20}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 354
+| https://iconoteca.arc.usi.ch/it/inventario/354
+|-
+| [[:File:Dettaglio del monumento funebre del cardinale Marco da Viterbo presso la Basilica di San Francesco alla Rocca.jpg]]
+| [[File:Dettaglio del monumento funebre del cardinale Marco da Viterbo presso la Basilica di San Francesco alla Rocca.jpg|100px]]
+| {{it|Viterbo. Chiesa di S. Francesco Mausoleo del Card. Marco dett.o a sinistra}}
+| {{it|Dettaglio del monumento funebre del cardinale Marco da Viterbo presso la Basilica di San Francesco alla Rocca}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| 
+| 
+| {{Size|unit = cm |width = 23 |height = 17}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 355
+| https://iconoteca.arc.usi.ch/it/inventario/355
+|-
+| [[:File:Angelo reggifiaccola, parte del monumento sepolcrale di Giovanni Alberini presso Basilica di Santa Maria sopra Minerva.jpg]]
+| [[File:Angelo reggifiaccola, parte del monumento sepolcrale di Giovanni Alberini presso Basilica di Santa Maria sopra Minerva.jpg|100px]]
+| {{it|Roma. Dettaglio del Monumento Alberini. Chiesa della Minerva}}
+| {{it|Angelo reggifiaccola, parte del monumento sepolcrale di Giovanni Alberini presso Basilica di Santa Maria sopra Minerva}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 26 |height = 20}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 356
+| https://iconoteca.arc.usi.ch/it/inventario/356
+|-
+| [[:File:Calco del monumento funebre del cardinale Raymond Pérault presso la Chiesa della Santissima Trinità.jpg]]
+| [[File:Calco del monumento funebre del cardinale Raymond Pérault presso la Chiesa della Santissima Trinità.jpg|100px]]
+| {{it|Viterbo. Palazzo Vanni. Mon.to al Card.le Raimondo Peraudi. Ricomp.ne di Pietro Vanni}}
+| {{it|Calco del monumento funebre del cardinale Raymond Pérault presso la Chiesa della Santissima Trinità}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| 
+| 
+| {{Size|unit = cm |width = 23 |height = 17}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 357
+| https://iconoteca.arc.usi.ch/it/inventario/357
+|-
+| [[:File:Statua di San Giacomo minore presso le Grotte vaticane.jpg]]
+| [[File:Statua di San Giacomo minore presso le Grotte vaticane.jpg|100px]]
+| {{it|Roma. S. Giacomo minore. Frammento del Monumento di Nicola V. Grotte Vatic.}}
+| {{it|Statua di San Giacomo minore presso le Grotte vaticane}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 26 |height = 20}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 358
+| https://iconoteca.arc.usi.ch/it/inventario/358
+|-
+| [[:File:Statua di San Giovanni presso le Grotte vaticane.jpg]]
+| [[File:Statua di San Giovanni presso le Grotte vaticane.jpg|100px]]
+| {{it|Roma. S. Giovanni. Frammento del Monumento di Nicola V. Grotte Vatic.}}
+| {{it|Statua di San Giovanni presso le Grotte vaticane}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 26 |height = 20}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 359
+| https://iconoteca.arc.usi.ch/it/inventario/359
+|-
+| [[:File:Frammento trecentesco di statua presso le Grotte vaticane.jpg]]
+| [[File:Frammento trecentesco di statua presso le Grotte vaticane.jpg|100px]]
+| {{it|Roma. Frammento trecentesco. Grotte Vaticane}}
+| {{it|Frammento trecentesco di statua presso le Grotte vaticane}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 26 |height = 20}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 360
+| https://iconoteca.arc.usi.ch/it/inventario/360
+|-
+| [[:File:Frammento trecentesco di statua presso le Grotte vaticane (DOI 361).jpg]]
+| [[File:Frammento trecentesco di statua presso le Grotte vaticane (DOI 361).jpg|100px]]
+| {{it|Roma. Frammento trecentesco. Grotte Vaticane}}
+| {{it|Frammento trecentesco di statua presso le Grotte vaticane}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 26 |height = 20}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 361
+| https://iconoteca.arc.usi.ch/it/inventario/361
+|-
+| [[:File:Bassorilievo dell'ostensione della testa di Sant'Andrea presso le Grotte vaticane.jpg]]
+| [[File:Bassorilievo dell'ostensione della testa di Sant'Andrea presso le Grotte vaticane.jpg|100px]]
+| {{it|Roma. Paolo Romano, Frammento. Grotte Vatic.}}
+| {{it|Bassorilievo dell'ostensione della testa di Sant'Andrea presso le Grotte vaticane}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 20 |height = 26}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 362
+| https://iconoteca.arc.usi.ch/it/inventario/362
+|-
+| [[:File:Isaia da Pisa. Lunetta con l'ostensione della testa di Sant'Andrea presso le Grotte vaticane.jpg]]
+| [[File:Isaia da Pisa. Lunetta con l'ostensione della testa di Sant'Andrea presso le Grotte vaticane.jpg|100px]]
+| {{it|Roma. Dett. del Tabernacolo di Pio II, Isaia da Pisa. Grotte Vaticane}}
+| {{it|Isaia da Pisa. Lunetta con l'ostensione della testa di Sant'Andrea presso le Grotte vaticane}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 
+| Anderson, Domenico
+| [[Creator:Domenico Anderson]]
+| {{Size|unit = cm |width = 20 |height = 26}}
+| Materiale fotografico. Procedimento alla gelatina ai sali d'argento
+| 363
+| https://iconoteca.arc.usi.ch/it/inventario/363
+|-
+| [[:File:Rovine del Palais  de le Tuilerie.jpg]]
+| [[File:Rovine del Palais  de le Tuilerie.jpg|100px]]
+| 
+| {{it|Rovine del Palais  de le Tuilerie}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 1871
+| Franck
+| [[Creator:Franck]]
+| 
+| Materiale fotografico. Procedimento all'albumina
+| 51600
+| https://iconoteca.arc.usi.ch/it/inventario/51600
+|-
+| [[:File:Rovine del Palais de le Tuilerie.jpg]]
+| [[File:Rovine del Palais de le Tuilerie.jpg|100px]]
+| 
+| {{it|Rovine del Palais de le Tuilerie}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 1871
+| Franck
+| [[Creator:Franck]]
+| 
+| Materiale fotografico. Procedimento all'albumina
+| 51601
+| https://iconoteca.arc.usi.ch/it/inventario/51601
+|-
+| [[:File:Rovine del Castello di Saint Cloud.jpg]]
+| [[File:Rovine del Castello di Saint Cloud.jpg|100px]]
+| 
+| {{it|Rovine del Castello di Saint Cloud}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 1871
+| Franck
+| [[Creator:Franck]]
+| 
+| Materiale fotografico. Procedimento all'albumina
+| 51602
+| https://iconoteca.arc.usi.ch/it/inventario/51602
+|-
+| [[:File:Rovine del palazzo ospitante il Ministère des Finances.jpg]]
+| [[File:Rovine del palazzo ospitante il Ministère des Finances.jpg|100px]]
+| {{it|Ministère des Finances}}
+| {{it|Rovine del palazzo ospitante il Ministère des Finances}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 1871
+| Franck
+| [[Creator:Franck]]
+| {{Size|unit = cm |width = 7 |height = 12}}
+| Materiale fotografico. Procedimento all'albumina
+| 51603
+| https://iconoteca.arc.usi.ch/it/inventario/51603
+|-
+| [[:File:Rovine del Palais Royal.jpg]]
+| [[File:Rovine del Palais Royal.jpg|100px]]
+| 
+| {{it|Rovine del Palais Royal}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 1871
+| Franck
+| [[Creator:Franck]]
+| 
+| Materiale fotografico. Procedimento all'albumina
+| 51604
+| https://iconoteca.arc.usi.ch/it/inventario/51604
+|-
+| [[:File:Rovine del Palais de Justice.jpg]]
+| [[File:Rovine del Palais de Justice.jpg|100px]]
+| 
+| {{it|Rovine del Palais de Justice}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 1871
+| Franck
+| [[Creator:Franck]]
+| 
+| Materiale fotografico. Procedimento all'albumina
+| 51605
+| https://iconoteca.arc.usi.ch/it/inventario/51605
+|-
+| [[:File:Rovine del palazzo della Legion d'honneur.jpg]]
+| [[File:Rovine del palazzo della Legion d'honneur.jpg|100px]]
+| {{it|Ruines de Paris}}
+| {{it|Rovine del palazzo della Legion d'honneur}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 1871
+| Franck
+| [[Creator:Franck]]
+| 
+| Materiale fotografico. Procedimento all'albumina
+| 51606
+| https://iconoteca.arc.usi.ch/it/inventario/51606
+|-
+| [[:File:Rovine dell'Hôtel de Ville.jpg]]
+| [[File:Rovine dell'Hôtel de Ville.jpg|100px]]
+| 
+| {{it|Rovine dell'Hôtel de Ville}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 1871
+| Franck
+| [[Creator:Franck]]
+| 
+| Materiale fotografico
+| 51607
+| https://iconoteca.arc.usi.ch/it/inventario/51607
+|-
+| [[:File:Dettaglio delle rovine di un palazzo in rue du Bac.jpg]]
+| [[File:Dettaglio delle rovine di un palazzo in rue du Bac.jpg|100px]]
+| {{it|Ruines de Paris}}
+| {{it|Dettaglio delle rovine di un palazzo in rue du Bac}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 1871
+| 
+| 
+| 
+| Materiale fotografico. Procedimento all'albumina
+| 51608
+| https://iconoteca.arc.usi.ch/it/inventario/51608
+|-
+| [[:File:Dettaglio delle rovine di un palazzo in rue de Lille.jpg]]
+| [[File:Dettaglio delle rovine di un palazzo in rue de Lille.jpg|100px]]
+| {{it|Ruine de Paris}}
+| {{it|Dettaglio delle rovine di un palazzo in rue de Lille}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| 1871
+| 
+| 
+| 
+| Materiale fotografico. Procedimento all'albumina
+| 51609
+| https://iconoteca.arc.usi.ch/it/inventario/51609
+|-
+| [[:File:Ritratti di nove eletti al Consiglio della Comune di Parigi.jpg]]
+| [[File:Ritratti di nove eletti al Consiglio della Comune di Parigi.jpg|100px]]
+| {{it|Flourens Pyat Rochefort Cluseret Delescluze Ferré Verdure Rigault}}
+| {{it|Ritratti di nove eletti al Consiglio della Comune di Parigi}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| Prima del settembre 1871
+| Loubère, P.
+| 
+| {{Size|unit = cm |width = 9 |height = 12}}
+| Materiale fotografico. Procedimento all'albumina
+| 51610
+| https://iconoteca.arc.usi.ch/it/inventario/51610
+|-
+| [[:File:Rovine della facciata dell'Hôtel de Ville dopo l'incendio del maggio 1871.jpg]]
+| [[File:Rovine della facciata dell'Hôtel de Ville dopo l'incendio del maggio 1871.jpg|100px]]
+| {{it|Hôtel de Ville}}
+| {{it|Rovine della facciata dell'Hôtel de Ville dopo l'incendio del maggio 1871}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| Maggio 1871
+| Loubère, P.
+| 
+| {{Size|unit = cm |width = 9 |height = 13}}
+| Materiale fotografico. Procedimento all'albumina
+| 51611
+| https://iconoteca.arc.usi.ch/it/inventario/51611
+|-
+| [[:File:Rovine della facciata dell'Hôtel de Ville e Pont d'Arcole, visti dal Quai de la Corse, dopo l'incendio del maggio 1871.jpg]]
+| [[File:Rovine della facciata dell'Hôtel de Ville e Pont d'Arcole, visti dal Quai de la Corse, dopo l'incendio del maggio 1871.jpg|100px]]
+| {{it|Hôtel de Ville, P.L.}}
+| {{it|Rovine della facciata dell'Hôtel de Ville e Pont d'Arcole, visti dal Quai de la Corse, dopo l'incendio del maggio 1871}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| Maggio 1871
+| Loubère, P.
+| 
+| {{Size|unit = cm |width = 9 |height = 13}}
+| Materiale fotografico. Procedimento all'albumina
+| 51612
+| https://iconoteca.arc.usi.ch/it/inventario/51612
+|-
+| [[:File:Rovine del Padiglione dell'orologio delle Tuilleries dopo l'incendio del maggio 1871.jpg]]
+| [[File:Rovine del Padiglione dell'orologio delle Tuilleries dopo l'incendio del maggio 1871.jpg|100px]]
+| {{it|Tuileries, Pavillon de l'horloge. P.L.}}
+| {{it|Rovine del Padiglione dell'orologio delle Tuilleries dopo l'incendio del maggio 1871}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| Maggio 1871
+| Loubère, P.
+| 
+| {{Size|unit = cm |width = 9 |height = 13}}
+| Materiale fotografico. Procedimento all'albumina
+| 51613
+| https://iconoteca.arc.usi.ch/it/inventario/51613
+|-
+| [[:File:Rovine della facciata del Palais de Justice rivolto al cortile di maggio e Santa Cappella, dopo l'incendio del maggio 1871.jpg]]
+| [[File:Rovine della facciata del Palais de Justice rivolto al cortile di maggio e Santa Cappella, dopo l'incendio del maggio 1871.jpg|100px]]
+| {{it|Palais de Justice, P.L.}}
+| {{it|Rovine della facciata del Palais de Justice rivolto al cortile di maggio e Santa Cappella, dopo l'incendio del maggio 1871}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| Maggio 1871
+| Loubère, P.
+| 
+| {{Size|unit = cm |width = 9 |height = 13}}
+| Materiale fotografico. Procedimento all'albumina
+| 51614
+| https://iconoteca.arc.usi.ch/it/inventario/51614
+|-
+| [[:File:Rovine del Ministero delle Finanze dopo l'incendio del maggio 1871.jpg]]
+| [[File:Rovine del Ministero delle Finanze dopo l'incendio del maggio 1871.jpg|100px]]
+| {{it|Ministère des Finances}}
+| {{it|Rovine del Ministero delle Finanze dopo l'incendio del maggio 1871}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| Maggio 1871
+| Loubère, P.
+| 
+| {{Size|unit = cm |width = 9 |height = 13}}
+| Materiale fotografico. Procedimento all'albumina
+| 51615
+| https://iconoteca.arc.usi.ch/it/inventario/51615
+|-
+| [[:File:Resti della Colonna Vendôme, abbattuta il 16 maggio 1871 dai comunardi.jpg]]
+| [[File:Resti della Colonna Vendôme, abbattuta il 16 maggio 1871 dai comunardi.jpg|100px]]
+| 
+| {{it|Resti della Colonna Vendôme, abbattuta il 16 maggio 1871 dai comunardi}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| Maggio 1871
+| Loubère, P.
+| 
+| {{Size|unit = cm |width = 9 |height = 13}}
+| Materiale fotografico. Procedimento all'albumina
+| 51616
+| https://iconoteca.arc.usi.ch/it/inventario/51616
+|-
+| [[:File:Rovine del Palazzo Reale dopo l'incendio del maggio 1871.jpg]]
+| [[File:Rovine del Palazzo Reale dopo l'incendio del maggio 1871.jpg|100px]]
+| {{it|Palais Royal}}
+| {{it|Rovine del Palazzo Reale dopo l'incendio del maggio 1871}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| Maggio 1871
+| Loubère, P.
+| 
+| {{Size|unit = cm |width = 9 |height = 13}}
+| Materiale fotografico. Procedimento all'albumina
+| 51617
+| https://iconoteca.arc.usi.ch/it/inventario/51617
+|-
+| [[:File:Rovine del Palazzo della Legione d'Onore dopo l'incendio del maggio 1871.jpg]]
+| [[File:Rovine del Palazzo della Legione d'Onore dopo l'incendio del maggio 1871.jpg|100px]]
+| {{it|Légion d'Honneur}}
+| {{it|Rovine del Palazzo della Legione d'Onore dopo l'incendio del maggio 1871}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| Maggio 1871
+| Loubère, P.
+| 
+| {{Size|unit = cm |width = 9 |height = 13}}
+| Materiale fotografico. Procedimento all'albumina
+| 51618
+| https://iconoteca.arc.usi.ch/it/inventario/51618
+|-
+| [[:File:Rovine di un palazzo sul lungosenna, dopo l'incendio del maggio 1871.jpg]]
+| [[File:Rovine di un palazzo sul lungosenna, dopo l'incendio del maggio 1871.jpg|100px]]
+| 
+| {{it|Rovine di un palazzo sul lungosenna, dopo l'incendio del maggio 1871}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| Maggio 1871
+| Loubère, P.
+| 
+| {{Size|unit = cm |width = 9 |height = 13}}
+| Materiale fotografico. Procedimento all'albumina
+| 51619
+| https://iconoteca.arc.usi.ch/it/inventario/51619
+|-
+| [[:File:Rovine dell'Arsenale dopo l'incendio del maggio 1871.jpg]]
+| [[File:Rovine dell'Arsenale dopo l'incendio del maggio 1871.jpg|100px]]
+| {{it|Arsenal}}
+| {{it|Rovine dell'Arsenale dopo l'incendio del maggio 1871}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| Maggio 1871
+| Loubère, P.
+| 
+| {{Size|unit = cm |width = 9 |height = 13}}
+| Materiale fotografico. Procedimento all'albumina
+| 51620
+| https://iconoteca.arc.usi.ch/it/inventario/51620
+|-
+| [[:File:Rovine lungo la rue de Lille dopo l'incendio del maggio 1871.jpg]]
+| [[File:Rovine lungo la rue de Lille dopo l'incendio del maggio 1871.jpg|100px]]
+| {{it|Rue de Lille, P.L.}}
+| {{it|Rovine lungo la rue de Lille dopo l'incendio del maggio 1871}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| Maggio 1871
+| Loubère, P.
+| 
+| {{Size|unit = cm |width = 9 |height = 13}}
+| Materiale fotografico. Procedimento all'albumina
+| 51621
+| https://iconoteca.arc.usi.ch/it/inventario/51621
+|-
+| [[:File:Rovine del Granaio di riserva dopo l'incendio del maggio 1871.jpg]]
+| [[File:Rovine del Granaio di riserva dopo l'incendio del maggio 1871.jpg|100px]]
+| {{it|Grenier d'Abondance}}
+| {{it|Rovine del Granaio di riserva dopo l'incendio del maggio 1871}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| Maggio 1871
+| Loubère, P.
+| 
+| {{Size|unit = cm |width = 9 |height = 13}}
+| Materiale fotografico
+| 51622
+| https://iconoteca.arc.usi.ch/it/inventario/51622
+|-
+| [[:File:Rovine degli edifici affacciati su Place de la Bastille dopo l'incendio del maggio 1871.jpg]]
+| [[File:Rovine degli edifici affacciati su Place de la Bastille dopo l'incendio del maggio 1871.jpg|100px]]
+| {{it|Place de la Bastille}}
+| {{it|Rovine degli edifici affacciati su Place de la Bastille dopo l'incendio del maggio 1871}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| Maggio 1871
+| Loubère, P.
+| 
+| {{Size|unit = cm |width = 9 |height = 13}}
+| Materiale fotografico. Procedimento all'albumina
+| 51623
+| https://iconoteca.arc.usi.ch/it/inventario/51623
+|-
+| [[:File:Colonna di Luglio vista dalla Senna.jpg]]
+| [[File:Colonna di Luglio vista dalla Senna.jpg|100px]]
+| {{it|Colonne de Juillet}}
+| {{it|Colonna di Luglio vista dalla Senna}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| Maggio 1871
+| Loubère, P.
+| 
+| {{Size|unit = cm |width = 9 |height = 13}}
+| Materiale fotografico. Procedimento all'albumina
+| 51624
+| https://iconoteca.arc.usi.ch/it/inventario/51624
+|-
+| [[:File:Resti del Teatro della Porte de Saint-Martin dopo l'incendio del maggio 1871.jpg]]
+| [[File:Resti del Teatro della Porte de Saint-Martin dopo l'incendio del maggio 1871.jpg|100px]]
+| {{it|Théâtre de la Porte St. Martin}}
+| {{it|Resti del Teatro della Porte de Saint-Martin dopo l'incendio del maggio 1871}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| Maggio 1871
+| Loubère, P.
+| 
+| {{Size|unit = cm |width = 9 |height = 13}}
+| Materiale fotografico. Procedimento all'albumina
+| 51625
+| https://iconoteca.arc.usi.ch/it/inventario/51625
+|-
+| [[:File:Banchine della Villette dopo l'incendio del maggio 1871.jpg]]
+| [[File:Banchine della Villette dopo l'incendio del maggio 1871.jpg|100px]]
+| {{it|Docks de la Villette, P. L.}}
+| {{it|Banchine della Villette dopo l'incendio del maggio 1871}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| Maggio 1871
+| Loubère, P.
+| 
+| {{Size|unit = cm |width = 9 |height = 13}}
+| Materiale fotografico. Procedimento all'albumina
+| 51626
+| https://iconoteca.arc.usi.ch/it/inventario/51626
+|-
+| [[:File:Rovine della piazza di Saint Cloud dopo l'incendio del maggio 1871.jpg]]
+| [[File:Rovine della piazza di Saint Cloud dopo l'incendio del maggio 1871.jpg|100px]]
+| {{it|St. Cloud, P. L.}}
+| {{it|Rovine della piazza di Saint Cloud dopo l'incendio del maggio 1871}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| Maggio 1871
+| Loubère, P.
+| 
+| {{Size|unit = cm |width = 9 |height = 13}}
+| Materiale fotografico. Procedimento all'albumina
+| 51627
+| https://iconoteca.arc.usi.ch/it/inventario/51627
+|-
+| [[:File:Rovine di Saint Cloud dopo l'incendio del maggio 1871.jpg]]
+| [[File:Rovine di Saint Cloud dopo l'incendio del maggio 1871.jpg|100px]]
+| {{it|Porte di St. Cloud, P. L.}}
+| {{it|Rovine di Saint Cloud dopo l'incendio del maggio 1871}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| Maggio 1871
+| Loubère, P.
+| 
+| {{Size|unit = cm |width = 9 |height = 13}}
+| Materiale fotografico. Procedimento all'albumina
+| 51628
+| https://iconoteca.arc.usi.ch/it/inventario/51628
+|-
+| [[:File:Rovine del Fort d'Issy dopo l'incendio del maggio 1871.jpg]]
+| [[File:Rovine del Fort d'Issy dopo l'incendio del maggio 1871.jpg|100px]]
+| {{it|Fort d'Issy}}
+| {{it|Rovine del Fort d'Issy dopo l'incendio del maggio 1871}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| Maggio 1871
+| Loubère, P.
+| 
+| {{Size|unit = cm |width = 9 |height = 13}}
+| Materiale fotografico. Procedimento all'albumina
+| 51629
+| https://iconoteca.arc.usi.ch/it/inventario/51629
+|-
+| [[:File:Rovine dell'Arret d'Auteuil dopo l'incendio del maggio 1871.jpg]]
+| [[File:Rovine dell'Arret d'Auteuil dopo l'incendio del maggio 1871.jpg|100px]]
+| {{it|Arret d'Auteuil, P. L.}}
+| {{it|Rovine dell'Arret d'Auteuil dopo l'incendio del maggio 1871}}
+| https://creativecommons.org/licenses/by-sa/4.0/deed.it
+| Maggio 1871
+| Loubère, P.
+| 
+| {{Size|unit = cm |width = 9 |height = 13}}
+| Materiale fotografico. Procedimento all'albumina
+| 51630
+| https://iconoteca.arc.usi.ch/it/inventario/51630
+|}

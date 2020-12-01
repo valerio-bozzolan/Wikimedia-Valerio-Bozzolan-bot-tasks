@@ -8,6 +8,10 @@ For more information about the consensus:
 
 https://it.wikipedia.org/wiki/Wikipedia:Raduni/Biblioteca_dell%27Accademia_di_Mendrisio_4_ottobre_2020
 
+Example:
+
+https://commons.wikimedia.org/w/index.php?title=File:Arnolfo_di_Cambio._Busto_di_Bonifacio_VIII_presso_le_Grotte_vaticane.jpg&action=submit
+
 ## Installation
 
 From this directory:

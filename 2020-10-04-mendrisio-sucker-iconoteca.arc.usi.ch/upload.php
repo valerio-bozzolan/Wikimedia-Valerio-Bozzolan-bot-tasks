@@ -24,24 +24,147 @@ require 'bootstrap.php';
 // load configuration file or create one
 cli\ConfigWizard::requireOrCreate( __DIR__ . '/../config.php' );
 
+// https://commons.wikimedia.org/wiki/Commons:Bots/Requests/Valerio_Bozzolan_bot_(6)
+$COMMONS_CONSENSUS_PAGE = "[[Commons:Bots/Requests/Valerio Bozzolan bot (6)|authorized import from Academy of architecture Library of Mendrisio]]";
+
 // load Wikimedia Commons
 $commons = \wm\Commons::instance();
+
+use \cli\Log;
+use \cli\Input;
+use \cli\Opts;
+use \cli\ParamFlag;
+use \cli\ParamFlagLong;
+
+// register all CLI parameters
+$opts = new Opts( [
+	new ParamFlagLong( 'porcelain',     "Do nothing" ),
+	new ParamFlag(     'help',    'h',  "Show this help and quit" ),
+] );
+
+// arguments
+$unnamed_opts = Opts::unnamedArguments();
+$dir      = $unnamed_opts[0] ?? null;
+$template = $unnamed_opts[1] ?? null;
+
+// porcelain mode means that nothing have to be saved
+$PORCELAIN = $opts->getArg( 'porcelain' );
+
+// show the help
+$show_help = $opts->getArg( 'help' );
+
+// no dir no party
+if( !$dir || !$template ) {
+	$show_help = true;
+}
+
+// show an help message
+if( $show_help ) {
+	echo "Usage:\n {$argv[ 0 ]} [OPTIONS] path/data/ path/template/name.tpl\n\n";
+	echo "Allowed OPTIONS:\n";
+
+	$opts->printParams();
+
+	exit(
+		$opts->getArg( 'help' )
+		? 0
+		: 1
+	);
+}
+
+// missing creators in Wikimedia Commons
+$MISSING_COMMONS_CREATOR = [];
+
+$file_pattern = $dir . '/' . '*.jpg';
+
+// doi_by_name
+$doi_by_name = [];
+
+// array of duplicate DOIs
+$duplicate_dois = [];
+
+// scan the directory - this is written as-is to do not disturb GNU nano with slash and star. asd
+foreach( glob( $file_pattern ) as $file ) {
+
+	// no data no party
+	$file_data = @file_get_contents( "$file.json" );
+	$file_data = json_decode( $file_data );
+	if( !$file_data ) {
+		echo "skip $file missing data\n";
+		continue;
+	}
+
+	// check available metadata
+	$img_id      = $file_data->{"ID immagine"};
+
+	$title       = $file_data->{"Titolo opera"};
+
+	// DOI by name
+	if( empty( $doi_by_name[ $title ] ) ) {
+		$doi_by_name[ $title ] = [];
+	} else {
+		$duplicate_dois[] = $img_id;
+	}
+
+	$doi_by_name[ $title ][] = $img_id;
+}
+
+// find duplicates
+$duplicates = false;
+foreach( $doi_by_name as $title => $dois ) {
+
+	// a title should be unique by DOI
+	if( count( $dois ) > 1 ) {
+		Log::warn( sprintf(
+			"found duplicate title '%s' DOIs %s",
+			$title,
+			implode( ', ', $dois )
+		) );
+
+		$duplicates = true;
+	}
+}
+
+// if duplicates, no party
+if( $duplicates ) {
+	//exit( 2 );
+}
 
 // login in Commons
 $commons->login();
 
-// input directory
-$dir      = $argv[1] ?? null;
-$template = $argv[2] ?? null;
+// columns to be displayed in the report
+$REPORT_COLUMNS = [
+	'FILE_WLINK',
+	'FILE_THUMB',
+	'TITLE',
+	'DESCRIPTION',
+	'LICENSE',
+	'DATE',
+	'AUTHOR',
+	'CREATOR_COMMONS_LINK',
+	'SIZE_TEMPLATE',
+	'MEDIUM',
+	'DOI_ID',
+	'SOURCE',
+];
 
-// no dir no party
-if( !$dir || !$template ) {
-	printf( "Usage:\n %s DIRECTORY TEMPLATE\n", $argv[0] );
-	exit( 1 );
+// write report
+$write_report_csv  = fopen( 'write-report.csv',  'w' );
+$write_report_wiki = fopen( 'write-report.wiki', 'w' );
+
+// columns to be displayed in the log
+$log_args = [];
+foreach( $REPORT_COLUMNS as $k => $v ) {
+	$log_args[] = $v;
 }
 
-// scan the directory
-foreach( glob( "$dir/*.jpg" ) as $file ) {
+// write reports
+fputcsv( $write_report_csv, $log_args );
+fwrite(  $write_report_wiki, "{| class=\"wikitable\"\n|-\n! " . implode( "\n! ", $log_args ) . "\n" );
+
+// scan the directory - this is written as-is to do not disturb GNU nano with slash and star. asd
+foreach( glob( $file_pattern ) as $file ) {
 
 	// no data no party
 	$file_data = @file_get_contents( "$file.json" );
@@ -54,15 +177,28 @@ foreach( glob( "$dir/*.jpg" ) as $file ) {
 	// check available metadata
 	$img_id      = $file_data->{"ID immagine"};
 	$title       = $file_data->{"Titolo opera"};
-	$title_orig  = $file_data->{"Titolo originale"} ?? null;
-	$collection  = $file_data->{"Collezione"} ?? null;
-	$license     = $file_data->Licenza ?? null;
+	$title_orig  = $file_data->{"Titolo originale"}     ?? null;
+	$collection  = $file_data->{"Collezione"}           ?? null;
+	$license     = $file_data->{"Licenza"}              ?? null;
 	$type        = $file_data->{"Tipologia di risorsa"} ?? "Fotografia";
-	$size        = $file_data->{"Dimensioni"} ?? '';
-	$material    = $file_data->{"Materiale del supporto"} ?? '';
-	$author_name = $file_data->{"Nome creatore"} ?? '';
-	$author      = $file_data->{"Creatore"} ?? $author_name ?? "ignoto";
-	$date        = $file_data->{"Data"} ?? $file_data->{"Data creazione"} ?? null;
+	$size        = $file_data->{"Dimensioni"}           ?? '';
+	$material    = $file_data->{"Tipo materiale"}       ?? null;
+	$author_name = $file_data->{"Nome creatore"}        ?? null;
+	$author      = $file_data->{"Creatore"}             ?? $author_name;
+	$date        = $file_data->{"Data"}                 ?? $file_data->{"Data creazione"} ?? null;
+	$process     = $file_data->{"Processo e tecnica"}   ?? null;
+
+	// build the |medium= parameter
+	// example: "Carta. Fatto cor culo."
+	$medium_parts = [];
+	if( $material ) {
+		$medium_parts[] = $material;
+	}
+	if( $process ) {
+		$medium_parts[] = $process;
+	}
+	$medium = implode( '. ', $medium_parts );
+
 
 	// check license
 	$license_templates = '';
@@ -78,62 +214,176 @@ foreach( glob( "$dir/*.jpg" ) as $file ) {
 		$source_url = sprintf( INVENTORY_URL_FORMAT, $img_id );
 	}
 
-	// build a smart description
-	$description = [];
-//	if( $type ) {
-//		if( $material ) {
-//			$description[] = "$type ($material)";
-//		} else {
-//			$description[] = $type;
-//		}
-//	}
-	$description[] = $title ?? $title_orig;
-	$description = implode( '. ', $description );
-	$description = "{{it|$description}}";
-
-	// build the page content
-	$page_content = template_content( $template, [
-		'DESCRIPTION'       => $description,
-		'LICENSE_TEMPLATES' => $license_templates,
-		'DATE'              => $date,
-		'AUTHOR'            => $author,
-		'METADATA'          => $file_data,
-		'SOURCE'            => $source_url,
-	] );
-
-	// print a message
-	$filename = "$title.jpg";
-	printf(
-		"try to upload https://commons.wikimedia.org/wiki/File:%s (%s)\n",
-		rawurlencode( $filename ),
-		$img_id
-	);
-
-	// upload this damn image
-	try {
-
-		$response = $commons->upload( [
-			'comment'  => "Bot: import related to [[w:it:Wikipedia:Raduni/Biblioteca dell'Accademia di Mendrisio 4 ottobre 2020]]",
-			'text'     => $page_content,
-			'filename' => "$title.jpg",
-			\network\ContentDisposition::createFromNameURLType( 'file', $file, 'image/jpg' ),
-		] );
-
-		if( $response->upload->result === 'Success' ) {
-			echo "Done.";
-		} else {
-			// what the fuuck?
-			print_r( $response );
-		}
-
-	} catch( Exception $e ) {
-		printf( "%s: %s", get_class( $e ), $e->getMessage() );
-		file_put_contents( 'log.out.err', $e->getMessage(), FILE_APPEND );
+	// drop nonsense authors
+	if( $author === 'Autore non identificato' ) {
+		$author = null;
+	}
+	if( $author === 'ignoto' ) {
+		$author = null;
 	}
 
-	// put in the log this shit
-	file_put_contents( 'log.out', "$img_id;$filename\n", FILE_APPEND );
+	// creator on Wikimedia Commons
+	$creator_commons = null;
+	$creator_commons_template = null;
+	$creator_commons_link = null;
+	if( $author ) {
+		$creator_commons = search_creator_on_commons( $author );
 
-	// wait to do not use the bot flag
-	sleep( 60 );
+		if( $creator_commons ) {
+			$creator_commons_template = '{{' . $creator_commons . '}}';
+			$creator_commons_link = "[[$creator_commons]]";
+		} else {
+			$author_possible_variant = first_name_variant( $author );
+
+			$creator_commons_template = $author_possible_variant;
+
+			$MISSING_COMMONS_CREATOR[ $author_possible_variant ] = $MISSING_COMMONS_CREATOR[ $author_possible_variant ] ?? 0;
+			$MISSING_COMMONS_CREATOR[ $author_possible_variant ]++;
+
+			Log::warn( "missing Wikimedia Commons [[Creator:$author_possible_variant]]" );
+		}
+	}
+
+	// parse the image size
+	$size_template = parse_size( $size );
+
+	// check if the filename exists
+	$filename = "$title.jpg";
+	$filename_complete = "File:$filename";
+	$filename_complete_unique = "File:$title (DOI $img_id).jpg";
+
+	// if this is a duplicate, make the title unique
+	if( in_array( $img_id, $duplicate_dois ) ) {
+		$filename_complete = $filename_complete_unique;
+	}
+
+	// template arguments
+	$template_args = [
+		'FILE_THUMB'        => "[[$filename_complete|100px]]",
+		'FILE_WLINK'        => "[[:$filename_complete]]",
+		'TITLE'             => $title_orig  ? "{{it|$title_orig}}"  : '',
+		'DESCRIPTION'       => $title       ? "{{it|$title}}"       : '',
+		'LICENSE'           => $license,
+		'LICENSE_TEMPLATES' => $license_templates,
+		'DATE'              => $date,
+		'METADATA'          => $file_data,
+		'DOI_ID'            => $img_id,
+		'SOURCE'            => $source_url,
+		'AUTHOR'            => $author,
+		'CREATOR_COMMONS'   => $creator_commons_template,
+		'CREATOR_COMMONS_LINK' => $creator_commons_link,
+		'SIZE_TEMPLATE'     => $size_template,
+		'MEDIUM'            => $medium,
+	];
+
+	// build the page content
+	$page_content = template_content( $template, $template_args );
+
+	// columns to be displayed in the log
+	$log_args = [];
+	foreach( $REPORT_COLUMNS as $column ) {
+		$log_args[] = $template_args[ $column ];
+	}
+
+	// write reports
+	fputcsv( $write_report_csv, $log_args );
+	fwrite(  $write_report_wiki, "|-\n| " . implode( "\n| ", $log_args ) . "\n" );
+
+	// check if the Commons page exists
+	    $commons_page_id = wiki_page_id( $commons, $filename_complete );
+	if( $commons_page_id ) {
+
+		// page exists
+		Log::info( sprintf(
+			"updating https://commons.wikimedia.org/wiki/%s",
+			rawurlencode( $filename_complete )
+		) );
+
+		// eventually skip saving
+		if( !$PORCELAIN ) {
+
+			Log::info( sprintf( "Saving..." ) );
+
+			// save
+			// https://www.mediawiki.org/w/api.php?action=help&modules=parse
+			$result = $commons->edit( [
+				'title'         => $filename_complete,
+				'text'          => $page_content,
+				'summary'       => "Bot: $COMMONS_CONSENSUS_PAGE",
+				'minor'         => true,
+				'bot'           => true,
+			] );
+
+			// eventually wait some time if something was changed
+			if( isset( $result->edit->nochange ) ) {
+				Log::info( "no change" );
+			} else {
+				Log::info( "saved" );
+				sleep( 5 );
+			}
+		}
+
+	} else {
+
+		// print a message
+		Log::info( sprintf(
+			"try to upload https://commons.wikimedia.org/wiki/%s (DOI %s)",
+			rawurlencode( $filename_complete ),
+			$img_id
+		) );
+
+		// upload this damn image
+		try {
+
+			if( !$PORCELAIN ) {
+
+				$response = $commons->upload( [
+					'comment'  => "Bot: $COMMONS_CONSENSUS_PAGE",
+					'text'     => $page_content,
+					'filename' => "$title.jpg",
+					\network\ContentDisposition::createFromNameURLType( 'file', $file, 'image/jpg' ),
+				] );
+
+				if( $response->upload->result === 'Success' ) {
+					var_dump( $response );
+					echo "Done.\n";
+				} else {
+					// what the fuuck?
+					print_r( $response );
+				}
+
+				// put in the log this shit
+				file_put_contents( 'log.out', "$img_id;$filename\n", FILE_APPEND );
+
+				// wait to do not use the bot flag
+				sleep( 5 );
+
+			}
+
+		} catch( Exception $e ) {
+			printf( "%s: %s", get_class( $e ), $e->getMessage() );
+			file_put_contents( 'log.out.err', $e->getMessage(), FILE_APPEND );
+		}
+	}
+
+	/*
+	// structured data ID
+	$commons_structured_id = "M{$commons_page_id}";
+
+	// now the page exists - fetch the Entity ID
+	$commons_structured = $commons->fetchSingleEntity( $commons_structured_id );
+
+	//
+	$commons_structured->hasClaimsInProperty();
+	*/
 }
+
+// show missing Commons creator
+if( $MISSING_COMMONS_CREATOR ) {
+	print_r( $MISSING_COMMONS_CREATOR );
+}
+
+fwrite(  $write_report_wiki, "|}\n" );
+
+fclose( $write_report_csv );
+fclose( $write_report_wiki );
