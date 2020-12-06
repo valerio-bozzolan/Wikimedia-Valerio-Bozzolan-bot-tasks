@@ -19,8 +19,8 @@
 // this is not used, same as description
 ?>
 =={{int:filedesc}}==
-{{Artwork
-|author = <?= $CREATOR_COMMONS ?>
+{{Art photo
+|photographer = <?= $CREATOR_COMMONS ?>
 
 |title = <?= $TITLE ?>
 
@@ -30,12 +30,16 @@
 
 |source = <?= $SOURCE ?>
 
-|medium = <?= $MEDIUM ?>
+|medium = <?= $MEDIUM_TEMPLATE ?>
 
 |dimensions = <?= $SIZE_TEMPLATE ?>
 
+|accession number = <?= $DOI_ID ?>
+
+|place of creation = <?= $PLACE_CREATION ?>
+
 |institution = {{Institution:Iconoteca dell'Accademia di architettura di Mendrisio}}
-|department = Collezione Biblioteca
+|department = [https://iconoteca.arc.usi.ch/it/collezione/193 Collezione Biblioteca]
 |inscriptions = <?php
 	if( !empty( $METADATA->{ 'Iscrizione' } ) ) {
 		// sometime they put "asasdd" in quotes, so strip them

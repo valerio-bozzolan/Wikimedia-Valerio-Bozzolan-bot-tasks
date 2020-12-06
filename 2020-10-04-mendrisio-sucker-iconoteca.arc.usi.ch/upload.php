@@ -33,13 +33,18 @@ $commons = \wm\Commons::instance();
 use \cli\Log;
 use \cli\Input;
 use \cli\Opts;
+use \cli\ParamValuedLong;
 use \cli\ParamFlag;
 use \cli\ParamFlagLong;
 
 // register all CLI parameters
 $opts = new Opts( [
-	new ParamFlagLong( 'porcelain',     "Do nothing" ),
-	new ParamFlag(     'help',    'h',  "Show this help and quit" ),
+	new ParamFlagLong(   'porcelain',     "Do nothing" ),
+	new ParamFlagLong(   'preview',       "Show a preview of the saved wikitext" ),
+	new ParamFlagLong(   'force-upload',  "Force a re-upload even if the page exists" ),
+	new ParamValuedLong( 'start-from',    "Start from a specific row (default to 1)" ),
+	new ParamValuedLong( 'limit',         "Process only this number of results" ),
+	new ParamFlag(       'help',    'h',  "Show this help and quit" ),
 ] );
 
 // arguments
@@ -49,6 +54,18 @@ $template = $unnamed_opts[1] ?? null;
 
 // porcelain mode means that nothing have to be saved
 $PORCELAIN = $opts->getArg( 'porcelain' );
+
+// get a preview of the current wikitext
+$PREVIEW = $opts->getArg( 'preview' );
+
+// check if you have to force the upload
+$FORCE_UPLOAD = $opts->getArg( 'force-upload' );
+
+// start from this row
+$START_FROM = $opts->getArg( 'start-from' );
+
+// limit to this number of results
+$LIMIT = $opts->getArg( 'limit' );
 
 // show the help
 $show_help = $opts->getArg( 'help' );
@@ -83,6 +100,9 @@ $doi_by_name = [];
 // array of duplicate DOIs
 $duplicate_dois = [];
 
+// duplicate SHA1 of filenames
+$duplicate_sha1 = [];
+
 // scan the directory - this is written as-is to do not disturb GNU nano with slash and star. asd
 foreach( glob( $file_pattern ) as $file ) {
 
@@ -96,8 +116,8 @@ foreach( glob( $file_pattern ) as $file ) {
 
 	// check available metadata
 	$img_id      = $file_data->{"ID immagine"};
-
 	$title       = $file_data->{"Titolo opera"};
+
 
 	// DOI by name
 	if( empty( $doi_by_name[ $title ] ) ) {
@@ -105,8 +125,15 @@ foreach( glob( $file_pattern ) as $file ) {
 	} else {
 		$duplicate_dois[] = $img_id;
 	}
+	$doi_by_name[ $title ]  [] = $img_id;
 
-	$doi_by_name[ $title ][] = $img_id;
+
+	// title by SHA1
+	$sha1 = sha1_file( $file );
+	if( empty( $duplicate_sha1[ $sha1 ] ) ) {
+		$duplicate_sha1[ $sha1 ] = [];
+	}
+	$duplicate_sha1[ $sha1 ][] = "$title - DOI $img_id";
 }
 
 // find duplicates
@@ -125,9 +152,17 @@ foreach( $doi_by_name as $title => $dois ) {
 	}
 }
 
-// if duplicates, no party
-if( $duplicates ) {
-	//exit( 2 );
+foreach( $duplicate_sha1 as $sha1 => $titles ) {
+
+	if( count( $titles ) > 1 ) {
+
+		Log::warn( sprintf(
+			"found duplicate file '%s'",
+			implode( ', ', $titles )
+		) );
+
+		$duplicates = true;
+	}
 }
 
 // login in Commons
@@ -135,6 +170,7 @@ $commons->login();
 
 // columns to be displayed in the report
 $REPORT_COLUMNS = [
+	'N',
 	'FILE_WLINK',
 	'FILE_THUMB',
 	'TITLE',
@@ -145,6 +181,8 @@ $REPORT_COLUMNS = [
 	'CREATOR_COMMONS_LINK',
 	'SIZE_TEMPLATE',
 	'MEDIUM',
+	'MEDIUM_TEMPLATE',
+	'PLACE_CREATION',
 	'DOI_ID',
 	'SOURCE',
 ];
@@ -163,6 +201,9 @@ foreach( $REPORT_COLUMNS as $k => $v ) {
 fputcsv( $write_report_csv, $log_args );
 fwrite(  $write_report_wiki, "{| class=\"wikitable\"\n|-\n! " . implode( "\n! ", $log_args ) . "\n" );
 
+$row = 0;
+$processeds = 0;
+
 // scan the directory - this is written as-is to do not disturb GNU nano with slash and star. asd
 foreach( glob( $file_pattern ) as $file ) {
 
@@ -172,6 +213,28 @@ foreach( glob( $file_pattern ) as $file ) {
 	if( !$file_data ) {
 		echo "skip $file missing data\n";
 		continue;
+	}
+
+	$row++;
+
+	// start from this element
+	if( $START_FROM ) {
+		if( $row < $START_FROM ) {
+			// skip
+			continue;
+		} else {
+			// continue normally
+			$START_FROM = null;
+		}
+	}
+
+	// number of processed images
+	$processeds++;
+
+	// apply limit
+	if( $LIMIT && $processeds > $LIMIT ) {
+		Log::info( "reached limit of $LIMIT" );
+		exit( 0 );
 	}
 
 	// check available metadata
@@ -187,6 +250,7 @@ foreach( glob( $file_pattern ) as $file ) {
 	$author      = $file_data->{"Creatore"}             ?? $author_name;
 	$date        = $file_data->{"Data"}                 ?? $file_data->{"Data creazione"} ?? null;
 	$process     = $file_data->{"Processo e tecnica"}   ?? null;
+	$place       = $file_data->{"Luogo creazione"}      ?? null;
 
 	// build the |medium= parameter
 	// example: "Carta. Fatto cor culo."
@@ -199,6 +263,8 @@ foreach( glob( $file_pattern ) as $file ) {
 	}
 	$medium = implode( '. ', $medium_parts );
 
+	// obtain a {{Technique}} template parsing keywords from $medium
+	$medium_template = italian_technique_2_commons_template( $process );
 
 	// check license
 	$license_templates = '';
@@ -250,22 +316,25 @@ foreach( glob( $file_pattern ) as $file ) {
 	// check if the filename exists
 	$filename = "$title.jpg";
 	$filename_complete = "File:$filename";
-	$filename_complete_unique = "File:$title (DOI $img_id).jpg";
+	$filename_unique          = "$title (DOI $img_id).jpg";
+	$filename_unique_complete = "File:$filename_unique";
 
 	// if this is a duplicate, make the title unique
 	if( in_array( $img_id, $duplicate_dois ) ) {
-		$filename_complete = $filename_complete_unique;
+		$filename          = $filename_unique;
+		$filename_complete = $filename_unique_complete;
 	}
 
 	// template arguments
 	$template_args = [
+		'N'                 => $row,
 		'FILE_THUMB'        => "[[$filename_complete|100px]]",
 		'FILE_WLINK'        => "[[:$filename_complete]]",
 		'TITLE'             => $title_orig  ? "{{it|$title_orig}}"  : '',
 		'DESCRIPTION'       => $title       ? "{{it|$title}}"       : '',
 		'LICENSE'           => $license,
 		'LICENSE_TEMPLATES' => $license_templates,
-		'DATE'              => $date,
+		'DATE'              => italian_date_2_commons( $date ),
 		'METADATA'          => $file_data,
 		'DOI_ID'            => $img_id,
 		'SOURCE'            => $source_url,
@@ -274,10 +343,19 @@ foreach( glob( $file_pattern ) as $file ) {
 		'CREATOR_COMMONS_LINK' => $creator_commons_link,
 		'SIZE_TEMPLATE'     => $size_template,
 		'MEDIUM'            => $medium,
+		'MEDIUM_TEMPLATE'   => $medium_template,
+		'PLACE_CREATION'    => $place,
 	];
 
 	// build the page content
 	$page_content = template_content( $template, $template_args );
+
+	// check if you want to show a preview
+	if( $PREVIEW ) {
+		echo "---\n";
+		echo $page_content;
+		echo "---\n";
+	}
 
 	// columns to be displayed in the log
 	$log_args = [];
@@ -291,7 +369,7 @@ foreach( glob( $file_pattern ) as $file ) {
 
 	// check if the Commons page exists
 	    $commons_page_id = wiki_page_id( $commons, $filename_complete );
-	if( $commons_page_id ) {
+	if( $commons_page_id && !$FORCE_UPLOAD ) {
 
 		// page exists
 		Log::info( sprintf(
@@ -337,10 +415,12 @@ foreach( glob( $file_pattern ) as $file ) {
 
 			if( !$PORCELAIN ) {
 
+				// https://www.mediawiki.org/w/api.php?action=help&modules=upload
 				$response = $commons->upload( [
-					'comment'  => "Bot: $COMMONS_CONSENSUS_PAGE",
-					'text'     => $page_content,
-					'filename' => "$title.jpg",
+					'comment'        => "Bot: $COMMONS_CONSENSUS_PAGE",
+					'text'           => $page_content,
+					'filename'       => $filename,
+					'ignorewarnings' => $FORCE_UPLOAD,
 					\network\ContentDisposition::createFromNameURLType( 'file', $file, 'image/jpg' ),
 				] );
 
@@ -353,7 +433,7 @@ foreach( glob( $file_pattern ) as $file ) {
 				}
 
 				// put in the log this shit
-				file_put_contents( 'log.out', "$img_id;$filename\n", FILE_APPEND );
+				file_put_contents( 'upload.out', "$img_id;$filename\n", FILE_APPEND );
 
 				// wait to do not use the bot flag
 				sleep( 5 );
@@ -362,7 +442,7 @@ foreach( glob( $file_pattern ) as $file ) {
 
 		} catch( Exception $e ) {
 			printf( "%s: %s", get_class( $e ), $e->getMessage() );
-			file_put_contents( 'log.out.err', $e->getMessage(), FILE_APPEND );
+			file_put_contents( 'upload.out.err', $e->getMessage(), FILE_APPEND );
 		}
 	}
 
@@ -375,6 +455,12 @@ foreach( glob( $file_pattern ) as $file ) {
 
 	//
 	$commons_structured->hasClaimsInProperty();
+
+	// source URL
+	// Property:P854
+
+	// Inscription
+	// Property:P1684
 	*/
 }
 

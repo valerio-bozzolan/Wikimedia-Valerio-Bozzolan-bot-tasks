@@ -317,3 +317,84 @@ function parse_size( $size ) {
 
 	return $size;
 }
+
+/**
+ * Parse an Italian date to a Commons date
+ */
+function italian_date_2_commons( $date ) {
+
+	$date_lower = strtolower( $date );
+
+	$MESI = [
+		'gennaio'   => "01",
+		'febbraio'  => "02",
+		'marzo'     => "03",
+		'aprile'    => "04",
+		'maggio'    => "05",
+		'giugno'    => "06",
+		'luglio'    => "07",
+		'agosto'    => "08",
+		'settembre' => "09",
+		'ottobre'   => "10",
+		'novembre'  => "11",
+		'dicembre'  => "12",
+	];
+
+	// Maggio 2000 -> '2000-05'
+	$found_month_year = preg_match( '/^([a-z]+) +([0-9]{4})$/', $date_lower, $matches );
+	if( $found_month_year ) {
+		$month = strtolower( $matches[1] );
+		$year  = $matches[2];
+		$month_numeric = $MESI[ $month ] ?? null;
+		if( $month_numeric ) {
+			return "$year-$month_numeric";
+		}
+	}
+
+	// 1999-2000
+	$found_year_range = preg_match( '/^([0-9]{4})-([0-9]{4})$/', $date, $matches );
+	if( $found_year_range ) {
+		$start = $matches[1];
+		$end   = $matches[2];
+		return "{{Other date|-|$start|$end}}";
+	}
+
+	// Prima del 1893
+	$before_year = preg_match( '/^prima +del +([0-9]{4})$/', $date_lower, $matches );
+	if( $before_year ) {
+		$year = $matches[1];
+		return "{{Other date|<|$year}}";
+	}
+
+	// Prima del settembre 1871
+	$before_month_year = preg_match( '/^prima +(del |di |dell\') *([a-z]+) +([0-9]{4})$/', $date_lower, $matches );
+	if( $before_month_year ) {
+		$prep  = $matches[1];
+		$month = $matches[2];
+		$year  = $matches[3];
+		$month_numeric = $MESI[ $month ] ?? null;
+		if( $month_numeric ) {
+			return "{{Other date|<|$year-$month_numeric}}";
+		}
+	}
+
+	return $date;
+}
+
+/**
+ * Convert an Italian tequique to a {{Teqnique}} Wikimedia Commons template
+ */
+function italian_technique_2_commons_template( $description ) {
+
+	$description_low = strtolower( $description );
+
+	if( strpos( $description_low, "procedimento all'albumina" ) !== -1 ) {
+		return "{{Technique|albumen print}}";
+	}
+
+	if( strpos( $description_low, "gelatina ai sali d'argento" ) !== -1 ) {
+		return "{{Technique|albumen silver print}}";
+	}
+
+	return $description;
+}
