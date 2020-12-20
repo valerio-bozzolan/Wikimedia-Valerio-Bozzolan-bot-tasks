@@ -77,4 +77,4 @@
 ?>
 |}
 
-[[Category:Collezione Biblioteca - Iconoteca dell'architettura in Mendrisio, Switzerland]]
+[[Category:Collezione Corboz - Iconoteca dell'architettura in Mendrisio, Switzerland]]

@@ -42,8 +42,11 @@ $opts = new Opts( [
 	new ParamFlagLong(   'porcelain',     "Do nothing" ),
 	new ParamFlagLong(   'preview',       "Show a preview of the saved wikitext" ),
 	new ParamFlagLong(   'force-upload',  "Force a re-upload even if the page exists" ),
+	new ParamFlagLong(   'no-report',     "Don't create a report" ),
+	new ParamFlagLong(   'no-update',     "Do not try to update something that already exists" ),
 	new ParamValuedLong( 'start-from',    "Start from a specific row (default to 1)" ),
 	new ParamValuedLong( 'limit',         "Process only this number of results" ),
+	new ParamValuedLong( 'nick',          "Nickname used to prefix indexes" ),
 	new ParamFlag(       'help',    'h',  "Show this help and quit" ),
 ] );
 
@@ -55,6 +58,12 @@ $template = $unnamed_opts[1] ?? null;
 // porcelain mode means that nothing have to be saved
 $PORCELAIN = $opts->getArg( 'porcelain' );
 
+// option to do not create a report
+$WRITE_REPORT = ! $opts->getArg( 'no-report' );
+
+// option to do not update something already existing
+$NO_UPDATE = $opts->getArg( 'no-update' );
+
 // get a preview of the current wikitext
 $PREVIEW = $opts->getArg( 'preview' );
 
@@ -64,8 +73,20 @@ $FORCE_UPLOAD = $opts->getArg( 'force-upload' );
 // start from this row
 $START_FROM = $opts->getArg( 'start-from' );
 
+// nickname used to prefix indexes
+$NICK = $opts->getArg( 'nick', 'mendrisio' );
+
 // limit to this number of results
 $LIMIT = $opts->getArg( 'limit' );
+
+// suffix for the reports
+$REPORT_SUFFIX = '';
+if( $START_FROM ) {
+	$REPORT_SUFFIX .= "-from-$START_FROM";
+}
+if( $LIMIT ) {
+	$REPORT_SUFFIX .= "-to-$LIMIT";
+}
 
 // show the help
 $show_help = $opts->getArg( 'help' );
@@ -118,7 +139,6 @@ foreach( glob( $file_pattern ) as $file ) {
 	$img_id      = $file_data->{"ID immagine"};
 	$title       = $file_data->{"Titolo opera"};
 
-
 	// DOI by name
 	if( empty( $doi_by_name[ $title ] ) ) {
 		$doi_by_name[ $title ] = [];
@@ -165,9 +185,6 @@ foreach( $duplicate_sha1 as $sha1 => $titles ) {
 	}
 }
 
-// login in Commons
-$commons->login();
-
 // columns to be displayed in the report
 $REPORT_COLUMNS = [
 	'N',
@@ -178,18 +195,17 @@ $REPORT_COLUMNS = [
 	'LICENSE',
 	'DATE',
 	'AUTHOR',
-	'CREATOR_COMMONS_LINK',
-	'SIZE_TEMPLATE',
+//	'CREATOR_COMMONS_LINK',
+	'SIZE',
+//	'SIZE_TEMPLATE',
 	'MEDIUM',
-	'MEDIUM_TEMPLATE',
 	'PLACE_CREATION',
 	'DOI_ID',
 	'SOURCE',
 ];
 
-// write report
-$write_report_csv  = fopen( 'write-report.csv',  'w' );
-$write_report_wiki = fopen( 'write-report.wiki', 'w' );
+// login in Commons
+$commons->login();
 
 // columns to be displayed in the log
 $log_args = [];
@@ -197,9 +213,15 @@ foreach( $REPORT_COLUMNS as $k => $v ) {
 	$log_args[] = $v;
 }
 
-// write reports
-fputcsv( $write_report_csv, $log_args );
-fwrite(  $write_report_wiki, "{| class=\"wikitable\"\n|-\n! " . implode( "\n! ", $log_args ) . "\n" );
+// write report
+if( $WRITE_REPORT ) {
+	$write_report_csv  = fopen( "$NICK-write-report{$REPORT_SUFFIX}.csv",  'w' );
+	$write_report_wiki = fopen( "$NICK-write-report{$REPORT_SUFFIX}.wiki", 'w' );
+
+	// write headings
+	fputcsv( $write_report_csv, $log_args );
+	fwrite(  $write_report_wiki, "{| class=\"wikitable\"\n|-\n! " . implode( "\n! ", $log_args ) . "\n" );
+}
 
 $row = 0;
 $processeds = 0;
@@ -234,8 +256,10 @@ foreach( glob( $file_pattern ) as $file ) {
 	// apply limit
 	if( $LIMIT && $processeds > $LIMIT ) {
 		Log::info( "reached limit of $LIMIT" );
-		exit( 0 );
+		break;
 	}
+
+	Log::info( "$processeds [$row/$LIMIT]" );
 
 	// check available metadata
 	$img_id      = $file_data->{"ID immagine"};
@@ -313,16 +337,61 @@ foreach( glob( $file_pattern ) as $file ) {
 	// parse the image size
 	$size_template = parse_size( $size );
 
+	// clean the title from unsupported chars
+	$title_clean = $title;
+	$title_clean = str_replace( '&eamp;', 'e', $title_clean );
+	$title_clean = str_replace( '&',      'e', $title_clean );
+
 	// check if the filename exists
-	$filename = "$title.jpg";
+	$filename = "$title_clean.jpg";
+
+	// you cannot insert an '&' in the title, replace with 'e'
+
 	$filename_complete = "File:$filename";
-	$filename_unique          = "$title (DOI $img_id).jpg";
+	$filename_unique          = "$title_clean (DOI $img_id).jpg";
 	$filename_unique_complete = "File:$filename_unique";
 
+	// check if the Commons page exists
+	$commons_page_id = wiki_page_id( $commons, $filename_complete );
+	if( $commons_page_id ) {
+		Log::info( " exists" );
+	} else {
+		Log::info( " does not exists" );
+	}
+
+	// check if the page exists and is not recent
+	$exists_and_is_not_recent = false;
+
+	// eventually check if the page is very recent
+	if( $commons_page_id ) {
+		if( is_page_id_very_recent( $commons_page_id ) ) {
+
+			Log::info( "  is recent (page ID $commons_page_id)" );
+
+			// assume that this is what we want
+		} else {
+			Log::info( "  is old (page ID $commons_page_id)" );
+
+			// the page already exist but it's not recent (so it's not our stuff)
+			$exists_and_is_not_recent = true;
+
+			// I've just said that this page ID is not relevant
+			$commons_page_id = false;
+		}
+	}
+
 	// if this is a duplicate, make the title unique
-	if( in_array( $img_id, $duplicate_dois ) ) {
+	if( in_array( $img_id, $duplicate_dois ) || $exists_and_is_not_recent ) {
 		$filename          = $filename_unique;
 		$filename_complete = $filename_unique_complete;
+
+		// search again the page ID
+		$commons_page_id = wiki_page_id( $commons, $filename_complete );
+	}
+
+	// print something in this case
+	if( $PORCELAIN ) {
+		Log::info( "   processing [[$filename_complete]]" );
 	}
 
 	// template arguments
@@ -330,8 +399,8 @@ foreach( glob( $file_pattern ) as $file ) {
 		'N'                 => $row,
 		'FILE_THUMB'        => "[[$filename_complete|100px]]",
 		'FILE_WLINK'        => "[[:$filename_complete]]",
-		'TITLE'             => $title_orig  ? "{{it|$title_orig}}"  : '',
-		'DESCRIPTION'       => $title       ? "{{it|$title}}"       : '',
+		'TITLE'             => $title_orig  ?? '',
+		'DESCRIPTION'       => $title       ?? '',
 		'LICENSE'           => $license,
 		'LICENSE_TEMPLATES' => $license_templates,
 		'DATE'              => italian_date_2_commons( $date ),
@@ -341,9 +410,11 @@ foreach( glob( $file_pattern ) as $file ) {
 		'AUTHOR'            => $author,
 		'CREATOR_COMMONS'   => $creator_commons_template,
 		'CREATOR_COMMONS_LINK' => $creator_commons_link,
+		'SIZE'              => $size,
 		'SIZE_TEMPLATE'     => $size_template,
 		'MEDIUM'            => $medium,
 		'MEDIUM_TEMPLATE'   => $medium_template,
+		'COLLECTION'        => $collection,
 		'PLACE_CREATION'    => $place,
 	];
 
@@ -364,23 +435,22 @@ foreach( glob( $file_pattern ) as $file ) {
 	}
 
 	// write reports
-	fputcsv( $write_report_csv, $log_args );
-	fwrite(  $write_report_wiki, "|-\n| " . implode( "\n| ", $log_args ) . "\n" );
+	if( $WRITE_REPORT ) {
+		fputcsv( $write_report_csv, $log_args );
+		fwrite(  $write_report_wiki, "|-\n| " . implode( "\n| ", $log_args ) . "\n" );
+	}
 
-	// check if the Commons page exists
-	    $commons_page_id = wiki_page_id( $commons, $filename_complete );
-	if( $commons_page_id && !$FORCE_UPLOAD ) {
-
-		// page exists
-		Log::info( sprintf(
-			"updating https://commons.wikimedia.org/wiki/%s",
-			rawurlencode( $filename_complete )
-		) );
+	// check if we have to update the existing page
+	if( !$FORCE_UPLOAD && $commons_page_id ) {
 
 		// eventually skip saving
-		if( !$PORCELAIN ) {
+		if( !$PORCELAIN && !$NO_UPDATE ) {
 
-			Log::info( sprintf( "Saving..." ) );
+			// page exists
+			Log::info( sprintf(
+				"updating https://commons.wikimedia.org/wiki/%s",
+				rawurlencode( $filename_complete )
+			) );
 
 			// save
 			// https://www.mediawiki.org/w/api.php?action=help&modules=parse
@@ -403,17 +473,17 @@ foreach( glob( $file_pattern ) as $file ) {
 
 	} else {
 
-		// print a message
-		Log::info( sprintf(
-			"try to upload https://commons.wikimedia.org/wiki/%s (DOI %s)",
-			rawurlencode( $filename_complete ),
-			$img_id
-		) );
-
 		// upload this damn image
 		try {
 
 			if( !$PORCELAIN ) {
+
+				// print a message
+				Log::info( sprintf(
+					"try to upload https://commons.wikimedia.org/wiki/%s (DOI %s)",
+					rawurlencode( $filename_complete ),
+					$img_id
+				) );
 
 				// https://www.mediawiki.org/w/api.php?action=help&modules=upload
 				$response = $commons->upload( [
@@ -433,7 +503,7 @@ foreach( glob( $file_pattern ) as $file ) {
 				}
 
 				// put in the log this shit
-				file_put_contents( 'upload.out', "$img_id;$filename\n", FILE_APPEND );
+				file_put_contents( "$NICK-upload.out", "$img_id;$filename\n", FILE_APPEND );
 
 				// wait to do not use the bot flag
 				sleep( 5 );
@@ -442,7 +512,7 @@ foreach( glob( $file_pattern ) as $file ) {
 
 		} catch( Exception $e ) {
 			printf( "%s: %s", get_class( $e ), $e->getMessage() );
-			file_put_contents( 'upload.out.err', $e->getMessage(), FILE_APPEND );
+			file_put_contents( "$NICK-upload.out.err", $e->getMessage(), FILE_APPEND );
 		}
 	}
 
@@ -469,7 +539,10 @@ if( $MISSING_COMMONS_CREATOR ) {
 	print_r( $MISSING_COMMONS_CREATOR );
 }
 
-fwrite(  $write_report_wiki, "|}\n" );
+// close reports
+if( $WRITE_REPORT ) {
+	fwrite( $write_report_wiki, "|}\n" );
 
-fclose( $write_report_csv );
-fclose( $write_report_wiki );
+	fclose( $write_report_csv );
+	fclose( $write_report_wiki );
+}

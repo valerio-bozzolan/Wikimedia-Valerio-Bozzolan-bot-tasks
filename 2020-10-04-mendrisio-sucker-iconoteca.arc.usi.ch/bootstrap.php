@@ -68,6 +68,7 @@ $METADATA_BODY = [
 $METADATA_FOOTER = [
 	new Metadata( 'Titolo opera' ),
 	new Metadata( 'Titolo originale' ),
+	new Metadata( 'Descrizione testuale' ),
 	new Metadata( 'Iscrizione' ),
 	new Metadata( 'Collezione' ),
 	new Metadata( 'Data creazione' ),
@@ -94,3 +95,4 @@ $METADATA_FOOTER = [
 	new Metadata( 'Orientamento e forma' ),
 	new Metadata( 'Dimensioni' ),
 ];
+

@@ -197,7 +197,7 @@ function search_creator_on_commons( $name ) {
 	foreach( generator_name_variants( $name ) as $variant ) {
 
 		$title = "Creator:$variant";
-		if( wiki_page_id( $wiki, $title ) ) {
+		if( wiki_page_id_cached( $wiki, $title ) ) {
 			return $title;
 		}
 	}
@@ -286,7 +286,7 @@ function wiki_page_id( $wiki, $title ) {
 	foreach( $pages as $page ) {
 
 		// no page no party
-		if( isset( $page->missing ) ) {
+		if( isset( $page->missing ) || $page->pageid < 0 ) {
 			return false;
 		}
 
@@ -296,6 +296,24 @@ function wiki_page_id( $wiki, $title ) {
 
 	// no page no party
 	throw new Exception( "what" );
+}
+
+/**
+ * Check if a page exists
+ *
+ * @return int|false
+ */
+function wiki_page_id_cached( $wiki, $title ) {
+
+	static $cache = [];
+
+	$wiki_uid = $wiki::UID;
+	$key = "$wiki_uid-$title";
+	if( !isset( $cache[ $key ] ) ) {
+		$cache[ $key ] = wiki_page_id( $wiki, $title );
+	}
+
+	return $cache[ $key ];
 }
 
 /**
@@ -397,4 +415,14 @@ function italian_technique_2_commons_template( $description ) {
 	}
 
 	return $description;
+}
+
+/**
+ * Check if a page ID is very recent
+ */
+function is_page_id_very_recent( $pageid ) {
+
+	$VERY_RECENT_PAGE_ID = 97812869;
+
+	return $pageid >= $VERY_RECENT_PAGE_ID;
 }

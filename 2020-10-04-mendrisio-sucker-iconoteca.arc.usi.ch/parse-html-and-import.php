@@ -24,6 +24,9 @@ $METADATA_BY_SELECTOR = [
 	'.metadati_completi' => $METADATA_FOOTER,
 ];
 
+// reports base directory
+$REPORTS_BASE_PATH = "./reports";
+
 // phpQuery1
 // https://github.com/phpquery/phpquery
 $PHPQUERY = __DIR__ . '/phpquery/phpQuery/phpQuery.php';
