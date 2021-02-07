@@ -44,6 +44,7 @@ $opts = new Opts( [
 	new ParamFlagLong(   'force-upload',  "Force a re-upload even if the page exists" ),
 	new ParamFlagLong(   'no-report',     "Don't create a report" ),
 	new ParamFlagLong(   'no-update',     "Do not try to update something that already exists" ),
+	new ParamFlagLong(   'force-unique',  "Force an unique title (e.g. using the DOI in the title)" ),
 	new ParamValuedLong( 'start-from',    "Start from a specific row (default to 1)" ),
 	new ParamValuedLong( 'limit',         "Process only this number of results" ),
 	new ParamValuedLong( 'nick',          "Nickname used to prefix indexes" ),
@@ -64,6 +65,9 @@ $WRITE_REPORT = ! $opts->getArg( 'no-report' );
 // option to do not update something already existing
 $NO_UPDATE = $opts->getArg( 'no-update' );
 
+// option to eventually put the DOI in the title
+$FORCE_UNIQUE = $opts->getArg( 'force-unique' );
+
 // get a preview of the current wikitext
 $PREVIEW = $opts->getArg( 'preview' );
 
@@ -82,10 +86,16 @@ $LIMIT = $opts->getArg( 'limit' );
 // suffix for the reports
 $REPORT_SUFFIX = '';
 if( $START_FROM ) {
-	$REPORT_SUFFIX .= "-from-$START_FROM";
+	$REPORT_SUFFIX .= sprintf(
+		'-from-%04d',
+		$START_FROM
+	);
 }
 if( $LIMIT ) {
-	$REPORT_SUFFIX .= "-to-$LIMIT";
+	$REPORT_SUFFIX .= sprintf(
+		'-to-%04d',
+		$LIMIT
+	);
 }
 
 // show the help
@@ -259,7 +269,7 @@ foreach( glob( $file_pattern ) as $file ) {
 		break;
 	}
 
-	Log::info( "$processeds [$row/$LIMIT]" );
+	Log::info( "processing row $row [$processeds/$LIMIT]" );
 
 	// check available metadata
 	$img_id      = $file_data->{"ID immagine"};
@@ -339,8 +349,9 @@ foreach( glob( $file_pattern ) as $file ) {
 
 	// clean the title from unsupported chars
 	$title_clean = $title;
-	$title_clean = str_replace( '&eamp;', 'e', $title_clean );
-	$title_clean = str_replace( '&',      'e', $title_clean );
+	$title_clean = str_replace( '&amp;', 'e', $title_clean );
+	$title_clean = str_replace( '&',     'e', $title_clean );
+	$title_clean = str_replace( '  ',    ' ', $title_clean );
 
 	// check if the filename exists
 	$filename = "$title_clean.jpg";
@@ -351,8 +362,17 @@ foreach( glob( $file_pattern ) as $file ) {
 	$filename_unique          = "$title_clean (DOI $img_id).jpg";
 	$filename_unique_complete = "File:$filename_unique";
 
+	// may be a known one
+	$commons_page_id = find_commons_pageid_from_doi( $img_id );
+
 	// check if the Commons page exists
-	$commons_page_id = wiki_page_id( $commons, $filename_complete );
+	if( !$commons_page_id ) {
+		$commons_page_id = wiki_page_id( $commons, $filename_complete );
+
+		// remember
+		remember_commons_doi_pageid( $img_id, $commons_page_id );
+	}
+
 	if( $commons_page_id ) {
 		Log::info( " exists" );
 	} else {
@@ -381,7 +401,7 @@ foreach( glob( $file_pattern ) as $file ) {
 	}
 
 	// if this is a duplicate, make the title unique
-	if( in_array( $img_id, $duplicate_dois ) || $exists_and_is_not_recent ) {
+	if( in_array( $img_id, $duplicate_dois ) || $exists_and_is_not_recent || $FORCE_UNIQUE ) {
 		$filename          = $filename_unique;
 		$filename_complete = $filename_unique_complete;
 
@@ -455,7 +475,7 @@ foreach( glob( $file_pattern ) as $file ) {
 			// save
 			// https://www.mediawiki.org/w/api.php?action=help&modules=parse
 			$result = $commons->edit( [
-				'title'         => $filename_complete,
+				'pageid'        => $commons_page_id,
 				'text'          => $page_content,
 				'summary'       => "Bot: $COMMONS_CONSENSUS_PAGE",
 				'minor'         => true,
@@ -495,7 +515,8 @@ foreach( glob( $file_pattern ) as $file ) {
 				] );
 
 				if( $response->upload->result === 'Success' ) {
-					var_dump( $response );
+					echo "Response:\n";
+					echo json_encode( $response, JSON_PRETTY_PRINT ) . "\n";
 					echo "Done.\n";
 				} else {
 					// what the fuuck?

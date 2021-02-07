@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+define( 'CACHE_DOI_PAGEID', '.cache-doi-pageid.json' );
+
 /**
  * Find a matching metadata from a label and return a MetadataValue
  *
@@ -338,6 +340,8 @@ function parse_size( $size ) {
 
 /**
  * Parse an Italian date to a Commons date
+ * @param string $date
+ * @return string
  */
 function italian_date_2_commons( $date ) {
 
@@ -396,6 +400,22 @@ function italian_date_2_commons( $date ) {
 		}
 	}
 
+	// 15.07.1990
+	// 15-07-1990
+	// 15/07/1990
+	foreach( [ '.', '-', '/' ] as $separator ) {
+		$d_m_y = explode( $separator, $date_lower );
+		if( count( $d_m_y ) === 3 ) {
+			list( $d, $m, $y ) = $d_m_y;
+			$d = (int) $d;
+			$m = (int) $m;
+			$y = (int) $y;
+			if( $d && $m && $y && checkdate( $m, $d, $y ) ) {
+				return "$y-$m-$d";
+			}
+		}
+	}
+
 	return $date;
 }
 
@@ -425,4 +445,40 @@ function is_page_id_very_recent( $pageid ) {
 	$VERY_RECENT_PAGE_ID = 97812869;
 
 	return $pageid >= $VERY_RECENT_PAGE_ID;
+}
+
+/**
+ * Find the pageid from A DOI
+ *
+ * @param int $doi
+ * @return mixed
+ */
+function find_commons_pageid_from_doi( $doi ) {
+	$pageid = null;
+	$content_raw = @file_get_contents( CACHE_DOI_PAGEID );
+	if( $content_raw ) {
+		$content = json_decode( $content_raw );
+		$pageid = $content->{ $doi } ?? false;
+	}
+	return $pageid;
+}
+
+/**
+ * Set the pageid from a DOI
+ *
+ * @param int $doi
+ * @param int $pageid
+ */
+function remember_commons_doi_pageid( $doi, $pageid ) {
+
+	$content_raw = @file_get_contents( CACHE_DOI_PAGEID );
+	if( $content_raw ) {
+		$content = json_decode( $content_raw );
+	} else {
+		$content = new stdclass();
+	}
+	$content->{ $doi } = $pageid;
+
+	$content_raw_new = json_encode( $content );
+	file_put_contents( CACHE_DOI_PAGEID, $content_raw_new );
 }
