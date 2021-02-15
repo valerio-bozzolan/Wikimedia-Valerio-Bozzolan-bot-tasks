@@ -16,12 +16,13 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 // autoload framework
-require __DIR__ . '/../includes/boz-mw/autoload.php';
+require 'autoload.php';
 
 $MAIN_CAT = 'Category:Files from Legavolley stream';
 
 $wiki = \wm\Commons::instance();
 
+// collect first-class categories
 $queries =
 	$wiki->createQuery( [
 		'action'  => 'query',
@@ -30,37 +31,64 @@ $queries =
 		'cmtype'  => 'subcat',
 	] );
 
-$sub_categories = [];
+// query all sub-categories
+$volleyball_categories = [];
 foreach( $queries as $query ) {
 	foreach( $query->query->categorymembers as $page ) {
-		$sub_categories[] = $page->title;
+		$volleyball_categories[] = $page->title;
 	}
 }
 
-$files = [];
+$players = [];
 
 // now for each sthat we have the correct categories
-foreach( $sub_categories as $sub_category ) {
+foreach( $volleyball_categories as $sub_category ) {
 
+	// prepare to query each file with their categories
 	$queries =
 		$wiki->createQuery( [
-			'action'  => 'query',
-			'list'    => 'categorymembers',
-			'cmtitle' => $sub_category,
-			'cmtype'  => 'file',
+			// query files
+			'action'    => 'query',
+			'generator' => 'categorymembers',
+			'gcmtitle'  => $sub_category,
+			'gcmtype'   => 'file',
+			'gcmlimit'   => 500,
+
+			// for each file get its categories
+			'prop'      => 'categories',
+			'clshow'    => '!hidden',
 		] );
 
 	// for each query
 	foreach( $queries as $query ) {
 
-		$members = $query->query->categorymembers ?? [];
-		foreach( $members as $page ) {
-
-			$title = $page->title;
-			$files[] = $title;
+		// for each file
+		$pages = $query->query->pages ?? [];
+		foreach( $pages as $page ) {
 
 			echo "$title\n";
+			$title  = $page->title;
+			$pageid = $page->pageid;
+
+			// get or create
+			$players[ $pageid ] = $players[ $pageid ] ?? new VolleyballPlayerFile();
+			$player = $players[ $pageid ];
+			$player->file = $title;
+
+			// eventually loop the categories
+			$categories = $page->categories ?? [];
+			foreach( $categories as $category ) {
+
+				echo "$category_title\n";
+				$category_title = $category->title;
+
+				$player->cats[] = $category_title;
+			}
 		}
 	}
 
 }
+
+$data = serialize( $players );
+
+file_put_contents( 'data/players.serialized', $data );
