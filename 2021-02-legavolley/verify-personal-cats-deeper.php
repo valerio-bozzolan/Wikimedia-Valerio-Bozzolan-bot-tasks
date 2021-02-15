@@ -27,6 +27,7 @@ foreach( $players as $player ) {
 
 	$file = $commons->createTitleParsing( $player->file );
 	$filename = $file->getTitle()->get();
+	$player->fileURL = $file->getURL();
 
 	$filename_words = explode( ' ', $filename );
 
@@ -41,6 +42,7 @@ foreach( $players as $player ) {
 
 			if( strpos( $cat_name, $first_word ) !== false ) {
 				$player->cat = $cat_raw;
+				$player->catURL = $cat->getURL();
 				break;
 			}
 		}
@@ -51,15 +53,20 @@ $fp = fopen( 'data/players.csv', 'w' );
 
 fputcsv( $fp, [
 	"Filename",
+	"Filename URL",
 	"Personal category",
+	"Personal category URL",
 ] );
 
 foreach( $players as $player ) {
 
 	fputcsv( $fp, [
 		$player->file,
-		$player->cat ?? '',
+		$player->fileURL ?? '',
+		$player->cat     ?? '',
+		$player->catURL  ?? '',
 	] );
 
 }
 fclose( $fp );
+
