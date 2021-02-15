@@ -1,6 +1,6 @@
 # 2021 LegaVolley bot
 
-This directorty contains some tools useful during the 2021 LegaVolley sprint in Wikimedia Commons and Wikidata.
+This directory contains some tools useful during the 2021 LegaVolley sprint in Wikimedia Commons and Wikidata.
 
 ## Consensus
 
@@ -15,7 +15,7 @@ This directorty contains some tools useful during the 2021 LegaVolley sprint in 
 
 ## License
 
-Copyright (C) 2019 Valerio Bozzolan
+Copyright (C) 2021 Valerio Bozzolan
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
