@@ -23,27 +23,53 @@ $commons = wiki( 'commonswiki' );
 $data_raw = file_get_contents( 'data/players.serialized' );
 $players = unserialize( $data_raw );
 
+$BLACKLIST = [
+	'(surname)',
+	'olleyball players',
+	'players from ',
+	'portspeople',
+	'Players of ',
+	'Sports in ',
+	'Men of Italy',
+	'(given name)',
+	'Portraits of men',
+];
+
 foreach( $players as $player ) {
 
 	$file = $commons->createTitleParsing( $player->file );
 	$filename = $file->getTitle()->get();
 	$player->fileURL = $file->getURL();
 
-	$filename_words = explode( ' ', $filename );
-
-	$first_word = $filename_words[ 0 ];
-
 	if( $player->cats ) {
 
-		foreach( $player->cats as $cat_raw ) {
+		// drop nonsense categories
+		foreach( $player->cats as $i => $cat_raw ) {
+
+			// skip unuseful titles
+			foreach( $BLACKLIST as $blacklist ) {
+				if( strpos( $cat_raw, $blacklist ) !== false ) {
+					unset( $player->cats[ $i ] );
+					$skip = true;
+					break;
+				}
+			}
+
+		}
+
+		if( $player->cats ) {
+
+			// pick the first category
+			$cat_raw = array_shift( $player->cats );
 
 			$cat = $commons->createTitleParsing( $cat_raw );
-			$cat_name = $cat->getTitle()->get();
 
-			if( strpos( $cat_name, $first_word ) !== false ) {
-				$player->cat = $cat_raw;
-				$player->catURL = $cat->getURL();
-				break;
+			$player->cat = $cat_raw;
+			$player->catURL = $cat->getURL();
+
+			// other categories?
+			if( $player->cats ) {
+				$player->otherCats = implode( ', ', $player->cats );
 			}
 		}
 	}
@@ -56,15 +82,17 @@ fputcsv( $fp, [
 	"Filename URL",
 	"Personal category",
 	"Personal category URL",
+	"Other categories",
 ] );
 
 foreach( $players as $player ) {
 
 	fputcsv( $fp, [
 		$player->file,
-		$player->fileURL ?? '',
-		$player->cat     ?? '',
-		$player->catURL  ?? '',
+		$player->fileURL   ?? '',
+		$player->cat       ?? '',
+		$player->catURL    ?? '',
+		$player->otherCats ?? '',
 	] );
 
 }
