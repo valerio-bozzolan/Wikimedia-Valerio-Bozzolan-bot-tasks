@@ -342,26 +342,7 @@ function help( $error_message = null ) {
 
 	echo "Usage:\n {$argv[ 0 ]} file.csv [OPTIONS]\n";
 	echo "OPTIONS:\n";
-	foreach( $opts->getParams() as $param ) {
-		$commands = [];
-		if( $param->hasLongName() ) {
-			$commands[] = '--' . $param->getLongName();
-		}
-		if( $param->hasShortName() ) {
-			$commands[] = '-' . $param->getShortName();
-		}
-		$command = implode( '|', $commands );
-		if( $command && ! $param->isFlag() ) {
-			$command .= $param->isValueOptional()
-				? '=[VALUE]'
-				: '=VALUE';
-		}
-		printf( ' % -20s ', $command );
-		if( $param->hasDescription() ) {
-			echo ' ' . $param->getDescription();
-		}
-		echo "\n";
-	}
+	$opts->printParams();
 	if( $error_message ) {
 		echo "\nError: $error_message\n";
 		exit( 1 );
