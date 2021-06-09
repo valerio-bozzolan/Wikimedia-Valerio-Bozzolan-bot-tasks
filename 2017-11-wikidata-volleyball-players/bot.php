@@ -5,7 +5,7 @@
  *                                   *
  * @author Valerio Bozzolan          *
  * @license GNU GPL v3+              *
- * @date 2017, 2018, 2019            *
+ * @date 2017, 2018, 2019, 2021      *
  *************************************
  *
  ***** WHAT ******************
@@ -57,7 +57,7 @@ set_error_handler( function( $severity, $message, $file, $line) {
 } );
 
 // Framework stuff
-require __DIR__ . '/includes/boz-mw/autoload.php';
+require __DIR__ . '/includes/boz-mw/autoload-with-laser-cannon.php';
 
 use wm\Commons;
 use wm\Wikidata;
@@ -75,23 +75,35 @@ use wb\SnakItem;
 // load configuration file or create one
 ConfigWizard::requireOrCreate( __DIR__ . '/../config.php' );
 
-$OPTS = getopt( '' ,[
-	'wikidata-sandbox:',
-	'players-file:',
-	'from:',
-	'inspect',
-] );
+// register some arguments
+$opts = cli_options()
+  ->addValued( 'players-file',        null, "CSV file with your volleyball players" )
+  ->addValued( 'players-cat',         null, "The name of your category without namespace containing files in Wikimedia Commons" )
+  ->addValued( 'nat-file',            null, "Nationalities CSV" )
+  ->addValued( 'year',                null, "CSV year", date( 'Y' ) )
+  ->addValued( 'from',                null, "Starting point (row)" )
+  ->addValued( 'wikidata-sandbox',    null, "Wikidata QID element to be used as sandbox" )
+  ->addValued( 'sparql',              null, "SPARQL file" )
+  ->addFlag(   'always',              null, "Always save without ask" )
+  ->addFlag(   'debug',               null, "Enable debug mode" )
+  ->addFlag(   'inspect',             null, "Enable inspect mode" );
 
-if( ! $OPTS || empty( $OPTS[ 'players-file' ] ) ) {
-	die( "Usage: --players-file=filename.csv\n" );
+// eventually enable debug mode
+if( $opts->get( 'debug' ) ) {
+	bozmw_debug();
 }
 
-if( isset( $OPTS[ 'inspect' ] ) ) {
+// no params no party
+if( !$opts->get( 'players-file' ) && !$opts->get( 'players-cat' ) ) {
+	help( "Missing --players-file or --players-cat" );
+}
+
+if( $opts->get( 'inspect' ) ) {
 	\mw\API::$INSPECT_BEFORE_POST = true;
 }
 
-if( isset( $OPTS[ 'wikidata-sandbox' ] ) ) {
-	define( 'WIKIDATA_SANDBOX', $OPTS[ 'wikidata-sandbox' ] );
+if( $opts->get( 'wikidata-sandbox' ) ) {
+	define( 'WIKIDATA_SANDBOX', $opts->get( 'wikidata-sandbox' ) );
 	define( 'SANDBOXED', true );
 	define( 'ONE_SHOT',  true );
 	echo WIKIDATA_SANDBOX . "\n";
@@ -123,7 +135,7 @@ define(  'COMMONS_SUMMARY', sprintf(
 
 defined( 'WIKIDATA_SUMMARY' ) or
 define(  'WIKIDATA_SUMMARY', sprintf(
-	"[[wikidata:%s|uniforming Legavolley players]]",
+	"[[d:%s|uniforming Legavolley players]]",
 	WIKIDATA_CONSENSUS_PAGE
 ) );
 
@@ -134,10 +146,26 @@ defined( 'INTERACTION' ) or
 define(  'INTERACTION', true );
 
 defined( 'ALWAYS' ) or
-define(  'ALWAYS', true );
+define(  'ALWAYS', $opts->get( 'always' ) );
 
 $wd      = Wikidata::instance()->login();
 $commons = Commons ::instance()->login();
+
+$WIKIDATA_PLAYERS_BY_LEGAID = [];
+$WIKIDATA_PLAYERS_BY_COMMONS_CAT = [];
+$sparql_content_raw = file_get_contents( $opts->get( 'sparql' ) );
+if( $sparql_content_raw ) {
+	$sparql_content = json_decode( $sparql_content_raw );
+	foreach( $sparql_content as $line ) {
+		$cat = $line->cat ?? $line->p373 ?? null;
+		if( $line->legaID ) {
+			$WIKIDATA_PLAYERS_BY_LEGAID[ $line->legaID ] = basename( $line->item );
+		}
+		if( $cat ) {
+			$WIKIDATA_PLAYERS_BY_COMMONS_CAT[ $cat ] = basename( $line->item );
+		}
+	}
+}
 
 #############
 # Nations CSV
@@ -145,48 +173,81 @@ $commons = Commons ::instance()->login();
 
 $NAT_BY_CODE  = [];
 $NAT_BY_QCODE = [];
-$handle = fopen( 'commons-volleyball-nationalities.csv', 'r' ) or die( "cannot open nationalities" );
-$i = -1;
-while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
-	$i++;
-	if( $i === 0 ) {
-		continue; // Skip header
+$NAT_FILE = $opts->get( 'nat-file', 'commons-volleyball-nationalities.csv' );
+if( file_exists( $NAT_FILE ) ) {
+	$handle = fopen( $NAT_FILE, 'r' );
+	if( $handle ) {
+		$i = -1;
+		while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
+			$i++;
+			if( $i === 0 ) {
+				continue; // Skip header
+			}
+			$data[] = null; // prevent warnings if $better_cat is missing; or don't care if $better_cat is present
+			list( $code, $item_id, $it_m, $it_f, $en, $cat, $better_cat ) = $data;
+			$NAT_BY_CODE [ $code ] = new Nat( $item_id, $it_m, $en, $cat, $better_cat );
+			$NAT_BY_QCODE[ $item_id ] = $NAT_BY_CODE [ $code ];
+		}
+		fclose( $handle );
+	} else {
+		error_log( sprintf( "unable to open nationalities %s", $NAT_FILE ) );
 	}
-	$data[] = null; // prevent warnings if $better_cat is missing; or don't care if $better_cat is present
-	list( $code, $item_id, $it_m, $it_f, $en, $cat, $better_cat ) = $data;
-	$NAT_BY_CODE [ $code ] = new Nat( $item_id, $it_m, $en, $cat, $better_cat );
-	$NAT_BY_QCODE[ $item_id ] = $NAT_BY_CODE [ $code ];
+} else {
+	error_log( sprintf( "unexisting nationalities file %s", $NAT_FILE ) );
 }
-fclose( $handle );
 
 ########################
 # Volleyball players CSV
 ########################
 
-if( empty( $OPTS[ 'from' ] ) ) {
-	$LATEST = file_exists( 'latest.txt' )
-		? trim( file_get_contents( 'latest.txt' ) )
-		: false;
+if( $opts->get( 'from' ) ) {
+	$LATEST = (int) $opts->get( 'from' );
 } else {
-	$LATEST = $OPTS[ 'from' ];
+	$LATEST = file_exists( 'latest.txt' )
+		? (int) trim( file_get_contents( 'latest.txt' ) )
+		: false;
 }
 
-$handle = fopen( $OPTS[ 'players-file' ], 'r' ) or die( "cannot open {$OPTS[ 'players-file' ]}" );
-$i = -1;
-while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
-	$i++;
-
-	if( $i === 0 ) {
-		// Skip header
-		continue;
+// try to index players
+$PLAYERS_FROM_FILE_INDEXED_BY_FILENAME = [];
+if( $opts->get( 'players-file' ) ) {
+	foreach( players_from_file() as $player ) {
+		$PLAYERS_FROM_FILE_INDEXED_BY_FILENAME[ $player->file ] = $player;
 	}
+}
 
-	list( $name, $surname, $file, $ID ) = $data;
+$generator = null;
+if( $opts->get( 'players-cat' ) ) {
+	$generator = players_from_commons_cat();
+} else {
+	$generator = players_from_file();
+}
+
+foreach( $generator as $player ) {
+
+	$name             = $player->name ?? null;
+	$surname          = $player->surname ?? null;
+	$complete_name    = $player->completeName ?? "$name $surname";
+	$LEGA_ID          = $player->legaID ?? null;
+	$wikidata_item_id = $player->wikidataItemID ?? null;
+	$i = $player->i;
+
+	// without namespace
+	$personal_cat        = null;
+	$personal_cat_exists = null;
+	$personal_cat_has_sense = null;
+
+	// complete file path
+	// File:Asd.jpg
+	$filename = $player->file;
+
+	// Asd.jpg
+	$filepath = str_replace( 'File:', '', $filename );
 
 	// it seems OK
 	if( false !== $LATEST ) {
-		if( $ID !== $LATEST ) {
-			Log::warn( "Skipping $name $surname (jet processed)" );
+		if( $player->i !== $LATEST ) {
+			Log::warn( "Skipping $complete_name (jet processed {$player->i}/$LATEST)" );
 			continue;
 		} else {
 			$LATEST = false;
@@ -194,13 +255,10 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 	}
 
 	// The file path is well-known
-	$filepath = "$file.jpg";
-	$filename = "File:$filepath";
-	if( ! commons_page_exists( $filename ) ) {
+	if( !commons_page_exists( $filename ) ) {
 		Log::warn( "Skipping [[$filename]] that does not exist" );
 		continue;
 	}
-	$complete_name = "$name $surname";
 
 	// Name Surname [[URL]]
 	Log::info( sprintf(
@@ -209,51 +267,73 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 		commons_page_url( $filename )
 	) );
 
-
-	// get Wikidata item ID from title (or disperately with manual input)
-	$item_id = $ID ? $ID : get_wikidata_item( $filename, $complete_name );
-	if( SANDBOXED ) {
-		Log::warn( "SANDBOX MODE" );
-		$item_id = WIKIDATA_SANDBOX;
+	// default personal category
+	if( !$personal_cat ) {
+		$personal_cat = $complete_name;
 	}
 
+	// personal category: eventually check existence
+	if( $personal_cat_exists === null ) {
+		$personal_cat_exists = commons_category_exists( $personal_cat );
+	}
+
+	// try to retrieve Wikidata ID from Commons category
+	if( $wikidata_item_id === null ) {
+		$wikidata_item_id = $WIKIDATA_PLAYERS_BY_COMMONS_CAT[ $personal_cat ] ?? null;
+		if( $wikidata_item_id ) {
+			Log::info( "gotcha! $personal_cat related to $wikidata_item_id thanks to SPARQL response" );
+		}
+	}
+
+	if( SANDBOXED ) {
+		Log::warn( "SANDBOX MODE" );
+		$wikidata_item_id = WIKIDATA_SANDBOX;
+	} else {
+		// get Wikidata item ID from title (or disperately with manual input)
+		if( $wikidata_item_id === null ) {
+			$wikidata_item_id = get_wikibase_item( $wd, $filename, $complete_name );
+		}
+	}
 
 	// get Wikidata item data
 	$item_data = null;
-	if( $item_id ) {
-		$item_data = $wd->fetchSingleEntity( $item_id, [
-			'props'  => [
-				'info',
-				'sitelinks',
-				'aliases',
-				'labels',
-				'descriptions',
-				'claims',
-			],
-		] );
+	if( $wikidata_item_id ) {
+		try {
+			$item_data = $wd->fetchSingleEntity( $wikidata_item_id, [
+				'props'  => [
+					'info',
+					'sitelinks',
+					'aliases',
+					'labels',
+					'descriptions',
+					'claims',
+				],
+			] );
+		} catch( \mw\API\NoSuchEntityException $e ) {
+			// do nothing
+		}
 	}
 
 	// nation from P27: country of citizenship
 	$nat_qcode = null;
 	if( $item_data ) {
 		foreach( $item_data->getClaimsInProperty( 'P27' ) as $claims ) {
-			$nation = $claims->getMainSnak()->getDataValue()->getValue();
-			if( $nation ) {
-				$nat_qcode = $nation[ 'id' ];
+			$nation_datavalue = $claims->getMainSnak()->getDataValue()->getValue();
+			if( $nation_datavalue ) {
+				$nat_qcode = $nation_datavalue[ 'id' ];
 			}
 			break;
 		}
 	}
-	if( empty( $NAT_BY_QCODE[ $nat_qcode ] ) ) {
-		throw new \Exception( "missing nation with Q-code $nat_qcode" );
+
+	$nation = null;
+	if( $nat_qcode && $NAT_BY_QCODE ) {
+		if( empty( $NAT_BY_QCODE[ $nat_qcode ] ) ) {
+			throw new \Exception( "missing nation with Q-code $nat_qcode" );
+		} else {
+			$nation = $NAT_BY_QCODE[ $nat_qcode ];
+		}
 	}
-	$nation = $NAT_BY_QCODE[ $nat_qcode ];
-
-
-	// reset personal category
-	$personal_cat = null;
-	$personal_cat_exists = null;
-	$personal_cat_has_sense = null;
 
 	// personal category from Commons sitelink
 	if( ! $personal_cat && $item_data && $item_data->getSitelinks()->have( 'commonswiki' ) ) {
@@ -282,18 +362,15 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 		}
 	}
 
-	// default personal category
-	if( !$personal_cat ) {
-		$personal_cat = $complete_name;
-	}
-
-	// personal category: eventually check existence
-	if( $personal_cat_exists === null ) {
-		$personal_cat_exists = commons_category_exists( $personal_cat );
+	// personal category: eventually check if file is in category
+	// this means that the cat has sense
+	$file_has_personal_cat = commons_page_has_categories( $filename, [ $personal_cat ], __LINE__ );
+	if( $file_has_personal_cat ) {
+		$personal_cat_has_sense = true;
 	}
 
 	// not sure about this category
-	if( !$personal_cat_has_sense && commons_category_exists( $personal_cat ) ) {
+	if( !$personal_cat_has_sense && $personal_cat_exists ) {
 		//if( ! commons_search_term_in_page_categories( "Category:$personal_cat", 'volleyball' ) ) {
 			if( ! INTERACTION ) {
 				interaction_warning();
@@ -302,7 +379,7 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 			do {
 				Log::warn( "[[Category:$personal_cat]]" );
 				Log::warn( commons_page_url( "Category:$personal_cat" ) );
-				$no = Input::yesNoQuestion( "Is he a volleyball player?" );
+				$no = Input::yesNoQuestion( "Is this a volleyball player?" );
 				if( $no === 'n' ) {
 					$personal_cat .= ' (volleyball player)';
 					Log::warn( commons_page_url( "Category:$personal_cat" ) );
@@ -320,46 +397,89 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 						$satisfied = false;
 					}
 				}
+
+				$file_has_personal_cat = null;
 			} while( !$satisfied );
 		//}
 	}
 
-	$italian_category  = "Men's volleyball players from Italy";
-	$national_category = $nation->cat;
-	$better_national_cat_exists = ! empty( trim( $nation->better_cat ) );
-	if( $better_national_cat_exists ) {
-		$better_national_cat = $nation->better_cat;
-		$personal_cat_has_better_national_cat = commons_page_has_categories( "Category:$personal_cat", [ $better_national_cat ] );
-	}
+	// TODO: handle both
+	$italian_category = "Volleyball players from Italy";
+	$italian_categories = [
+		"Men's volleyball players from Italy",
+		"Volleyball players from Italy",
+	];
+
 	$personal_cat_has_infobox = commons_page_has_templates( "Category:$personal_cat", [ 'Template:Wikidata Infobox' ] );
-	$personal_cat_has_national_cat = $national_category
-		? commons_page_has_categories( "Category:$personal_cat", [ $national_category ] )
-		: null;
 
-	$personal_cat_has_best_national_cat = $better_national_cat_exists
-		? $personal_cat_has_better_national_cat
-		: $personal_cat_has_national_cat;
+	// nation-related stuff
+	$national_category = null;
+	$better_national_cat = null;
+	$better_national_cat_exists = null;
+	$personal_cat_has_better_national_cat = null;
+	$personal_cat_has_best_national_cat = null;
+	$personal_cat_has_national_cat = null;
+	$personal_cat_has_best_national_cat = null;
+	$best_national_category = null;
+	if( $nation ) {
+		$national_category = $nation->cat;
+		$better_national_cat_exists = ! empty( trim( $nation->better_cat ) );
+		if( $better_national_cat_exists ) {
+			$better_national_cat = $nation->better_cat;
+			$personal_cat_has_better_national_cat = commons_page_has_categories( "Category:$personal_cat", [ $better_national_cat ], __LINE__ );
+		}
 
-	$best_national_category = $better_national_cat_exists
-		? $better_national_cat
-		: $national_category;
+		$personal_cat_has_national_cat = $national_category
+			? commons_page_has_categories( "Category:$personal_cat", [ $national_category ], __LINE__ )
+			: null;
 
-	$file_has_personal_cat = commons_page_has_categories( $filename, [ $personal_cat ] );
-	$file_has_italian_cat  = commons_page_has_categories( $filename, [ $italian_category ] );
+		$personal_cat_has_best_national_cat = $better_national_cat_exists
+			? $personal_cat_has_better_national_cat
+			: $personal_cat_has_national_cat;
+
+		$best_national_category = $better_national_cat_exists
+			? $better_national_cat
+			: $national_category;
+	}
+
+	// eventually check again
+	if( $file_has_personal_cat === null ) {
+		$file_has_personal_cat = commons_page_has_categories( $filename, [ $personal_cat ], __LINE__ );
+	}
+
 	$file_has_depicted     = commons_page_has_templates(  $filename, [ 'Template:Depicted person' ] );
 
 	if( !$personal_cat_exists ) {
 		$personal_cat_content = $commons->createWikitext();
-		$personal_cat_content->appendWikitext( "{{DEFAULTSORT:$surname, $name}}\n" );
-		$personal_cat_content->appendWikitext( "{{Wikidata Infobox|defaultsort=no}}\n" );
-		$personal_cat_content->appendWikitext( "[[Category:$best_national_category]]" );
-		$summary = COMMONS_SUMMARY . " +[[Template:Wikidata Infobox]] [[d:$item_id]]; +[[Category:$best_national_category]]";
-		$commons->edit( [
-			'title'   => "Category:$personal_cat",
-			'text'    => $personal_cat_content->getWikitext(),
-			'summary' => $summary,
-			'bot'     => 1,
-		] );
+		if( $name && $surname ) {
+			$personal_cat_content->appendWikitext( "{{DEFAULTSORT:$surname, $name}}\n" );
+			$personal_cat_content->appendWikitext( "{{Wikidata Infobox|defaultsort=no}}\n" );
+		} else {
+			$personal_cat_content->appendWikitext( "{{Wikidata Infobox}}\n" );
+		}
+		$summary = COMMONS_SUMMARY . " +[[Template:Wikidata Infobox]]";
+
+		if( $nation && $best_national_category ) {
+			$personal_cat_content->appendWikitext( "[[Category:$best_national_category]]" );
+			$summary .= "; +[[Category:$best_national_category]]";
+		}
+
+		if( ALWAYS ) {
+			Log::info( "Press CTRL+C to interrupt or wait" );
+			sleep( 3 );
+		} else {
+			$save = Input::yesNoQuestion( "Create personal category [[Category:$personal_cat]]?" ) === 'y';
+		}
+
+		if( $save ) {
+			$commons->edit( [
+				'title'   => "Category:$personal_cat",
+				'text'    => $personal_cat_content->getWikitext(),
+				'summary' => $summary,
+				'bot'     => 1,
+			] );
+		}
+
 		$personal_cat_exists = true;
 	}
 
@@ -426,7 +546,7 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 			$summary .= "; +[[Template:Wikidata Infobox]]";
 		}
 
-		if( $best_national_category && ! $personal_cat_has_best_national_cat ) {
+		if( $nation && $best_national_category && ! $personal_cat_has_best_national_cat ) {
 			Log::info( "personal category has not best national_category: 'Category:$best_national_category' ");
 			if( $better_national_cat_exists ) {
 				if( $personal_cat_has_national_cat ) {
@@ -449,24 +569,43 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 		}
 
 		if( $personal_cat_content->isChanged() ) {
-			$commons->edit( [
-				'title'   => "Category:$personal_cat",
-				'text'    => $personal_cat_content->getWikitext(),
-				'summary' => $summary,
-				'bot'     => 1,
-			] );
+
+			if( ALWAYS ) {
+				// TODO show changes
+				Log::info( "Press CTRL+C to interrupt or wait" );
+				sleep( 3 );
+			} else {
+				$save = Input::yesNoQuestion( "Save?" ) === 'y';
+			}
+
+			if( $save ) {
+				$commons->edit( [
+					'title'   => "Category:$personal_cat",
+					'text'    => $personal_cat_content->getWikitext(),
+					'summary' => $summary,
+					'bot'     => 1,
+				] );
+			}
 		}
 	}
 
 	// Wikidata labels
 	$LABELS = [
-		'en' => sprintf( '%s %s', $name, $surname ),
-		'it' => sprintf( '%s %s', $name, $surname ),
+		'en' => $complete_name,
+		'it' => $complete_name,
 	];
-	$DESCRIPTIONS = [
-		'en' => sprintf( '%s volleyball player', $nation->en ),
-		'it' => sprintf( 'pallavolista %s',      $nation->it ),
-	];
+
+	if( $nation ) {
+		$DESCRIPTIONS = [
+			'en' => sprintf( '%s volleyball player', $nation->en ),
+			'it' => sprintf( 'pallavolista %s',      $nation->it ),
+		];
+	} else {
+		$DESCRIPTIONS = [
+			'en' => 'volleyball player',
+			'it' => 'pallavolista',
+		];
+	}
 
 	// Wikidata statements
 	$STATEMENTS = [
@@ -478,21 +617,28 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 		legavolley_statement_property_commonscat('P373', $personal_cat),
 		// Sex: male
 		legavolley_statement_item('P21', 'Q6581097'),
-		// Country of citizenship
-		legavolley_statement_item('P27', $nation->wd),
 		// Occupation: volleyball player
 		legavolley_statement_item('P106', 'Q15117302'),
 		// Sport: volleyball
 		legavolley_statement_item('P641', 'Q1734'),
-		// ID LegaVolley
-		legavolley_statement_property_string('P4303', $ID),
 	];
+
+	if( $LEGA_ID ) {
+		// ID LegaVolley
+		$STATEMENTS[] = legavolley_statement_property_string('P4303', $LEGA_ID);
+	}
+
+	// Country of citizenship
+	if( $nation ) {
+		$STATEMENTS[] = legavolley_statement_item('P27', $nation->wd);
+	}
 
 	$SITELINK = new wb\Sitelink( 'commonswiki', "Category:$personal_cat" );
 
-	$item_newdata = $wd->createDataModel( $item_id );
+	$item_newdata = $wd->createDataModel( $wikidata_item_id );
 
-	if( $item_id ) {
+	if( $wikidata_item_id ) {
+
 		// Sitelink
 		if( $personal_cat_exists && ! $item_data->getSitelinks()->have( 'commonswiki' ) ) {
 			$item_newdata->getSitelinks()->set( $SITELINK );
@@ -531,14 +677,24 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 		if( !$item_newdata->isEmpty() ) {
 			$item_newdata->printChanges();
 
+			$save = true;
+			if( ALWAYS ) {
+				Log::info( "Press CTRL+C to interrupt or wait" );
+				sleep( 3 );
+			} else {
+				$save = Input::yesNoQuestion( "Save?" ) === 'y';
+			}
+
 			// Save existing
 			// https://www.wikidata.org/w/api.php?action=help&modules=wbeditentity
-			$item_newdata->editEntity( [
-				'summary.pre' => WIKIDATA_SUMMARY . ": ",
-				'bot'         => 1,
-			] );
+			if( $save ) {
+				$item_newdata->editEntity( [
+					'summary.pre' => WIKIDATA_SUMMARY . ": ",
+					'bot'         => 1,
+				] );
+			}
 		} else {
-			Log::info( "$item_id already OK" );
+			Log::info( "$wikidata_item_id already OK" );
 		}
 	} else {
 
@@ -564,8 +720,17 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 
 		Log::info( "Confirm creation https://www.wikidata.org/w/index.php?search=" . urlencode( $complete_name ) );
 		$item_newdata->printChanges();
-		$save = Input::yesNoQuestion( "Save?" );
-		if( 'y' === $save ) {
+
+		$save = true;
+		if( ALWAYS ) {
+			Log::info( "Press CTRL+C to interrupt or wait" );
+			sleep( 3 );
+		} else {
+			$save = Input::yesNoQuestion( "Save?" ) === 'y';
+		}
+
+		if( $save ) {
+
 			// Create
 			// https://www.wikidata.org/w/api.php?action=help&modules=wbeditentity
 			$result = $item_newdata->editEntity( [
@@ -579,7 +744,7 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 				die("API error");
 			}
 
-			$item_id = $result->entity->id;
+			$wikidata_item_id = $result->entity->id;
 		}
 	}
 
@@ -606,7 +771,7 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 		if( ! $file_has_depicted ) {
 			$search_and_replace = [
 				'/{{[ ]*[eE]n *\|.+?}}\n?/'                    => '',
-				'/{{[ ]*[iI]t *\|.+?}}/'                       => "{{Depicted person|$item_id}}",
+				'/{{[ ]*[iI]t *\|.+?}}/'                       => "{{Depicted person|$wikidata_item_id}}",
 				"/({{Depicted person\|Q[0-9]+}})\n([a-zA-Z])/" => "\$1<br />\n\$2"
 			];
 			$filename_content->pregReplace(
@@ -614,28 +779,31 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 				array_values( $search_and_replace )
 			);
 
-			$summary .= "; +[[Template:Depicted person]] [[d:$item_id]]";
+			$summary .= "; +[[Template:Depicted person]] [[d:$wikidata_item_id]]";
 		}
 
-		if( $file_has_italian_cat ) {
-			if( $national_category && $national_category !== $italian_category ) {
-				if( ! $file_has_personal_cat ) {
-					$filename_content->pregReplace(
-						'/' . space2regex( "Category:$italian_category" ) . '/',
-						"Category:$personal_cat"
-					);
-					$summary .= "; [[Category:$italian_category]] → [[Category:$personal_cat]]";
-
-					$file_has_italian_cat = false;
-					$file_has_personal_cat = true;
-				}
-			}
+		foreach( $italian_categories as $italian_category ) {
+			$file_has_italian_cat = commons_page_has_categories( $filename, [ $italian_category ], __LINE__ );
 			if( $file_has_italian_cat ) {
-				$filename_content->pregReplace(
-					'/\[\[ *' . space2regex( "Category:$italian_category" ) . ' *\]\]\n*/',
-					''
-				);
-				$summary .= "; -[[Category:$italian_category]]";
+				if( $national_category && $national_category !== $italian_category ) {
+					if( ! $file_has_personal_cat ) {
+						$filename_content->pregReplace(
+							'/' . space2regex( "Category:$italian_category" ) . '/',
+							"Category:$personal_cat"
+						);
+						$summary .= "; [[Category:$italian_category]] → [[Category:$personal_cat]]";
+
+						$file_has_italian_cat = false;
+						$file_has_personal_cat = true;
+					}
+				}
+				if( $file_has_italian_cat ) {
+					$filename_content->pregReplace(
+						'/\[\[ *' . space2regex( "Category:$italian_category" ) . ' *\]\]\n*/',
+						''
+					);
+					$summary .= "; -[[Category:$italian_category]]";
+				}
 			}
 		}
 
@@ -658,16 +826,26 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 	$filename_structured_data_id = "M" . $filename_pageid;
 
 	// get the Structured data
-	$existing_structured_data = $commons->fetchSingleEntity( $filename_structured_data_id, [
-		'props' => [
-			'labels',
-			'descriptions',
-			'claims',
-		],
-	] );
+	$existing_structured_data = null;
+	try {
+		$existing_structured_data = $commons->fetchSingleEntity( $filename_structured_data_id, [
+			'props' => [
+				'labels',
+				'descriptions',
+				'claims',
+			],
+		] );
+	} catch( \mw\API\NoSuchEntityException $e ) {
+		// do nothing
+	}
 
 	// create an empty object to be filled with Wikimedia Commons structured data to be saved
-	$proposed_structured_data = $existing_structured_data->cloneEmpty();
+	$proposed_structured_data = null;
+	if( $existing_structured_data ) {
+		$proposed_structured_data = $existing_structured_data->cloneEmpty();
+	} else {
+		$proposed_structured_data = $commons->createDataModel();
+	}
 
 	// eventually add labels in Wikimedia Commons structured data
 	foreach( $LABELS as $lang => $label ) {
@@ -684,11 +862,11 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 	}
 
 	// eventually set who is "depicted" in the Wikimedia Commons Structured Data
-	if( $item_id && !$existing_structured_data->hasClaimsInProperty( 'P180' ) ) {
+	if( $wikidata_item_id && !$existing_structured_data->hasClaimsInProperty( 'P180' ) ) {
 
 		// add "Depicted" P180 and mark as prominent
 		$proposed_structured_data->addClaim(
-			legavolley_statement_item( 'P180', $item_id )
+			legavolley_statement_item( 'P180', $wikidata_item_id )
 				->setRank( 'preferred' )
 		);
 	}
@@ -704,7 +882,7 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 
 			// submit changes with the edit summary
 			$proposed_structured_data->editEntity( [
-				'summary.pre' => WIKIDATA_SUMMARY . ': ',
+				'summary.pre' => COMMONS_SUMMARY . ': ',
 			] );
 		}
 	}
@@ -712,7 +890,7 @@ while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 	// eventually add descriptions in Wikimedia Commons structured data
 
 	// save next
-	file_put_contents( 'latest.txt', $item_id );
+	file_put_contents( 'latest.txt', $player->i );
 
 	if( ONE_SHOT ) {
 		break;
@@ -761,7 +939,7 @@ function commons_category_exists( $category_name ) {
 }
 
 function commons_search_term_in_page_categories( $page_title, $search_term ) {
-	Log::debug( "Cesarelombrosing [[$page_title]] looking for '$search_term' ");
+	Log::debug( "desperate cesarelombrosing [[$page_title]] looking for '$search_term' ");
 	$categories = Commons::instance()->fetch( [
 		'action' => 'query',
 		'prop'   => 'categories',
@@ -783,11 +961,14 @@ function commons_search_term_in_page_categories( $page_title, $search_term ) {
 	return false;
 }
 
-function commons_page_has_categories( $page_title, $categories = [] ) {
+/**
+ * Check if a page has all the categories
+ */
+function commons_page_has_categories( $page_title, $categories = [], $line = __LINE__ ) {
 	foreach( $categories as & $category ) {
 		$category = "Category:$category";
 	}
-	Log::debug( "[[$page_title]] have these categories? ([[{$categories[0]}]], ...)" );
+	Log::debug( "[[$page_title]] have these categories? ([[{$categories[0]}]], ...) (line $line)" );
 	$results = commons_page_props( $page_title, 'categories', [
 		'clcategories' => $categories,
 	] );
@@ -871,9 +1052,9 @@ function filter_volleyball_wikidata_IDs( $item_ids ) {
 	}
 
 	if( Log::$DEBUG ) {
-		Log::debug( "Cesarelombrosing following volleyball players:" );
+		Log::debug( "desperate cesarelombrosing following volleyball players:" );
 		foreach( $item_ids as $item_id ) {
-			Log::debug( "https://www.wikidata.org/wiki/$item_id" );
+			Log::debug( " https://www.wikidata.org/wiki/$item_id" );
 		}
 	}
 
@@ -888,7 +1069,7 @@ function filter_volleyball_wikidata_IDs( $item_ids ) {
 	// https://www.wikidata.org/w/api.php?action=wbgetentities&props=descriptions&ids=Q19675&languages=en|it
 	$entities = Wikidata::instance()->createQuery( [
 		'action'    => 'wbgetentities',
-		'props'     => 'descriptions|claims',
+		'props'     => [ 'descriptions', 'claims' ],
 		'ids'       => $item_ids,
 		'languages' => $languages,
 	] );
@@ -897,7 +1078,6 @@ function filter_volleyball_wikidata_IDs( $item_ids ) {
 		foreach( $entity->entities as $item_id => $entity ) {
 			$entity_object = wb\DataModel::createFromObject( $entity );
 			foreach( $item_ids as $item_id ) {
-				if( $item_id === $item_id ) {
 
 					// Find LegaVolley ID
 					if( $entity_object->hasClaimsInProperty('P4303') ) {
@@ -912,7 +1092,7 @@ function filter_volleyball_wikidata_IDs( $item_ids ) {
 							$label = $entity->descriptions->{ $language };
 							if( false !== strpos( $label->value, $term ) ) {
 								Log::debug( "Wikidata $language label match" );
-								$matching_wikidata_IDs[ $item_id ] = true;
+								$matching_wikidata_IDs[ $item_id ] = $item_id;
 								break;
 							}
 						}
@@ -924,19 +1104,18 @@ function filter_volleyball_wikidata_IDs( $item_ids ) {
 						$image_value = $image->getMainsnak()->getDataValue()->getValue();
 						if( false !== strpos( $image_value, 'Legavolley' ) ) {
 							Log::debug( "image name with 'Legavolley' match" );
-							$matching_wikidata_IDs[ $item_id ] = true;
+							$matching_wikidata_IDs[ $item_id ] = $item_id;
 							break;
 						}
 					}
-				}
 			}
 		}
 	}
 	$matching_wikidata_IDs = array_keys( $matching_wikidata_IDs );
 	if( VERBOSE ) {
-		echo "# Matching:\n";
+		Log::debug( "cesarelombroso candidates:" );
 		foreach( $matching_wikidata_IDs as $matching_wikidata_ID ) {
-			Log::debug( "https://www.wikidata.org/wiki/$item_id" );
+			Log::debug( " https://www.wikidata.org/wiki/$matching_wikidata_ID" );
 		}
 		if( ! $matching_wikidata_IDs ) {
 			Log::debug( "none :(" );
@@ -945,9 +1124,9 @@ function filter_volleyball_wikidata_IDs( $item_ids ) {
 	return $matching_wikidata_IDs;
 }
 
-function fetch_wikidata_item( $page_name ) {
+function fetch_wikibase_item( $site, $page_name ) {
 	// https://commons.wikimedia.org/w/api.php?action=query&prop=wbentityusage&titles=Category:Alberto+Casadei
-	$wbentityusage = Commons::instance()->fetch( [
+	$wbentityusage = $site->fetch( [
 		'action' => 'query',
 		'prop'   => 'wbentityusage',
 		'titles' => $page_name
@@ -971,15 +1150,15 @@ function fetch_wikidata_item( $page_name ) {
 	return null;
 }
 
-function get_wikidata_item( $page_name, $title ) {
+function get_wikibase_item( $site, $page_name, $title ) {
 	static $latest;
 	static $latest_title;
 	if( $latest_title === $title ) {
 		return $latest;
 	}
 	$latest_title = $title;
-	$latest = fetch_wikidata_item( $page_name );
-	if( ! $latest ) {
+	$latest = fetch_wikibase_item( $site, $page_name );
+	if( !$latest ) {
 		$latest = search_disperately_wikidata_item( $title );
 	}
 	return $latest;
@@ -1043,6 +1222,10 @@ class Nat {
 	}
 }
 
+class Player {
+
+}
+
 ############
 # Mixed shit
 ############
@@ -1055,10 +1238,10 @@ function commons_page_url($page) {
 	return 'https://commons.wikimedia.org/wiki/' . urlencode( str_replace(' ', '_', $page) );
 }
 
-function debug_yes_no($v) {
+function debug_yes_no( $v ) {
 	if( VERBOSE ) {
 		$yesno = $v ? "yes" : "no";
-		Log::debug( $yesno );
+		Log::debug( " $yesno" );
 	}
 }
 
@@ -1098,4 +1281,145 @@ function space2regex( $s ) {
 
 function escape_regex( $s ) {
 	return str_replace( '/', '\/', preg_quote( $s ) );
+}
+
+	//
+/**
+ * File:Aaron Russell (Legavolley 2019).jpg
+ * @return "Aaron Russell"
+ */
+function extract_complete_name_from_file_title( $title ) {
+
+	$title = str_replace( "File:", '', $title );
+
+	preg_match( '/(.+) \(.+/', $title, $matches );
+
+	if( isset( $matches[ 1] ) ) {
+		return $matches[ 1 ];
+	}
+
+	throw new Exception( "Cannot extract name from $title" ) ;
+}
+
+function help( $message = null ) {
+
+	echo " ________________________________________________________________ \n";
+	echo "|                                                                |\n";
+	echo "| Welcome in the Legavolley Commons/Wikidata bot                 |\n";
+	echo "| Designed by Cristian Cenci and implemented by Valerio Bozzolan |\n";
+	echo "| Since 2017 at your service! bip.                               |\n";
+	echo "|________________________________________________________________|\n";
+
+	echo "\n";
+
+	// show the fantastic manual
+	$opts = cli_options();
+	printf( "Usage: %s [OPTIONS] \n", $GLOBALS[ 'argv' ][ 0 ] );
+	echo "\n";
+	echo    "All the OPTIONS:\n";
+	$opts->printParams();
+
+	// eventually show a message
+	if( $message ) {
+		echo "\nERROR: $message\n";
+	}
+
+	exit;
+}
+
+function players_from_file() {
+
+	$players_file = cli_options()->get( 'players-file' );
+
+	$year = cli_options()->get( 'year' );
+
+	$handle = fopen( $players_file, 'r' ) or die( "cannot open $players_file" );
+	$i = -1;
+	while( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
+		$i++;
+
+		if( $i === 0 ) {
+			// Skip header
+			continue;
+		}
+
+		$LEGA_ID = null;
+		$surname = null;
+		$name = null;
+		$nation = null;
+		$file = null;
+		$date = null;
+		$photo_url = null;
+		$height = null;
+
+		if( count( $data ) === 5 ) {
+			//   BAS-NIC-96,Bassanello,Nicolò,ITA,     Nicolò Bassanello (Legavolley 2017)
+			list( $LEGA_ID, $surname, $name, $nation, $file ) = $data;
+		} elseif( count( $data ) >= 9 ) {
+			// RUS-AAR-93,  Russell,  Aaron,    205,     1993-06-04,USA,     Baltimora,USA, Itas Trentino,2018,http://www.legavolley.it/FotoAtleta.aspx?Field=FotoTessera&Key=RUS-AAR-93
+			list( $LEGA_ID, $surname, $name,    $height, $date,     $nation, $city,    $boh,$boh,         $year, $photo_url ) = $data;
+		} else {
+			var_dump( $data );
+			throw new Exception( "bad row" );
+		}
+
+		$player = new Player();
+		$player->name    = $name;
+		$player->surname = $surname;
+		$player->completeName = "$name $surname";
+		$player->file   = $file ?? "File:$name $surname (LegaVolley $year).jpg";
+		$player->nation = $nation;
+		$player->date   = $date;
+		$player->height = $height;
+		$player->legaID = $LEGA_ID;
+		$player->i = $i;
+
+		$player->wikidataItemID = $GLOBALS['WIKIDATA_PLAYERS_BY_LEGAID'][ $LEGA_ID ] ?? null;
+
+		yield $player;
+	}
+
+
+}
+
+function players_from_commons_cat() {
+
+	global $PLAYERS_FROM_FILE_INDEXED_BY_FILENAME;
+
+	/**
+	 * Get the category members
+	 *
+	 * https://meta.wikimedia.org/w/api.php?action=help&modules=query%2Bcategorymembers
+	 */
+	$queries =
+		commons()->createQuery( [
+			'action'  => 'query',
+			'list'    => 'categorymembers',
+			'cmtype'  => 'file',
+			'cmtitle' => 'Category:' . cli_options()->get( 'players-cat' ),
+		] );
+
+	$i = 0;
+	foreach( $queries as $query ) {
+
+
+		$pages = $query->query->categorymembers ?? [];
+		foreach( $pages as $page ) {
+
+			$player = $PLAYERS_FROM_FILE_INDEXED_BY_FILENAME[ $page->title ] ?? new Player();
+
+//			$player->name = $name;
+//			$player->surname = $surname;
+			$player->completeName = $player->completeName ?? extract_complete_name_from_file_title( $page->title );
+			$player->file = $page->title;
+			$player->wikidataItemID = $player->wikidataItemID ?? null;
+			$player->i = $i;
+
+			yield $player;
+
+			$i++;
+		}
+	}
+
+
 }
