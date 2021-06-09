@@ -85,7 +85,9 @@ $opts = cli_options()
   ->addValued( 'wikidata-sandbox',    null, "Wikidata QID element to be used as sandbox" )
   ->addValued( 'sparql',              null, "SPARQL file" )
   ->addFlag(   'always',              null, "Always save without ask" )
+  ->addValued( 'always-pause',        null, "Pause before saving during --always mode", 5 )
   ->addFlag(   'debug',               null, "Enable debug mode" )
+  ->addFlag(   'skip-without-nation', null, "Eventually skip any volleyball player without identified nation" )
   ->addFlag(   'inspect',             null, "Enable inspect mode" );
 
 // eventually enable debug mode
@@ -144,9 +146,6 @@ define(  'VERBOSE', true );
 
 defined( 'INTERACTION' ) or
 define(  'INTERACTION', true );
-
-defined( 'ALWAYS' ) or
-define(  'ALWAYS', $opts->get( 'always' ) );
 
 $wd      = Wikidata::instance()->login();
 $commons = Commons ::instance()->login();
@@ -335,6 +334,12 @@ foreach( $generator as $player ) {
 		}
 	}
 
+	// no nation no party
+	if( !$nation && $opts->get( 'skip-without-nation' ) ) {
+		Log::warn( "skip volleyball player without nation" );
+		continue;
+	}
+
 	// personal category from Commons sitelink
 	if( ! $personal_cat && $item_data && $item_data->getSitelinks()->have( 'commonswiki' ) ) {
 		$personal_cat_prefixed = $item_data->getSitelinks()->get( 'commonswiki' )->getTitle();
@@ -464,14 +469,8 @@ foreach( $generator as $player ) {
 			$summary .= "; +[[Category:$best_national_category]]";
 		}
 
-		if( ALWAYS ) {
-			Log::info( "Press CTRL+C to interrupt or wait" );
-			sleep( 3 );
-		} else {
-			$save = Input::yesNoQuestion( "Create personal category [[Category:$personal_cat]]?" ) === 'y';
-		}
-
-		if( $save ) {
+		Log::info( "Please check for duplicates: " . commons_search_page_title( "Category:$personal_cat" ) );
+		if( ask_skippable_question( "Create personal category [[Category:$personal_cat]]?" ) ) {
 			$commons->edit( [
 				'title'   => "Category:$personal_cat",
 				'text'    => $personal_cat_content->getWikitext(),
@@ -568,24 +567,13 @@ foreach( $generator as $player ) {
 			}
 		}
 
-		if( $personal_cat_content->isChanged() ) {
-
-			if( ALWAYS ) {
-				// TODO show changes
-				Log::info( "Press CTRL+C to interrupt or wait" );
-				sleep( 3 );
-			} else {
-				$save = Input::yesNoQuestion( "Save?" ) === 'y';
-			}
-
-			if( $save ) {
-				$commons->edit( [
-					'title'   => "Category:$personal_cat",
-					'text'    => $personal_cat_content->getWikitext(),
-					'summary' => $summary,
-					'bot'     => 1,
-				] );
-			}
+		if( $personal_cat_content->isChanged() && ask_skippable_question( "Save?" ) ) {
+			$commons->edit( [
+				'title'   => "Category:$personal_cat",
+				'text'    => $personal_cat_content->getWikitext(),
+				'summary' => $summary,
+				'bot'     => 1,
+			] );
 		}
 	}
 
@@ -677,17 +665,9 @@ foreach( $generator as $player ) {
 		if( !$item_newdata->isEmpty() ) {
 			$item_newdata->printChanges();
 
-			$save = true;
-			if( ALWAYS ) {
-				Log::info( "Press CTRL+C to interrupt or wait" );
-				sleep( 3 );
-			} else {
-				$save = Input::yesNoQuestion( "Save?" ) === 'y';
-			}
-
 			// Save existing
 			// https://www.wikidata.org/w/api.php?action=help&modules=wbeditentity
-			if( $save ) {
+			if( ask_skippable_question( "Save?" ) ) {
 				$item_newdata->editEntity( [
 					'summary.pre' => WIKIDATA_SUMMARY . ": ",
 					'bot'         => 1,
@@ -721,15 +701,7 @@ foreach( $generator as $player ) {
 		Log::info( "Confirm creation https://www.wikidata.org/w/index.php?search=" . urlencode( $complete_name ) );
 		$item_newdata->printChanges();
 
-		$save = true;
-		if( ALWAYS ) {
-			Log::info( "Press CTRL+C to interrupt or wait" );
-			sleep( 3 );
-		} else {
-			$save = Input::yesNoQuestion( "Save?" ) === 'y';
-		}
-
-		if( $save ) {
+		if( ask_skippable_question( "Save?" ) ) {
 
 			// Create
 			// https://www.wikidata.org/w/api.php?action=help&modules=wbeditentity
@@ -873,12 +845,12 @@ foreach( $generator as $player ) {
 
 	// check if we can propose some edits
 	if( !$proposed_structured_data->isEmpty() ) {
+
 		// show changes
 		$proposed_structured_data->printChanges();
 
 		// eventually submit changes
-		$save = Input::yesNoQuestion( "Save?" );
-		if( 'y' === $save ) {
+		if( ask_skippable_question( "Save?" ) ) {
 
 			// submit changes with the edit summary
 			$proposed_structured_data->editEntity( [
@@ -886,8 +858,6 @@ foreach( $generator as $player ) {
 			] );
 		}
 	}
-
-	// eventually add descriptions in Wikimedia Commons structured data
 
 	// save next
 	file_put_contents( 'latest.txt', $player->i );
@@ -1076,38 +1046,41 @@ function filter_volleyball_wikidata_IDs( $item_ids ) {
 	$matching_wikidata_IDs = [];
 	foreach( $entities->getGenerator() as $entity ) {
 		foreach( $entity->entities as $item_id => $entity ) {
+
+			Log::debug( " examining $item_id" );
+
 			$entity_object = wb\DataModel::createFromObject( $entity );
-			foreach( $item_ids as $item_id ) {
 
-					// Find LegaVolley ID
-					if( $entity_object->hasClaimsInProperty('P4303') ) {
-						Log::debug( "ID LegaVolley match" );
-						$matching_wikidata_IDs[ $item_id ] = true;
+			// Find LegaVolley ID
+			if( $entity_object->hasClaimsInProperty('P4303') ) {
+				Log::debug( "  ID LegaVolley match" );
+				$matching_wikidata_IDs[ $item_id ] = true;
+				break;
+			}
+
+			// Find "volleyball" in description
+			foreach( $SEARCH_TERMS as $language => $term ) {
+				if( isset( $entity->descriptions->{ $language } ) ) {
+					$label = $entity->descriptions->{ $language }->value;
+					if( false !== strpos( $label, $term ) ) {
+						Log::debug( "  Wikidata description[$language] '$label' MATCHES '$term'" );
+						$matching_wikidata_IDs[ $item_id ] = $item_id;
 						break;
+					} else {
+						Log::debug( "  Wikidata description[$language] '$label' does NOT match '$term'");
 					}
+				}
+			}
 
-					// Find "volleyball" in description
-					foreach( $SEARCH_TERMS as $language => $term ) {
-						if( isset( $entity->descriptions->{ $language } ) ) {
-							$label = $entity->descriptions->{ $language };
-							if( false !== strpos( $label->value, $term ) ) {
-								Log::debug( "Wikidata $language label match" );
-								$matching_wikidata_IDs[ $item_id ] = $item_id;
-								break;
-							}
-						}
-					}
-
-					// Find an image like "Foo (Legavolley 2017).jpg"
-					$images = $entity_object->getClaimsInProperty('P18');
-					foreach( $images as $image ) {
-						$image_value = $image->getMainsnak()->getDataValue()->getValue();
-						if( false !== strpos( $image_value, 'Legavolley' ) ) {
-							Log::debug( "image name with 'Legavolley' match" );
-							$matching_wikidata_IDs[ $item_id ] = $item_id;
-							break;
-						}
-					}
+			// Find an image like "Foo (Legavolley 2017).jpg"
+			$images = $entity_object->getClaimsInProperty('P18');
+			foreach( $images as $image ) {
+				$image_value = $image->getMainsnak()->getDataValue()->getValue();
+				if( false !== strpos( $image_value, 'Legavolley' ) ) {
+					Log::debug( "  image name with 'Legavolley' match" );
+					$matching_wikidata_IDs[ $item_id ] = $item_id;
+					break;
+				}
 			}
 		}
 	}
@@ -1245,12 +1218,12 @@ function debug_yes_no( $v ) {
 	}
 }
 
-function ask_which($answers, $question, $callback = null) {
+function ask_which($answers, $question, $callback = null, $take_first_if_one = true ) {
 	if( ! $answers ) {
 		return false;
 	}
 
-	if( 1 === count( $answers ) ) {
+	if( 1 === count( $answers ) && $take_first_if_one ) {
 		return array_pop( $answers );
 	}
 
@@ -1326,6 +1299,40 @@ function help( $message = null ) {
 
 	exit;
 }
+
+function commons_search_page_title( $title ) {
+	return sprintf(
+		"https://commons.wikimedia.org/w/index.php?title=Special:MediaSearch&go=Vai&type=page&search=%s",
+		urlencode( $title )
+	);
+}
+
+function ask_skippable_question( $question ) {
+	$ok = true;
+
+	if( cli_options()->get( 'always' ) ) {
+
+		// ask your question
+		Log::info( $question );
+
+		// stay ready to wait something
+		$seconds = (int) cli_options()->get( 'always-pause' );
+
+		// show a stupid anti-panic progress bar
+		Log::info( " Press CTRL+C to interrupt or wait $seconds seconds.", [ 'newline' => false ] );
+		for( $i = 0; $i < $seconds; $i++ ) {
+			sleep( 1 );
+			echo '.';
+		}
+		echo "\n";
+
+	} else {
+		Log::info( "Please check for duplicates: " . commons_search_page_title( "Category:$personal_cat" ) );
+		$ok = Input::yesNoQuestion( $question ) === 'y';
+	}
+	return $ok;
+}
+
 
 function players_from_file() {
 
